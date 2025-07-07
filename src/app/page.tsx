@@ -345,14 +345,14 @@ export default function Home() {
                 </div>
               </div>
 
-              <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out delay-600">
+              {/* <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out delay-600">
                 <div className="mt-12 flex items-center justify-center gap-8 text-center md:gap-16">
                   <div className="flex items-center gap-4">
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
                       <Briefcase className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                      <p className="text-3xl font-bold">100+</p>
+                      <p className="text-3xl font-bold">X+</p>
                       <p className="text-sm text-muted-foreground">
                         Expert doctors
                       </p>
@@ -363,14 +363,14 @@ export default function Home() {
                       <Users className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                      <p className="text-3xl font-bold">1Mn+</p>
+                      <p className="text-3xl font-bold">X+</p>
                       <p className="text-sm text-muted-foreground">
                         Parents Trust BabyAura
                       </p>
                     </div>
                   </div>
                 </div>
-              </ScrollAnimationWrapper>
+              </ScrollAnimationWrapper> */}
             </div>
           </section>
 
