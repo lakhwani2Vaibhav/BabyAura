@@ -99,12 +99,21 @@ export default {
           '0%': { boxShadow: '0 0 0 0 hsl(var(--destructive) / 0.7)' },
           '70%': { boxShadow: '0 0 0 12px hsl(var(--destructive) / 0)' },
           '100%': { boxShadow: '0 0 0 0 hsl(var(--destructive) / 0)' },
-        }
+        },
+        'gradient-move': {
+          '0%, 100%': {
+            backgroundPosition: '0% 50%',
+          },
+          '50%': {
+            backgroundPosition: '100% 50%',
+          },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'wave-destructive': 'wave-destructive 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'gradient-move': 'gradient-move 15s ease infinite',
       },
     },
   },
