@@ -32,6 +32,9 @@ export function MarketingHeader() {
                 <Link href="/#testimonials" className="text-sm font-medium hover:underline underline-offset-4">
                     Testimonials
                 </Link>
+                <Link href="/#pricing" className="text-sm font-medium hover:underline underline-offset-4">
+                    Pricing
+                </Link>
                 <Button asChild variant="destructive" className="animate-wave-destructive">
                     <Link href="/emergency">
                         <ShieldAlert className="mr-2 h-4 w-4" />
@@ -79,6 +82,11 @@ export function MarketingHeader() {
                             <SheetClose asChild>
                                 <Link href="/#testimonials" className="text-muted-foreground hover:text-foreground">
                                     Testimonials
+                                </Link>
+                            </SheetClose>
+                            <SheetClose asChild>
+                                <Link href="/#pricing" className="text-muted-foreground hover:text-foreground">
+                                    Pricing
                                 </Link>
                             </SheetClose>
                              <SheetClose asChild>
