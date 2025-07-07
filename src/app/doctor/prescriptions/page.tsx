@@ -316,7 +316,7 @@ export default function PrescriptionsPage() {
           </DialogHeader>
           <div
             ref={prescriptionRef}
-            className="p-6 border rounded-lg bg-background"
+            className="p-6 border rounded-lg bg-background max-h-[60vh] overflow-y-auto"
           >
             <div className="flex justify-between items-start mb-6">
               <div>
