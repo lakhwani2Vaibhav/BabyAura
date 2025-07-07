@@ -73,7 +73,7 @@ export function LoginForm() {
           }
           className="w-full"
         >
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto gap-1">
+          <TabsList className="flex flex-wrap h-auto justify-center gap-1">
             {roles.map((role) => (
               <TabsTrigger
                 key={role.value}
