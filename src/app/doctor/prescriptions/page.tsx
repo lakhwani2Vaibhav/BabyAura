@@ -39,9 +39,20 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useToast } from "@/hooks/use-toast";
 
 export default function PrescriptionsPage() {
   const [open, setOpen] = useState(false);
+  const { toast } = useToast();
+
+  const handleCreatePrescription = () => {
+    toast({
+      title: "Prescription Created",
+      description:
+        "The new prescription has been issued and is available to the patient.",
+    });
+    setOpen(false);
+  };
 
   return (
     <div className="space-y-6">
@@ -70,10 +81,7 @@ export default function PrescriptionsPage() {
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
                   <Label htmlFor="patient-name">Patient Name</Label>
-                  <Input
-                    id="patient-name"
-                    placeholder="e.g., Baby Smith"
-                  />
+                  <Input id="patient-name" placeholder="e.g., Baby Smith" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="medication">Medication</Label>
@@ -91,7 +99,9 @@ export default function PrescriptionsPage() {
                 </div>
               </div>
               <DialogFooter>
-                <Button type="submit" onClick={() => setOpen(false)}>Create</Button>
+                <Button type="button" onClick={handleCreatePrescription}>
+                  Create
+                </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -118,7 +128,13 @@ export default function PrescriptionsPage() {
                     {format(new Date(prescription.dateIssued), "MMMM d, yyyy")}
                   </TableCell>
                   <TableCell>
-                    <Badge variant={prescription.status === 'Active' ? 'default' : 'secondary'}>
+                    <Badge
+                      variant={
+                        prescription.status === "Active"
+                          ? "default"
+                          : "secondary"
+                      }
+                    >
                       {prescription.status}
                     </Badge>
                   </TableCell>

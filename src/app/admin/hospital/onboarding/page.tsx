@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Card,
   CardContent,
@@ -9,8 +11,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 export default function HospitalOnboardingPage() {
+  const { toast } = useToast();
+
+  const handleSaveChanges = () => {
+    toast({
+      title: "Changes Saved",
+      description: "Hospital information has been successfully updated.",
+    });
+  };
+
   return (
     <Card className="max-w-2xl mx-auto">
       <CardHeader>
@@ -54,7 +66,7 @@ export default function HospitalOnboardingPage() {
             </Label>
           </div>
         </div>
-        <Button>Save Changes</Button>
+        <Button onClick={handleSaveChanges}>Save Changes</Button>
       </CardContent>
     </Card>
   );

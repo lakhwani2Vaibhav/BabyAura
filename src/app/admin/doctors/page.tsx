@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { adminData } from "@/lib/data";
 import {
   Card,
@@ -28,8 +29,32 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, UserPlus } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 
 export default function ManageDoctorsPage() {
+  const [open, setOpen] = useState(false);
+  const { toast } = useToast();
+
+  const handleAddDoctor = () => {
+    toast({
+      title: "Doctor Added",
+      description: "The new doctor has been successfully added to the system.",
+    });
+    setOpen(false);
+  };
+
   const getInitials = (name: string) => {
     const parts = name.split(" ");
     return parts.length > 1
@@ -46,9 +71,53 @@ export default function ManageDoctorsPage() {
             Onboard, offboard, and manage doctor profiles.
           </CardDescription>
         </div>
-        <Button>
-          <UserPlus className="mr-2 h-4 w-4" /> Add Doctor
-        </Button>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <UserPlus className="mr-2 h-4 w-4" /> Add Doctor
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Add New Doctor</DialogTitle>
+              <DialogDescription>
+                Enter the details for the new doctor to onboard them.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="name" className="text-right">
+                  Name
+                </Label>
+                <Input
+                  id="name"
+                  defaultValue="Dr. John Doe"
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="specialty" className="text-right">
+                  Specialty
+                </Label>
+                <Input
+                  id="specialty"
+                  defaultValue="Pediatrics"
+                  className="col-span-3"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button type="button" variant="secondary">
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button type="button" onClick={handleAddDoctor}>
+                Add Doctor
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </CardHeader>
       <CardContent>
         <Table>
@@ -68,7 +137,9 @@ export default function ManageDoctorsPage() {
                   <div className="flex items-center gap-3">
                     <Avatar>
                       <AvatarImage src={doctor.avatarUrl} />
-                      <AvatarFallback>{getInitials(doctor.name)}</AvatarFallback>
+                      <AvatarFallback>
+                        {getInitials(doctor.name)}
+                      </AvatarFallback>
                     </Avatar>
                     <span>{doctor.name}</span>
                   </div>
@@ -77,8 +148,14 @@ export default function ManageDoctorsPage() {
                 <TableCell>{doctor.patients}</TableCell>
                 <TableCell>
                   <Badge
-                    variant={doctor.status === "Active" ? "default" : "destructive"}
-                    className={doctor.status === 'Active' ? 'bg-green-500/20 text-green-700 border-transparent hover:bg-green-500/30' : 'bg-red-500/20 text-red-700 border-transparent hover:bg-red-500/30'}
+                    variant={
+                      doctor.status === "Active" ? "default" : "destructive"
+                    }
+                    className={
+                      doctor.status === "Active"
+                        ? "bg-green-500/20 text-green-700 border-transparent hover:bg-green-500/30"
+                        : "bg-red-500/20 text-red-700 border-transparent hover:bg-red-500/30"
+                    }
                   >
                     {doctor.status}
                   </Badge>
