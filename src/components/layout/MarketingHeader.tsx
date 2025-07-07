@@ -24,10 +24,10 @@ export function MarketingHeader() {
                     Features
                 </Link>
                 <Link href="/hospitals" className="text-sm font-medium hover:underline underline-offset-4">
-                    For Hospitals
+                    Hospitals
                 </Link>
                 <Link href="/parents" className="text-sm font-medium hover:underline underline-offset-4">
-                    For Parents
+                    Parents
                 </Link>
                 <Link href="/#testimonials" className="text-sm font-medium hover:underline underline-offset-4">
                     Testimonials
