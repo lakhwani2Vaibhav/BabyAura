@@ -8,28 +8,28 @@ export function Footer() {
             <div className="flex flex-col gap-4">
                 <h4 className="font-semibold text-foreground">For Parents</h4>
                 <nav className="flex flex-col gap-3">
-                    <Link href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Consultations</Link>
-                    <Link href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Health Records</Link>
-                    <Link href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Vaccinations</Link>
-                    <Link href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Emergency Care</Link>
+                    <Link href="/parent/consultations" className="text-sm text-muted-foreground hover:text-primary transition-colors">Consultations</Link>
+                    <Link href="/parent/reports" className="text-sm text-muted-foreground hover:text-primary transition-colors">Health Records</Link>
+                    <Link href="/parent/vaccination" className="text-sm text-muted-foreground hover:text-primary transition-colors">Vaccinations</Link>
+                    <Link href="/parent/emergency" className="text-sm text-muted-foreground hover:text-primary transition-colors">Emergency Care</Link>
                 </nav>
             </div>
             <div className="flex flex-col gap-4">
                 <h4 className="font-semibold text-foreground">For Hospitals</h4>
                 <nav className="flex flex-col gap-3">
-                    <Link href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Partnership</Link>
-                    <Link href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Revenue Models</Link>
-                    <Link href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Analytics</Link>
-                    <Link href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Support</Link>
+                    <Link href="/hospitals" className="text-sm text-muted-foreground hover:text-primary transition-colors">Partnership</Link>
+                    <Link href="/admin/billing" className="text-sm text-muted-foreground hover:text-primary transition-colors">Revenue Models</Link>
+                    <Link href="/superadmin/analytics" className="text-sm text-muted-foreground hover:text-primary transition-colors">Analytics</Link>
+                    <Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">Support</Link>
                 </nav>
             </div>
             <div className="flex flex-col gap-4">
                 <h4 className="font-semibold text-foreground">Company</h4>
                 <nav className="flex flex-col gap-3">
-                    <Link href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">About Us</Link>
-                    <Link href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Privacy Policy</Link>
-                    <Link href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Terms of Service</Link>
-                    <Link href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Contact</Link>
+                    <Link href="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">About Us</Link>
+                    <Link href="/privacy" className="text-sm text-muted-foreground hover:text-primary transition-colors">Privacy Policy</Link>
+                    <Link href="/terms" className="text-sm text-muted-foreground hover:text-primary transition-colors">Terms of Service</Link>
+                    <Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">Contact</Link>
                 </nav>
             </div>
         </div>
