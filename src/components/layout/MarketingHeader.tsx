@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -30,7 +29,7 @@ export function MarketingHeader() {
                 <Link href="/parents" className="text-sm font-medium hover:underline underline-offset-4">
                     For Parents
                 </Link>
-                <Button asChild variant="destructive" className="animate-pulse-destructive">
+                <Button asChild variant="destructive" className="animate-wave-destructive">
                     <Link href="/emergency">
                         <ShieldAlert className="mr-2 h-4 w-4" />
                         Emergency
@@ -75,7 +74,7 @@ export function MarketingHeader() {
                                 </Link>
                             </SheetClose>
                              <SheetClose asChild>
-                                <Button asChild variant="destructive" className="justify-start gap-4 px-3 animate-pulse-destructive">
+                                <Button asChild variant="destructive" className="justify-start gap-4 px-3 animate-wave-destructive">
                                     <Link href="/emergency">
                                         <ShieldAlert className="h-5 w-5" />
                                         Emergency

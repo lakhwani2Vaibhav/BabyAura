@@ -95,15 +95,16 @@ export default {
             height: '0',
           },
         },
-        'pulse-destructive': {
-          '0%, 100%': { opacity: '1' },
-          '50%': { opacity: '0.85' },
+        'wave-destructive': {
+          '0%': { boxShadow: '0 0 0 0 hsl(var(--destructive) / 0.7)' },
+          '70%': { boxShadow: '0 0 0 12px hsl(var(--destructive) / 0)' },
+          '100%': { boxShadow: '0 0 0 0 hsl(var(--destructive) / 0)' },
         }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        'pulse-destructive': 'pulse-destructive 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'wave-destructive': 'wave-destructive 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
     },
   },
