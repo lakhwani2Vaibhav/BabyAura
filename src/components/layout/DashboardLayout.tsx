@@ -65,7 +65,7 @@ export function DashboardLayout({ children, navItems }: DashboardLayoutProps) {
                           : pathname === item.href
                       }
                     >
-                      {item.icon}
+                      <item.icon className="w-5 h-5" />
                       <span>{item.label}</span>
                     </SidebarMenuButton>
                   </Link>
