@@ -71,8 +71,16 @@ export const scrapbookMemories = [
   },
 ];
 
+const doctorPatients = [
+  { id: 'p1', name: 'Baby Smith', lastVisit: subDays(new Date(), 10).toISOString(), status: 'Active' as const },
+  { id: 'p2', name: 'Baby Jones', lastVisit: subDays(new Date(), 25).toISOString(), status: 'Active' as const },
+  { id: 'p3', name: 'Baby Williams', lastVisit: subDays(new Date(), 5).toISOString(), status: 'Active' as const },
+  { id: 'p4', name: 'Baby Brown', lastVisit: subDays(new Date(), 90).toISOString(), status: 'Inactive' as const },
+  { id: 'p5', name: 'Baby Garcia', lastVisit: subDays(new Date(), 15).toISOString(), status: 'Active' as const },
+];
 
 export const doctorData = {
+    patients: doctorPatients,
     todaysConsultations: [
         { id: 101, patientName: "Baby Smith", time: "09:30 AM", reason: "Fever" },
         { id: 102, patientName: "Baby Jones", time: "11:00 AM", reason: "Routine Check-up" },
