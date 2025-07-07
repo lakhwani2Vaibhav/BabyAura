@@ -37,17 +37,17 @@ export const parentHeaderNav: NavItem[] = [
     icon: BookImage,
   },
   {
-    href: "#",
+    href: "/parent/growth",
     label: "Growth",
     icon: BarChart2,
   },
   {
-    href: "#",
+    href: "/parent/care",
     label: "Care",
     icon: Stethoscope,
   },
   {
-    href: "#",
+    href: "/parent/community",
     label: "Community",
     icon: Users,
   },
