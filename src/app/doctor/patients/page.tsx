@@ -17,6 +17,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import Link from "next/link";
 
 export default function PatientsPage() {
   return (
@@ -45,13 +46,19 @@ export default function PatientsPage() {
                   {format(new Date(patient.lastVisit), "MMMM d, yyyy")}
                 </TableCell>
                 <TableCell>
-                  <Badge variant={patient.status === 'Active' ? 'default' : 'secondary'}>
+                  <Badge
+                    variant={
+                      patient.status === "Active" ? "default" : "secondary"
+                    }
+                  >
                     {patient.status}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
-                  <Button variant="outline" size="sm">
-                    View Profile
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href={`/doctor/patients/${patient.id}`}>
+                      View Profile
+                    </Link>
                   </Button>
                 </TableCell>
               </TableRow>
