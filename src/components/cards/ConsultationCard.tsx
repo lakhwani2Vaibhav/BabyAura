@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Calendar, Clock, Video } from "lucide-react";
+import { Calendar, Clock, Video, FileText } from "lucide-react";
 import { format } from "date-fns";
 
 type Consultation = {
@@ -17,13 +17,18 @@ type Consultation = {
   specialty: string;
   date: string;
   time: string;
+  status: "Upcoming" | "Past";
 };
 
 interface ConsultationCardProps {
   consultation: Consultation;
+  isPast?: boolean;
 }
 
-export function ConsultationCard({ consultation }: ConsultationCardProps) {
+export function ConsultationCard({
+  consultation,
+  isPast = false,
+}: ConsultationCardProps) {
   const getInitials = (name: string) => {
     const parts = name.split(" ");
     return parts.length > 1
@@ -53,10 +58,17 @@ export function ConsultationCard({ consultation }: ConsultationCardProps) {
         </div>
       </CardContent>
       <CardFooter>
-        <Button className="w-full">
-          <Video className="mr-2 h-4 w-4" />
-          Join Video Call
-        </Button>
+        {isPast ? (
+          <Button variant="outline" className="w-full">
+            <FileText className="mr-2 h-4 w-4" />
+            View Summary
+          </Button>
+        ) : (
+          <Button className="w-full">
+            <Video className="mr-2 h-4 w-4" />
+            Join Video Call
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );

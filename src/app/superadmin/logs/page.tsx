@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Card,
   CardContent,
@@ -5,6 +7,27 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { superAdminData } from "@/lib/data";
+import { format } from "date-fns";
+import { Search } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 
 export default function LogsPage() {
   return (
@@ -14,9 +37,51 @@ export default function LogsPage() {
         <CardDescription>
           View system and usage logs for the platform.
         </CardDescription>
+        <div className="flex items-center gap-4 pt-4">
+           <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Input placeholder="Search by user, action, or details..." className="pl-10" />
+          </div>
+          <Select>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="auth">Authentication</SelectItem>
+              <SelectItem value="api">API</SelectItem>
+              <SelectItem value="billing">Billing</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </CardHeader>
       <CardContent>
-        <p>Usage Logs page content goes here.</p>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Timestamp</TableHead>
+              <TableHead>User</TableHead>
+              <TableHead>Action</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Details</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {superAdminData.platformLogs.map((log) => (
+              <TableRow key={log.id}>
+                <TableCell className="font-mono text-xs">
+                  {format(new Date(log.timestamp), "MMM d, yyyy, hh:mm:ss a")}
+                </TableCell>
+                <TableCell>{log.user}</TableCell>
+                <TableCell>
+                  <Badge variant="outline">{log.action}</Badge>
+                </TableCell>
+                <TableCell>{log.type}</TableCell>
+                <TableCell className="text-muted-foreground">{log.details}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </CardContent>
     </Card>
   );
