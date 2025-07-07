@@ -54,7 +54,7 @@ export function SuperAdminHeader() {
           ))}
         </nav>
 
-        <div className="md:hidden">
+        <div className="flex items-center gap-4 md:hidden">
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
@@ -86,10 +86,7 @@ export function SuperAdminHeader() {
               </nav>
             </SheetContent>
           </Sheet>
-        </div>
-
-        <div className="md:hidden">
-          <Link href="/superadmin/dashboard">
+           <Link href="/superadmin/dashboard">
             <BabyAuraLogo />
           </Link>
         </div>

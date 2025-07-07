@@ -54,7 +54,7 @@ export function AdminHeader() {
           ))}
         </nav>
 
-        <div className="md:hidden">
+        <div className="flex items-center gap-4 md:hidden">
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
@@ -86,9 +86,6 @@ export function AdminHeader() {
               </nav>
             </SheetContent>
           </Sheet>
-        </div>
-
-        <div className="md:hidden">
           <Link href="/admin/dashboard">
             <BabyAuraLogo />
           </Link>
