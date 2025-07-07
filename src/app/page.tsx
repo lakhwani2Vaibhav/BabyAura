@@ -23,7 +23,7 @@ import { Footer } from '@/components/layout/Footer';
 import { MarketingHeader } from '@/components/layout/MarketingHeader';
 import { AnimatedContent } from '@/components/layout/AnimatedContent';
 import { ScrollAnimationWrapper } from '@/components/layout/ScrollAnimationWrapper';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import React, { useState } from 'react';
 import {
@@ -45,6 +45,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useToast } from '@/hooks/use-toast';
 
 
 export default function Home() {
@@ -52,6 +53,27 @@ export default function Home() {
     Autoplay({ delay: 1500, stopOnInteraction: false })
   )
   const [isAnnual, setIsAnnual] = useState(false);
+  const { toast } = useToast();
+
+  const handleDownloadClick = () => {
+    toast({
+      title: "App Coming Soon!",
+      description: (
+        <span>
+          Our mobile app is under development.{" "}
+          <Link
+            href="https://docs.google.com/forms/d/e/1FAIpQLScT83PqypfnGSLGSzdXaSx8i3MypuG31KxGF1-fC14ZwzanqA/viewform"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline font-semibold"
+          >
+            Join the waitlist
+          </Link>{" "}
+          to be notified!
+        </span>
+      ),
+    });
+  };
 
   const plans = {
     monthly: {
@@ -111,7 +133,7 @@ export default function Home() {
       <MarketingHeader />
       <main className="flex-1">
         <AnimatedContent>
-          <section className="w-full pt-12 pb-12 md:pt-16 md:pb-24 lg:pt-20 lg:pb-32 xl:pt-28 xl:pb-48">
+          <section className="w-full pt-12 pb-12 md:pt-16 lg:pt-20 lg:pb-32 xl:pt-28 xl:pb-48">
             <div className="container px-4 md:px-6">
               <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
                 <div className="flex flex-col justify-center space-y-4">
@@ -122,7 +144,7 @@ export default function Home() {
                       </h1>
                     </ScrollAnimationWrapper>
                     <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-top-2 duration-1000 ease-out delay-200">
-                      <p className="text-muted-foreground md:text-xl">
+                      <p className="max-w-[600px] text-muted-foreground md:text-xl">
                         Digital care for your little one, from hospital to home. We
                         provide a seamless e-care system for postnatal and early
                         childhood support.
@@ -149,7 +171,7 @@ export default function Home() {
                     width="600"
                     height="400"
                     alt="Hero"
-                    className="mx-auto aspect-video overflow-hidden rounded-xl object-cover w-full"
+                    className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full lg:order-last"
                   />
                 </ScrollAnimationWrapper>
               </div>
@@ -235,7 +257,7 @@ export default function Home() {
             <div className="container px-4 md:px-6">
               <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
                 <div className="flex flex-col items-center justify-center space-y-4 text-center">
-                  <div className="inline-block rounded-md border border-primary/20 bg-primary/10 px-3 py-1 text-sm text-primary">
+                  <div className="inline-block rounded-md border border-orange-400/20 bg-orange-400/10 px-3 py-1 text-sm text-orange-600 dark:text-orange-400">
                     INDIA&apos;S #1 PARENTING PLATFORM
                   </div>
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl font-headline">
@@ -344,33 +366,6 @@ export default function Home() {
                   </ScrollAnimationWrapper>
                 </div>
               </div>
-
-              {/* <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out delay-600">
-                <div className="mt-12 flex items-center justify-center gap-8 text-center md:gap-16">
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                      <Briefcase className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-3xl font-bold">X+</p>
-                      <p className="text-sm text-muted-foreground">
-                        Expert doctors
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                      <Users className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-3xl font-bold">X+</p>
-                      <p className="text-sm text-muted-foreground">
-                        Parents Trust BabyAura
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </ScrollAnimationWrapper> */}
             </div>
           </section>
 
@@ -382,7 +377,7 @@ export default function Home() {
                     <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl font-headline">
                       Why Parents choose BabyAura
                     </h2>
-                    <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white">
+                    <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white" onClick={handleDownloadClick}>
                       Download App
                     </Button>
                   </div>
@@ -576,7 +571,7 @@ export default function Home() {
                     </div>
                   </ScrollAnimationWrapper>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start max-w-7xl mx-auto">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start max-w-7xl mx-auto lg:sticky-container">
                    <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-left-8 duration-1000 ease-out delay-300" className="lg:order-2 order-3 lg:sticky top-24">
                       <Card>
                         <CardHeader>
