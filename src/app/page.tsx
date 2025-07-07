@@ -23,7 +23,7 @@ import { Footer } from '@/components/layout/Footer';
 import { MarketingHeader } from '@/components/layout/MarketingHeader';
 import { AnimatedContent } from '@/components/layout/AnimatedContent';
 import { ScrollAnimationWrapper } from '@/components/layout/ScrollAnimationWrapper';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardFooter, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import React, { useState } from 'react';
 import {
@@ -133,7 +133,7 @@ export default function Home() {
       <MarketingHeader />
       <main className="flex-1">
         <AnimatedContent>
-          <section className="w-full pt-12 pb-12 md:pt-16 lg:pt-20 lg:pb-32 xl:pt-28 xl:pb-48">
+          <section className="w-full pt-8 pb-12 md:pt-10 lg:pt-14 lg:pb-32 xl:pt-20 xl:pb-48">
             <div className="container px-4 md:px-6">
               <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
                 <div className="flex flex-col justify-center space-y-4">
@@ -175,6 +175,33 @@ export default function Home() {
                   />
                 </ScrollAnimationWrapper>
               </div>
+              
+              {/* <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out delay-600">
+                <div className="mt-12 flex items-center justify-center gap-8 text-center md:gap-16">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                      <Briefcase className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-3xl font-bold">X+</p>
+                      <p className="text-sm text-muted-foreground">
+                        Expert doctors
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                      <Users className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-3xl font-bold">X+</p>
+                      <p className="text-sm text-muted-foreground">
+                        Parents Trust BabyAura
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </ScrollAnimationWrapper> */}
             </div>
           </section>
 
