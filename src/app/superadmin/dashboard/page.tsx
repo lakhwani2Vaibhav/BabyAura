@@ -60,11 +60,16 @@ export default function SuperAdminDashboardPage() {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Hospital Onboarding Requests</CardTitle>
-          <CardDescription>
-            New hospitals waiting for approval.
-          </CardDescription>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>Hospital Onboarding Requests</CardTitle>
+            <CardDescription>
+              New hospitals waiting for approval.
+            </CardDescription>
+          </div>
+          <Button>
+            <UserPlus className="mr-2 h-4 w-4" /> Add Hospital Manually
+          </Button>
         </CardHeader>
         <CardContent>
           <Table>
@@ -93,11 +98,6 @@ export default function SuperAdminDashboardPage() {
           </Table>
         </CardContent>
       </Card>
-       <div className="flex justify-end">
-            <Button>
-                <UserPlus className="mr-2 h-4 w-4" /> Add Hospital Manually
-            </Button>
-        </div>
     </div>
   );
 }
