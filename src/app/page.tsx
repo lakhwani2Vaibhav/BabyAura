@@ -549,8 +549,8 @@ export default function Home() {
                       </CarouselItem>
                     ))}
                   </CarouselContent>
-                  <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4" />
-                  <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4" />
+                  <CarouselPrevious className="absolute left-2 top-1/2 -translate-y-1/2" />
+                  <CarouselNext className="absolute right-2 top-1/2 -translate-y-1/2" />
                 </Carousel>
               </ScrollAnimationWrapper>
             </div>
@@ -580,8 +580,8 @@ export default function Home() {
                   </ScrollAnimationWrapper>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start max-w-7xl mx-auto">
-                   <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-left-8 duration-1000 ease-out delay-300">
-                      <Card className="sticky top-24">
+                   <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-left-8 duration-1000 ease-out delay-300" className="order-3 lg:order-1">
+                      <Card className="lg:sticky top-24">
                         <CardHeader>
                             <CardTitle className="text-xl">Features</CardTitle>
                         </CardHeader>
@@ -605,7 +605,7 @@ export default function Home() {
                       </Card>
                     </ScrollAnimationWrapper>
 
-                  <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-1000 ease-out delay-400">
+                  <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-1000 ease-out delay-400" className="order-1 lg:order-2">
                     <Card className="flex flex-col h-full">
                         <CardHeader>
                             <CardTitle className="text-2xl">Basic Plan</CardTitle>
@@ -628,7 +628,7 @@ export default function Home() {
                     </Card>
                   </ScrollAnimationWrapper>
 
-                  <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-1000 ease-out delay-500">
+                  <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-1000 ease-out delay-500" className="order-2 lg:order-3">
                     <Card className="relative flex flex-col h-full border-2 border-primary shadow-lg">
                         <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground">MOST POPULAR</Badge>
                         <div className="bg-primary/90 text-primary-foreground rounded-t-lg">
