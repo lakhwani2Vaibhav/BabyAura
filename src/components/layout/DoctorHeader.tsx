@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { BabyAuraLogo } from "@/components/icons/BabyAuraLogo";
 import { Button } from "@/components/ui/button";
-import { Bell, LogOut, User, Menu } from "lucide-react";
+import { LogOut, User, Menu } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -19,6 +19,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { doctorHeaderNav } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
+import { NotificationBell } from "./NotificationBell";
 
 export function DoctorHeader() {
   const pathname = usePathname();
@@ -96,10 +97,7 @@ export function DoctorHeader() {
         </div>
 
         <div className="flex items-center justify-end space-x-2">
-            <Button variant="ghost" size="icon" className="rounded-full">
-                <Bell className="h-5 w-5" />
-                <span className="sr-only">Notifications</span>
-            </Button>
+            <NotificationBell />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-9 w-9 rounded-full">
