@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { superAdminData } from "@/lib/data";
 import {
   Card,
@@ -24,8 +27,47 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 
 export default function SuperAdminDashboardPage() {
+  const [addHospitalOpen, setAddHospitalOpen] = useState(false);
+  const { toast } = useToast();
+
+  const handleAddHospital = () => {
+    toast({
+      title: "Hospital Added",
+      description: "The new hospital has been successfully added.",
+    });
+    setAddHospitalOpen(false);
+  };
+
+  const handleReviewRequest = () => {
+    toast({
+      title: "Review Request",
+      description:
+        "This would open the review flow for the hospital onboarding request.",
+    });
+  };
+
   return (
     <div className="space-y-8">
       <div>
@@ -67,9 +109,59 @@ export default function SuperAdminDashboardPage() {
               New hospitals waiting for approval.
             </CardDescription>
           </div>
-          <Button>
-            <UserPlus className="mr-2 h-4 w-4" /> Add Hospital Manually
-          </Button>
+          <Dialog open={addHospitalOpen} onOpenChange={setAddHospitalOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <UserPlus className="mr-2 h-4 w-4" /> Add Hospital Manually
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Add New Hospital</DialogTitle>
+                <DialogDescription>
+                  Enter the details for the new hospital to onboard them.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="name" className="text-right">
+                    Name
+                  </Label>
+                  <Input
+                    id="name"
+                    defaultValue="New City Hospital"
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="plan" className="text-right">
+                    Plan
+                  </Label>
+                  <Select>
+                    <SelectTrigger className="col-span-3">
+                      <SelectValue placeholder="Select a plan" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="licensing">Licensing</SelectItem>
+                      <SelectItem value="revenue-share">
+                        Revenue Share
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button type="button" variant="secondary">
+                    Cancel
+                  </Button>
+                </DialogClose>
+                <Button type="button" onClick={handleAddHospital}>
+                  Add Hospital
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </CardHeader>
         <CardContent>
           <Table>
@@ -88,7 +180,11 @@ export default function SuperAdminDashboardPage() {
                     {format(new Date(request.date), "MMMM d, yyyy")}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="outline" size="sm">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleReviewRequest}
+                    >
                       Review
                     </Button>
                   </TableCell>
