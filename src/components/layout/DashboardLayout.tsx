@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   SidebarProvider,
   Sidebar,
@@ -106,9 +106,9 @@ export function DashboardLayout({ children, navItems }: DashboardLayoutProps) {
         </Sidebar>
         <SidebarInset>
           <Header />
-          <main className="p-4 sm:p-6 lg:p-8 bg-muted/40 min-h-[calc(100vh-4rem)]">
-            {children}
-          </main>
+          <div className="flex-1 bg-muted/40 overflow-y-auto">
+            <div className="p-4 sm:p-6 lg:p-8">{children}</div>
+          </div>
         </SidebarInset>
       </div>
     </SidebarProvider>
