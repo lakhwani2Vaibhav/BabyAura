@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { BabyAuraLogo } from '@/components/icons/BabyAuraLogo';
-import { Menu } from 'lucide-react';
+import { Menu, ShieldAlert } from 'lucide-react';
 import {
   Sheet,
   SheetContent,
@@ -28,6 +28,12 @@ export function MarketingHeader() {
                 <Link href="/parents" className="text-sm font-medium hover:underline underline-offset-4">
                     For Parents
                 </Link>
+                <Button asChild variant="secondary">
+                    <Link href="/emergency">
+                        <ShieldAlert className="mr-2 h-4 w-4" />
+                        Emergency
+                    </Link>
+                </Button>
                 <Button asChild>
                     <Link href="/auth/login">Login</Link>
                 </Button>
@@ -65,6 +71,14 @@ export function MarketingHeader() {
                                 <Link href="/parents" className="text-muted-foreground hover:text-foreground">
                                     For Parents
                                 </Link>
+                            </SheetClose>
+                             <SheetClose asChild>
+                                <Button asChild variant="secondary" className="justify-start gap-4 px-3">
+                                    <Link href="/emergency">
+                                        <ShieldAlert className="h-5 w-5" />
+                                        Emergency
+                                    </Link>
+                                </Button>
                             </SheetClose>
                              <SheetClose asChild>
                                 <Button asChild className="mt-4">
