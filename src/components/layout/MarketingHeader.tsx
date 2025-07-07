@@ -8,6 +8,8 @@ import {
   SheetContent,
   SheetTrigger,
   SheetClose,
+  SheetHeader,
+  SheetTitle,
 } from "@/components/ui/sheet";
 
 export function MarketingHeader() {
@@ -39,12 +41,16 @@ export function MarketingHeader() {
                         </Button>
                     </SheetTrigger>
                     <SheetContent side="right">
+                        <SheetHeader>
+                            <SheetTitle>
+                                <SheetClose asChild>
+                                    <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
+                                        <BabyAuraLogo />
+                                    </Link>
+                                </SheetClose>
+                            </SheetTitle>
+                        </SheetHeader>
                         <nav className="grid gap-6 text-lg font-medium mt-6">
-                            <SheetClose asChild>
-                                <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
-                                    <BabyAuraLogo />
-                                </Link>
-                            </SheetClose>
                             <SheetClose asChild>
                                 <Link href="/features" className="text-muted-foreground hover:text-foreground">
                                     Features

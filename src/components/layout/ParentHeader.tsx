@@ -23,6 +23,8 @@ import {
   SheetTrigger,
   SheetContent,
   SheetClose,
+  SheetHeader,
+  SheetTitle,
 } from "@/components/ui/sheet";
 import { NotificationBell } from "./NotificationBell";
 
@@ -72,15 +74,19 @@ export function ParentHeader() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left">
-                <SheetClose asChild>
-                  <Link
-                    href="/parent/dashboard"
-                    className="mb-6 flex items-center"
-                  >
-                    <BabyAuraLogo />
-                  </Link>
-                </SheetClose>
-                <nav className="grid gap-2 text-lg font-medium">
+                <SheetHeader>
+                  <SheetTitle>
+                    <SheetClose asChild>
+                      <Link
+                        href="/parent/dashboard"
+                        className="flex items-center"
+                      >
+                        <BabyAuraLogo />
+                      </Link>
+                    </SheetClose>
+                  </SheetTitle>
+                </SheetHeader>
+                <nav className="grid gap-2 text-lg font-medium pt-6">
                   {parentHeaderNav.map((item) => (
                     <SheetClose asChild key={item.href}>
                       <Link
