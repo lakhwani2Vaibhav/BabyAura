@@ -77,7 +77,7 @@ export const doctorHeaderNav: NavItem[] = [
   },
 ];
 
-export const adminSidebarNav: NavItem[] = [
+export const adminHeaderNav: NavItem[] = [
   {
     href: "/admin/dashboard",
     label: "Dashboard",
@@ -100,12 +100,12 @@ export const adminSidebarNav: NavItem[] = [
   },
   {
     href: "/admin/billing",
-    label: "Billing Model",
+    label: "Billing",
     icon: Briefcase,
   },
 ];
 
-export const superAdminSidebarNav: NavItem[] = [
+export const superAdminHeaderNav: NavItem[] = [
   {
     href: "/superadmin/dashboard",
     label: "Dashboard",
