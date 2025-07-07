@@ -13,8 +13,19 @@ import { ChevronDown, Search, Plus } from "lucide-react";
 import Image from "next/image";
 import { format, parseISO } from "date-fns";
 import { UploadMemoryModal } from "@/components/scrapbook/UploadMemoryModal";
+import { useState, useEffect } from "react";
 
 export default function ScrapbookPage() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredMemories, setFilteredMemories] = useState(scrapbookMemories);
+
+  useEffect(() => {
+    const results = scrapbookMemories.filter((memory) =>
+      memory.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredMemories(results);
+  }, [searchTerm]);
+
   return (
     <div className="bg-background rounded-lg relative">
       <div>
@@ -23,13 +34,15 @@ export default function ScrapbookPage() {
           Capture and cherish every moment of your baby's journey.
         </p>
       </div>
-      
+
       <div className="my-8 space-y-4">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
-            placeholder="Search memories"
+            placeholder="Search memories by title..."
             className="pl-12 h-14 bg-secondary border-none text-base rounded-lg"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
         <div className="flex items-center gap-2">
@@ -69,14 +82,15 @@ export default function ScrapbookPage() {
           </DropdownMenu>
         </div>
       </div>
-      
+
       <div className="relative pl-5 py-5">
         <div className="absolute left-[23px] top-0 h-full w-0.5 bg-border -translate-x-1/2" />
         <div className="space-y-10">
-          {scrapbookMemories.map((milestone) => (
-            <div key={milestone.id} className="relative flex items-center">
-              <div className="z-10 absolute left-0 flex items-center justify-center">
-                 <Image
+          {filteredMemories.length > 0 ? (
+            filteredMemories.map((milestone) => (
+              <div key={milestone.id} className="relative flex items-center">
+                <div className="z-10 absolute left-0 flex items-center justify-center">
+                  <Image
                     src={milestone.iconUrl}
                     data-ai-hint={milestone.dataAiHint}
                     alt={milestone.title}
@@ -84,21 +98,31 @@ export default function ScrapbookPage() {
                     height={48}
                     className="rounded-full object-cover ring-4 ring-background"
                   />
+                </div>
+                <div className="ml-20">
+                  <p className="font-medium text-foreground">
+                    {milestone.title}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {format(parseISO(milestone.date), "MMMM d, yyyy")}
+                  </p>
+                </div>
               </div>
-              <div className="ml-20">
-                <p className="font-medium text-foreground">{milestone.title}</p>
-                <p className="text-sm text-muted-foreground">
-                  {format(parseISO(milestone.date), "MMMM d, yyyy")}
-                </p>
-              </div>
+            ))
+          ) : (
+            <div className="text-center text-muted-foreground py-10">
+              <p>No memories found for "{searchTerm}"</p>
             </div>
-          ))}
+          )}
         </div>
       </div>
 
       <div className="fixed bottom-8 right-8 flex flex-col items-center gap-4 z-50">
-        <Button variant="outline" className="rounded-full shadow-lg bg-card hover:bg-muted">
-            Relive Day
+        <Button
+          variant="outline"
+          className="rounded-full shadow-lg bg-card hover:bg-muted"
+        >
+          Relive Day
         </Button>
         <UploadMemoryModal />
       </div>
