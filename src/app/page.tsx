@@ -122,7 +122,7 @@ export default function Home() {
                       </h1>
                     </ScrollAnimationWrapper>
                     <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-top-2 duration-1000 ease-out delay-200">
-                      <p className="max-w-[600px] text-muted-foreground md:text-xl">
+                      <p className="text-muted-foreground md:text-xl">
                         Digital care for your little one, from hospital to home. We
                         provide a seamless e-care system for postnatal and early
                         childhood support.
