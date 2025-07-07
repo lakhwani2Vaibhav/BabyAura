@@ -159,7 +159,7 @@ export default function Home() {
                   animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out"
                   className="lg:col-span-2"
                 >
-                  <Card className="relative flex h-full min-h-[220px] flex-col justify-between overflow-hidden rounded-xl border-2 border-orange-400 p-6 md:flex-row md:items-center">
+                  <Card className="group relative flex h-full min-h-[220px] flex-col justify-between overflow-hidden rounded-xl border-2 border-orange-400 p-6 transition-transform duration-300 hover:scale-105 md:flex-row md:items-center">
                     <div className="z-10 flex-1">
                       <h3 className="text-2xl font-bold">24/7 Pediatric Care</h3>
                       <Badge className="mt-2 border-none bg-orange-400 text-orange-50 hover:bg-orange-500">
@@ -173,14 +173,14 @@ export default function Home() {
                         alt="Pediatric Care"
                         layout="fill"
                         objectFit="contain"
-                        className="md:absolute md:right-0 md:bottom-0"
+                        className="transition-transform duration-300 group-hover:scale-110 md:absolute md:right-0 md:bottom-0"
                       />
                     </div>
                   </Card>
                 </ScrollAnimationWrapper>
 
                 <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-100">
-                  <Card className="relative flex h-full flex-col justify-between overflow-hidden rounded-xl p-6">
+                  <Card className="group relative flex h-full flex-col justify-between overflow-hidden rounded-xl p-6 transition-transform duration-300 hover:scale-105">
                     <h3 className="text-xl font-bold">Pregnancy Webinar</h3>
                     <Image
                       src="https://placehold.co/200x150.png"
@@ -188,13 +188,13 @@ export default function Home() {
                       alt="Pregnancy Webinar"
                       width={180}
                       height={180}
-                      className="mt-4 self-end"
+                      className="mt-4 self-end transition-transform duration-300 group-hover:scale-110"
                     />
                   </Card>
                 </ScrollAnimationWrapper>
 
                 <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-200">
-                  <Card className="relative flex h-full flex-col justify-between overflow-hidden rounded-xl p-6">
+                  <Card className="group relative flex h-full flex-col justify-between overflow-hidden rounded-xl p-6 transition-transform duration-300 hover:scale-105">
                     <h3 className="text-xl font-bold">
                       Breastfeeding Guidance
                     </h3>
@@ -204,13 +204,13 @@ export default function Home() {
                       alt="Breastfeeding Guidance"
                       width={180}
                       height={180}
-                      className="mt-4 self-end"
+                      className="mt-4 self-end transition-transform duration-300 group-hover:scale-110"
                     />
                   </Card>
                 </ScrollAnimationWrapper>
 
                 <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-300">
-                  <Card className="relative flex h-full flex-col justify-between overflow-hidden rounded-xl p-6">
+                  <Card className="group relative flex h-full flex-col justify-between overflow-hidden rounded-xl p-6 transition-transform duration-300 hover:scale-105">
                     <h3 className="text-xl font-bold">Baby Vaccinations</h3>
                     <Image
                       src="https://placehold.co/200x150.png"
@@ -218,14 +218,14 @@ export default function Home() {
                       alt="Baby Vaccinations"
                       width={180}
                       height={180}
-                      className="mt-4 self-end"
+                      className="mt-4 self-end transition-transform duration-300 group-hover:scale-110"
                     />
                   </Card>
                 </ScrollAnimationWrapper>
 
                 <div className="flex flex-col gap-6">
                   <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-400">
-                    <Card className="relative flex h-full items-center justify-between overflow-hidden rounded-xl p-4">
+                    <Card className="group relative flex h-full items-center justify-between overflow-hidden rounded-xl p-4 transition-transform duration-300 hover:scale-105">
                       <h3 className="text-lg font-semibold">
                         Solids/Nutrition Planning
                       </h3>
@@ -235,11 +235,12 @@ export default function Home() {
                         alt="Nutrition"
                         width={80}
                         height={60}
+                        className="transition-transform duration-300 group-hover:scale-110"
                       />
                     </Card>
                   </ScrollAnimationWrapper>
                   <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-500">
-                    <Card className="relative flex h-full items-center justify-between overflow-hidden rounded-xl p-4">
+                    <Card className="group relative flex h-full items-center justify-between overflow-hidden rounded-xl p-4 transition-transform duration-300 hover:scale-105">
                       <h3 className="text-lg font-semibold">Sleep Support</h3>
                       <Image
                         src="https://placehold.co/80x60.png"
@@ -247,6 +248,7 @@ export default function Home() {
                         alt="Sleep Support"
                         width={80}
                         height={60}
+                        className="transition-transform duration-300 group-hover:scale-110"
                       />
                     </Card>
                   </ScrollAnimationWrapper>
