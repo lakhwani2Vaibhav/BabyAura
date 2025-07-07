@@ -6,11 +6,15 @@ import {
   FileText,
   Phone,
   Baby,
+  Briefcase,
+  Users,
 } from 'lucide-react';
 import { Footer } from '@/components/layout/Footer';
 import { MarketingHeader } from '@/components/layout/MarketingHeader';
 import { AnimatedContent } from '@/components/layout/AnimatedContent';
 import { ScrollAnimationWrapper } from '@/components/layout/ScrollAnimationWrapper';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 
 export default function Home() {
@@ -136,6 +140,148 @@ export default function Home() {
               </div>
             </div>
           </section>
+
+          <section className="w-full py-12 md:py-24 lg:py-32 bg-[#FFF7F1]">
+            <div className="container px-4 md:px-6">
+              <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
+                <div className="flex flex-col items-center justify-center space-y-4 text-center">
+                  <div className="inline-block rounded-md border border-primary/20 bg-primary/10 px-3 py-1 text-sm text-primary">
+                    INDIA&apos;S #1 PARENTING PLATFORM
+                  </div>
+                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl font-headline">
+                    How Can We Help You Today?
+                  </h2>
+                </div>
+              </ScrollAnimationWrapper>
+
+              <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 py-12 sm:grid-cols-2 lg:grid-cols-3">
+                <ScrollAnimationWrapper
+                  animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out"
+                  className="lg:col-span-2"
+                >
+                  <Card className="relative flex h-full min-h-[220px] flex-col justify-between overflow-hidden rounded-xl border-2 border-orange-400 p-6 md:flex-row md:items-center">
+                    <div className="z-10 flex-1">
+                      <h3 className="text-2xl font-bold">24/7 Pediatric Care</h3>
+                      <Badge className="mt-2 border-none bg-orange-400 text-orange-50 hover:bg-orange-500">
+                        ★ Featured
+                      </Badge>
+                    </div>
+                    <div className="relative mt-4 h-36 w-full md:mt-0 md:h-full md:w-2/5">
+                      <Image
+                        src="https://placehold.co/250x150.png"
+                        data-ai-hint="doctor baby"
+                        alt="Pediatric Care"
+                        layout="fill"
+                        objectFit="contain"
+                        className="md:absolute md:right-0 md:bottom-0"
+                      />
+                    </div>
+                  </Card>
+                </ScrollAnimationWrapper>
+
+                <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-100">
+                  <Card className="relative flex h-full flex-col justify-between overflow-hidden rounded-xl p-6">
+                    <h3 className="text-xl font-bold">Pregnancy Webinar</h3>
+                    <Image
+                      src="https://placehold.co/200x150.png"
+                      data-ai-hint="pregnant woman"
+                      alt="Pregnancy Webinar"
+                      width={180}
+                      height={180}
+                      className="mt-4 self-end"
+                    />
+                  </Card>
+                </ScrollAnimationWrapper>
+
+                <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-200">
+                  <Card className="relative flex h-full flex-col justify-between overflow-hidden rounded-xl p-6">
+                    <h3 className="text-xl font-bold">
+                      Breastfeeding Guidance
+                    </h3>
+                    <Image
+                      src="https://placehold.co/200x150.png"
+                      data-ai-hint="mother breastfeeding"
+                      alt="Breastfeeding Guidance"
+                      width={180}
+                      height={180}
+                      className="mt-4 self-end"
+                    />
+                  </Card>
+                </ScrollAnimationWrapper>
+
+                <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-300">
+                  <Card className="relative flex h-full flex-col justify-between overflow-hidden rounded-xl p-6">
+                    <h3 className="text-xl font-bold">Baby Vaccinations</h3>
+                    <Image
+                      src="https://placehold.co/200x150.png"
+                      data-ai-hint="baby vaccine"
+                      alt="Baby Vaccinations"
+                      width={180}
+                      height={180}
+                      className="mt-4 self-end"
+                    />
+                  </Card>
+                </ScrollAnimationWrapper>
+
+                <div className="flex flex-col gap-6">
+                  <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-400">
+                    <Card className="relative flex h-full items-center justify-between overflow-hidden rounded-xl p-4">
+                      <h3 className="text-lg font-semibold">
+                        Solids/Nutrition Planning
+                      </h3>
+                      <Image
+                        src="https://placehold.co/80x60.png"
+                        data-ai-hint="toddler eating"
+                        alt="Nutrition"
+                        width={80}
+                        height={60}
+                      />
+                    </Card>
+                  </ScrollAnimationWrapper>
+                  <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-500">
+                    <Card className="relative flex h-full items-center justify-between overflow-hidden rounded-xl p-4">
+                      <h3 className="text-lg font-semibold">Sleep Support</h3>
+                      <Image
+                        src="https://placehold.co/80x60.png"
+                        data-ai-hint="baby sleeping"
+                        alt="Sleep Support"
+                        width={80}
+                        height={60}
+                      />
+                    </Card>
+                  </ScrollAnimationWrapper>
+                </div>
+              </div>
+
+              <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out delay-600">
+                <div className="mt-12 flex items-center justify-center gap-8 text-center md:gap-16">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                      <Briefcase className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-3xl font-bold">100+</p>
+                      <p className="text-sm text-muted-foreground">
+                        Expert doctors
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                      <Users className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-3xl font-bold">1Mn+</p>
+                      <p className="text-sm text-muted-foreground">
+                        Parents Trust Babynama
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </ScrollAnimationWrapper>
+            </div>
+          </section>
+
 
           <section className="w-full py-12 md:py-24 lg:py-32 bg-muted">
             <div className="container px-4 md:px-6">
