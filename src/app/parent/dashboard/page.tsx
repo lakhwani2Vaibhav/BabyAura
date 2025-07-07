@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from 'next/link';
 import { formatDistanceToNow } from "date-fns";
+import { Phone, Video, Syringe } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { VaccinationCard } from "@/components/cards/VaccinationCard";
 
 export default function ParentDashboardPage() {
   const nextConsultation = parentData.upcomingConsultations[0];
@@ -11,46 +14,45 @@ export default function ParentDashboardPage() {
   const vaccinationDue = formatDistanceToNow(new Date(nextVaccination.date), { addSuffix: true });
 
   return (
-    <div className="grid lg:grid-cols-3 gap-12">
-      <div className="lg:col-span-2 flex flex-col justify-center space-y-12">
+    <div className="grid lg:grid-cols-3 gap-8">
+      <div className="lg:col-span-2 space-y-8">
         <div>
           <h1 className="text-4xl font-bold font-headline text-foreground">
-            Welcome, {parentData.babyName}
+            Welcome, {parentData.babyName}'s Family!
           </h1>
           <p className="text-xl text-muted-foreground mt-2">Here's a quick look at what's important right now.</p>
         </div>
         
-        <div className="space-y-8">
-            <div className="space-y-3">
-            <h2 className="text-xl font-semibold">Upcoming Consultation</h2>
-            <p className="text-muted-foreground">
-                Pediatrician Consultation with {nextConsultation.doctor}
-            </p>
-            <Button asChild variant="secondary">
-                <Link href="/parent/consultations">View Details</Link>
-            </Button>
-            </div>
+        <div className="grid md:grid-cols-2 gap-6">
+           <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Video className="h-6 w-6 text-primary"/>Upcoming Consultation</CardTitle>
+                <CardDescription>
+                    Your next appointment is with {nextConsultation.doctor}.
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <p className="font-semibold">{nextConsultation.date ? formatDistanceToNow(new Date(nextConsultation.date), { addSuffix: true }) : 'Soon'}</p>
+            </CardContent>
+           </Card>
 
-            <div className="space-y-3">
-            <h2 className="text-xl font-semibold">Vaccination Status</h2>
-            <p className="text-muted-foreground">
-                Next vaccination {vaccinationDue}
-            </p>
-            <Button asChild variant="secondary">
-                <Link href="/parent/vaccination">View Schedule</Link>
-            </Button>
-            </div>
+            <VaccinationCard nextVaccination={nextVaccination} />
+        </div>
 
-            <div className="space-y-3">
-            <h2 className="text-xl font-semibold">Emergency Call</h2>
-            <p className="text-muted-foreground">
-                Connect with a healthcare professional immediately
-            </p>
-            <Button asChild variant="secondary">
+        <Card className="bg-destructive/10 border-destructive/20">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2"><Phone className="h-6 w-6 text-destructive"/>Emergency Call</CardTitle>
+              <CardDescription className="text-destructive/80">
+                  Connect with a healthcare professional immediately.
+              </CardDescription>
+            </div>
+             <Button asChild variant="destructive">
                 <Link href="/parent/emergency">Call Now</Link>
             </Button>
-            </div>
-        </div>
+          </CardHeader>
+        </Card>
+
       </div>
 
       <div className="space-y-6 hidden lg:block">

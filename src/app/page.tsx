@@ -107,7 +107,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen landing-page-gradient-bg">
       <MarketingHeader />
       <main className="flex-1">
         <AnimatedContent>
@@ -234,7 +234,7 @@ export default function Home() {
             </div>
           </section>
 
-          <section className="w-full py-12 md:py-24 lg:py-32 bg-[#FFF7F1]">
+          <section className="w-full py-12 md:py-24 lg:py-32 bg-[#FFF7F1] dark:bg-zinc-900/40">
             <div className="container px-4 md:px-6">
               <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
                 <div className="flex flex-col items-center justify-center space-y-4 text-center">
@@ -462,7 +462,7 @@ export default function Home() {
             </div>
           </section>
 
-          <section id="testimonials" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
+          <section id="testimonials" className="w-full py-12 md:py-24 lg:py-32 bg-muted dark:bg-card">
             <div className="container px-4 md:px-6">
               <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
                 <div className="flex flex-col items-center justify-center space-y-4 text-center">
@@ -530,7 +530,7 @@ export default function Home() {
                       <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
                         <div className="p-1">
                           <Card className="overflow-hidden group border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300">
-                            <div className="relative bg-blue-50 p-4 aspect-[4/3] flex items-center justify-center">
+                            <div className="relative bg-blue-50 dark:bg-blue-900/20 p-4 aspect-[4/3] flex items-center justify-center">
                               <Image
                                 src={doctor.imageUrl}
                                 data-ai-hint={doctor.dataAiHint}
@@ -540,7 +540,7 @@ export default function Home() {
                                 className="rounded-full mx-auto aspect-square object-cover border-4 border-white shadow-md transition-transform duration-300 group-hover:scale-105"
                               />
                             </div>
-                            <CardContent className="p-4 text-center bg-white">
+                            <CardContent className="p-4 text-center bg-white dark:bg-card">
                               <h3 className="font-bold text-lg">{doctor.name}</h3>
                               <p className="text-sm text-muted-foreground mt-1 h-10">{doctor.title}</p>
                             </CardContent>
@@ -556,7 +556,7 @@ export default function Home() {
             </div>
           </section>
 
-           <section id="pricing" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
+           <section id="pricing" className="w-full py-12 md:py-24 lg:py-32 bg-muted dark:bg-card">
             <TooltipProvider>
               <div className="container px-4 md:px-6">
                  <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
@@ -618,8 +618,8 @@ export default function Home() {
                                     const value = planFeatures.basic[feature.name as keyof typeof planFeatures.basic];
                                     return (
                                     <li key={feature.name} className="flex items-center gap-3 text-sm">
-                                        {value === true ? <CheckCircle2 className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
-                                        <span className="flex-1">{typeof value === 'string' ? `${value} ${feature.name}` : feature.name}</span>
+                                        {value === true ? <CheckCircle2 className="h-5 w-5 text-green-500" /> : (value === false ? <XCircle className="h-5 w-5 text-red-500" /> : <span className='text-xs font-bold text-primary w-5 text-center'>✓</span>)}
+                                        <span className="flex-1">{typeof value === 'string' ? <><span className='font-bold'>{value}</span> {feature.name.split(' ').slice(1).join(' ')}</> : feature.name}</span>
                                     </li>
                                     );
                                 })}
@@ -644,8 +644,8 @@ export default function Home() {
                                     const value = planFeatures.premium[feature.name as keyof typeof planFeatures.premium];
                                     return (
                                     <li key={feature.name} className="flex items-center gap-3 text-sm">
-                                        <CheckCircle2 className="h-5 w-5 text-green-500" />
-                                        <span className="flex-1">{typeof value === 'string' ? <span className="font-semibold">{value}</span> : ''} {feature.name}</span>
+                                        {value === true ? <CheckCircle2 className="h-5 w-5 text-green-500" /> : (value === false ? <XCircle className="h-5 w-5 text-red-500" /> : <span className='text-xs font-bold text-primary w-5 text-center'>✓</span>)}
+                                        <span className="flex-1">{typeof value === 'string' ? <><span className='font-bold'>{value}</span> {feature.name.split(' ').slice(1).join(' ')}</> : feature.name}</span>
                                     </li>
                                     );
                                 })}
@@ -660,7 +660,7 @@ export default function Home() {
           </section>
 
 
-          <section className="w-full py-12 md:py-24 lg:py-32 bg-muted">
+          <section className="w-full py-12 md:py-24 lg:py-32 bg-muted dark:bg-card">
             <div className="container px-4 md:px-6">
               <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
                 <div className="flex flex-col items-center justify-center space-y-4 text-center">
