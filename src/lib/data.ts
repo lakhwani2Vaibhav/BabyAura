@@ -99,18 +99,21 @@ export const careArticles = [
     title: "Understanding Your Baby's Sleep Patterns",
     description: "Learn about newborn sleep cycles and how to establish healthy sleep habits.",
     imageUrl: "https://placehold.co/600x400.png",
+    author: "BabyAura Health Team",
   },
   {
     id: 2,
     title: "A Guide to Introducing Solid Foods",
     description: "Find out when and how to start your baby on solid foods, with tips for success.",
     imageUrl: "https://placehold.co/600x400.png",
+    author: "BabyAura Health Team",
   },
   {
     id: 3,
     title: "Milestones: Your Baby's First Year",
     description: "Track the exciting developmental milestones to watch for in the first 12 months.",
     imageUrl: "https://placehold.co/600x400.png",
+    author: "BabyAura Health Team",
   },
 ];
 
@@ -192,6 +195,10 @@ export const doctorData = {
       { id: 'rx2', patientName: 'Baby Williams', medication: 'Infant Tylenol', dateIssued: subDays(new Date(), 5).toISOString(), status: 'Active' as const },
       { id: 'rx3', patientName: 'Baby Brown', medication: 'Nystatin Cream', dateIssued: subDays(new Date(), 30).toISOString(), status: 'Expired' as const },
     ],
+    revenue: {
+      today: 225,
+      thisWeek: 1250,
+    },
     earnings: {
         total: 75430,
         thisMonth: 9800,

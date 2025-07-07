@@ -53,9 +53,10 @@ export default function ArticlePage({ params }: { params: { articleId: string } 
           />
         </CardHeader>
         <CardContent className="p-8">
-          <CardTitle className="text-4xl font-bold font-headline mb-6">
+          <CardTitle className="text-4xl font-bold font-headline mb-2">
             {article.title}
           </CardTitle>
+          <p className="text-muted-foreground mb-6">By {article.author}</p>
           <div className="prose prose-lg max-w-none text-foreground/90">
             <p>{article.description}</p>
           </div>
