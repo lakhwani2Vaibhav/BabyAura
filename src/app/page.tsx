@@ -111,7 +111,7 @@ export default function Home() {
       <MarketingHeader />
       <main className="flex-1">
         <AnimatedContent>
-          <section className="w-full pt-20 pb-12 md:pt-28 md:pb-24 lg:pt-32 lg:pb-32 xl:pt-40 xl:pb-48">
+          <section className="w-full pt-12 pb-12 md:pt-16 md:pb-24 lg:pt-20 lg:pb-32 xl:pt-28 xl:pb-48">
             <div className="container px-4 md:px-6">
               <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
                 <div className="flex flex-col justify-center space-y-4">
@@ -135,7 +135,7 @@ export default function Home() {
                         <Link href="/auth/login">Get Started</Link>
                       </Button>
                       <Button size="lg" variant="outline" asChild>
-                        <Link href="#pricing">View Pricing</Link>
+                        <Link href="#pricing">Pricing</Link>
                       </Button>
                       <Button size="lg" variant="outline" asChild>
                         <Link href="https://docs.google.com/forms/d/e/1FAIpQLScT83PqypfnGSLGSzdXaSx8i3MypuG31KxGF1-fC14ZwzanqA/viewform" target="_blank" rel="noopener noreferrer">
