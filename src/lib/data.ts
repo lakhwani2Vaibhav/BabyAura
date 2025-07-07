@@ -36,40 +36,41 @@ export const parentData = {
 export const scrapbookMemories = [
   {
     id: 1,
-    type: "image",
-    url: "https://placehold.co/600x400.png",
-    dataAiHint: "baby laughing",
-    caption: "Our little one's infectious giggle! This sound is pure joy.",
-    date: subDays(new Date(), 2).toISOString(),
-    tags: ["happy", "milestone"],
+    title: "First Smile",
+    date: "2024-01-15T00:00:00.000Z",
+    iconUrl: "https://placehold.co/48x48.png",
+    dataAiHint: "baby smiling",
   },
   {
     id: 2,
-    type: "video",
-    url: "https://placehold.co/600x400.png",
-    dataAiHint: "baby first steps",
-    caption: "And she's off! Taking her very first wobbly steps today. So proud of our little explorer.",
-    date: subDays(new Date(), 15).toISOString(),
-    tags: ["first steps", "milestone", "walking"],
+    title: "First Steps",
+    date: "2024-03-22T00:00:00.000Z",
+    iconUrl: "https://placehold.co/48x48.png",
+    dataAiHint: "baby walking",
   },
   {
     id: 3,
-    type: "audio",
-    url: "audio_placeholder.mp3",
-    caption: "First time saying 'Dada'. My heart just melted.",
-    date: subDays(new Date(), 34).toISOString(),
-    tags: ["first word", "milestone"],
+    title: "First Word",
+    date: "2024-04-10T00:00:00.000Z",
+    iconUrl: "https://placehold.co/48x48.png",
+    dataAiHint: "baby talking",
   },
-    {
+  {
     id: 4,
-    type: "image",
-    url: "https://placehold.co/600x400.png",
-    dataAiHint: "baby grandma",
-    caption: "Meeting grandma for the first time. Look at that smile!",
-    date: subDays(new Date(), 50).toISOString(),
-    tags: ["family", "grandma"],
+    title: "First Birthday",
+    date: "2024-12-05T00:00:00.000Z",
+    iconUrl: "https://placehold.co/48x48.png",
+    dataAiHint: "baby birthday",
+  },
+  {
+    id: 5,
+    title: "First Day at School",
+    date: "2025-09-02T00:00:00.000Z",
+    iconUrl: "https://placehold.co/48x48.png",
+    dataAiHint: "child school",
   },
 ];
+
 
 export const doctorData = {
     todaysConsultations: [

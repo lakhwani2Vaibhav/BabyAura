@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/select";
 import { generateScrapbookCaption } from "@/ai/flows/generate-scrapbook-caption";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, PlusCircle, Sparkles } from "lucide-react";
+import { Loader2, Plus, PlusCircle, Sparkles } from "lucide-react";
 
 const memorySchema = z.object({
   mediaType: z.enum(["image", "audio", "video"]),
@@ -108,8 +108,8 @@ export function UploadMemoryModal() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" /> Add Memory
+        <Button size="lg" className="rounded-full shadow-lg h-14 px-6">
+          <Plus className="mr-2 h-5 w-5" /> Upload Memory
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[525px]">

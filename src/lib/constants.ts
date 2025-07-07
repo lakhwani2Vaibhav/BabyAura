@@ -25,33 +25,34 @@ export interface NavItem {
   match?: (pathname: string) => boolean;
 }
 
-export const parentSidebarNav: NavItem[] = [
+export const parentHeaderNav: NavItem[] = [
   {
-    href: "/parent/consultations",
-    label: "Consultations",
-    icon: Video,
-  },
-  {
-    href: "/parent/reports",
-    label: "Health Reports",
-    icon: BarChart2,
-  },
-  {
-    href: "/parent/vaccination",
-    label: "Vaccination",
-    icon: CalendarCheck,
-  },
-  {
-    href: "/parent/emergency",
-    label: "Emergency",
-    icon: Phone,
+    href: "/parent/dashboard",
+    label: "Overview",
+    icon: LayoutDashboard,
   },
   {
     href: "/parent/scrapbook",
     label: "Scrapbook",
     icon: BookImage,
   },
+  {
+    href: "#",
+    label: "Growth",
+    icon: BarChart2,
+  },
+  {
+    href: "#",
+    label: "Care",
+    icon: Stethoscope,
+  },
+  {
+    href: "#",
+    label: "Community",
+    icon: Users,
+  },
 ];
+
 
 export const doctorSidebarNav: NavItem[] = [
   {
