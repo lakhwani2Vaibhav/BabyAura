@@ -94,16 +94,16 @@ export default function Home() {
             <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
-                  <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none font-headline">
+                  <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none font-headline animate-in fade-in slide-in-from-top-4 duration-1000 ease-out">
                     Welcome to BabyAura
                   </h1>
-                  <p className="max-w-[600px] text-muted-foreground md:text-xl">
+                  <p className="max-w-[600px] text-muted-foreground md:text-xl animate-in fade-in slide-in-from-top-2 duration-1000 ease-out delay-200">
                     Digital care for your little one, from hospital to home. We
                     provide a seamless e-care system for postnatal and early
                     childhood support.
                   </p>
                 </div>
-                <div className="flex flex-col gap-2 min-[400px]:flex-row">
+                <div className="flex flex-col gap-2 min-[400px]:flex-row animate-in fade-in slide-in-from-top-0 duration-1000 ease-out delay-400">
                   <Button size="lg" asChild>
                     <Link href="/auth/login">Get Started</Link>
                   </Button>
@@ -118,7 +118,7 @@ export default function Home() {
                 width="600"
                 height="400"
                 alt="Hero"
-                className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last"
+                className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last animate-in fade-in zoom-in-95 duration-1000 ease-out delay-200"
               />
             </div>
           </div>
@@ -127,7 +127,7 @@ export default function Home() {
         <section id="features" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <div className="space-y-2">
+              <div className="space-y-2 animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
                 <div className="inline-block rounded-lg bg-secondary px-3 py-1 text-sm">
                   Key Features
                 </div>
@@ -148,11 +148,11 @@ export default function Home() {
                 width="600"
                 height="400"
                 alt="Feature"
-                className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full lg:order-last"
+                className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full lg:order-last animate-in fade-in zoom-in-95 duration-1000 ease-out"
               />
               <div className="flex flex-col justify-center space-y-4">
                 <ul className="grid gap-6">
-                  <li>
+                  <li className="animate-in fade-in slide-in-from-left-8 duration-1000 ease-out delay-200">
                     <div className="grid gap-1">
                       <h3 className="text-xl font-bold">For Parents</h3>
                       <p className="text-muted-foreground">
@@ -161,7 +161,7 @@ export default function Home() {
                       </p>
                     </div>
                   </li>
-                  <li>
+                  <li className="animate-in fade-in slide-in-from-left-8 duration-1000 ease-out delay-300">
                     <div className="grid gap-1">
                       <h3 className="text-xl font-bold">For Doctors</h3>
                       <p className="text-muted-foreground">
@@ -170,7 +170,7 @@ export default function Home() {
                       </p>
                     </div>
                   </li>
-                  <li>
+                  <li className="animate-in fade-in slide-in-from-left-8 duration-1000 ease-out delay-400">
                     <div className="grid gap-1">
                       <h3 className="text-xl font-bold">For Hospitals</h3>
                       <p className="text-muted-foreground">
@@ -187,7 +187,7 @@ export default function Home() {
 
         <section id="hospitals" className="w-full py-12 md:py-24 lg:py-32">
           <div className="container grid items-center gap-6 px-4 md:px-6 lg:grid-cols-2 lg:gap-10">
-            <div className="space-y-2">
+            <div className="space-y-2 animate-in fade-in slide-in-from-left-8 duration-1000 ease-out">
               <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight font-headline">
                 Partner with BabyAura
               </h2>
@@ -197,7 +197,7 @@ export default function Home() {
                 care.
               </p>
             </div>
-            <div className="flex flex-col gap-2 min-[400px]:flex-row lg:justify-end">
+            <div className="flex flex-col gap-2 min-[400px]:flex-row lg:justify-end animate-in fade-in slide-in-from-right-8 duration-1000 ease-out">
               <Button size="lg" asChild>
                 <Link href="/auth/login?role=Admin">Onboard Your Hospital</Link>
               </Button>
@@ -207,7 +207,7 @@ export default function Home() {
 
         <section id="parents" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
           <div className="container grid items-center justify-center gap-4 px-4 text-center md:px-6">
-            <div className="space-y-3">
+            <div className="space-y-3 animate-in fade-in zoom-in-95 duration-1000 ease-out">
               <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight font-headline">
                 Cherish Every Moment
               </h2>
@@ -216,7 +216,7 @@ export default function Home() {
                 of your baby's journey.
               </p>
             </div>
-            <div className="mx-auto w-full max-w-sm space-y-2">
+            <div className="mx-auto w-full max-w-sm space-y-2 animate-in fade-in slide-in-from-bottom-4 duration-1000 ease-out delay-200">
               <Button type="submit" size="lg" asChild>
                 <Link href="/auth/login?role=Parent">Create Your Scrapbook</Link>
               </Button>
@@ -224,7 +224,7 @@ export default function Home() {
           </div>
         </section>
       </main>
-      <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
+      <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t animate-in fade-in duration-1000 ease-out delay-500">
         <p className="text-xs text-muted-foreground">
           &copy; {new Date().getFullYear()} BabyAura. All rights reserved.
         </p>
