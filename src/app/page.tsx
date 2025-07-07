@@ -1,4 +1,3 @@
-
 'use client';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -132,6 +131,9 @@ export default function Home() {
                     <div className="flex flex-col gap-2 min-[400px]:flex-row">
                       <Button size="lg" asChild>
                         <Link href="/auth/login">Get Started</Link>
+                      </Button>
+                      <Button size="lg" variant="outline" asChild>
+                        <Link href="#pricing">View Pricing</Link>
                       </Button>
                       <Button size="lg" variant="outline">
                         Join Waitlist
@@ -508,7 +510,7 @@ export default function Home() {
             </div>
           </section>
 
-           <section className="w-full py-12 md:py-24 lg:py-32 bg-muted">
+           <section id="pricing" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
             <TooltipProvider>
               <div className="container px-4 md:px-6">
                  <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
