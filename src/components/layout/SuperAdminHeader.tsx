@@ -1,7 +1,8 @@
+
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { BabyAuraLogo } from "@/components/icons/BabyAuraLogo";
 import { Button } from "@/components/ui/button";
 import { Bell, LogOut, User, Menu } from "lucide-react";
@@ -21,6 +22,7 @@ import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 
 export function SuperAdminHeader() {
   const pathname = usePathname();
+  const router = useRouter();
   const { role, logout } = useAuth();
 
   const getInitials = (role: string | null) => {
@@ -31,64 +33,66 @@ export function SuperAdminHeader() {
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-          <Link
-            href="/superadmin/dashboard"
-            className="flex items-center space-x-2"
-          >
-            <BabyAuraLogo />
-          </Link>
-          {superAdminHeaderNav.map((item) => (
+        <div className="flex items-center gap-4">
+          <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
             <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "transition-colors hover:text-foreground/80",
-                pathname === item.href
-                  ? "text-foreground"
-                  : "text-foreground/60"
-              )}
+              href="/superadmin/dashboard"
+              className="flex items-center space-x-2"
             >
-              {item.label}
+              <BabyAuraLogo />
             </Link>
-          ))}
-        </nav>
-
-        <div className="flex items-center gap-4 md:hidden">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Menu className="h-6 w-6" />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left">
+            {superAdminHeaderNav.map((item) => (
               <Link
-                href="/superadmin/dashboard"
-                className="mb-6 flex items-center"
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "transition-colors hover:text-foreground/80",
+                  pathname === item.href
+                    ? "text-foreground"
+                    : "text-foreground/60"
+                )}
               >
-                <BabyAuraLogo />
+                {item.label}
               </Link>
-              <nav className="grid gap-2 text-lg font-medium">
-                {superAdminHeaderNav.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
-                      pathname === item.href && "bg-muted text-primary"
-                    )}
-                  >
-                    <item.icon className="h-5 w-5" />
-                    {item.label}
-                  </Link>
-                ))}
-              </nav>
-            </SheetContent>
-          </Sheet>
-           <Link href="/superadmin/dashboard">
-            <BabyAuraLogo />
-          </Link>
+            ))}
+          </nav>
+
+          <div className="flex items-center gap-4 md:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-6 w-6" />
+                  <span className="sr-only">Open menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left">
+                <Link
+                  href="/superadmin/dashboard"
+                  className="mb-6 flex items-center"
+                >
+                  <BabyAuraLogo />
+                </Link>
+                <nav className="grid gap-2 text-lg font-medium">
+                  {superAdminHeaderNav.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={cn(
+                        "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
+                        pathname === item.href && "bg-muted text-primary"
+                      )}
+                    >
+                      <item.icon className="h-5 w-5" />
+                      {item.label}
+                    </Link>
+                  ))}
+                </nav>
+              </SheetContent>
+            </Sheet>
+            <Link href="/superadmin/dashboard" className="md:hidden">
+              <BabyAuraLogo />
+            </Link>
+          </div>
         </div>
         
         <div className="flex items-center justify-end space-x-2">
@@ -122,7 +126,7 @@ export function SuperAdminHeader() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/superadmin/profile")}>
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </DropdownMenuItem>
