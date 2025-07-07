@@ -51,6 +51,11 @@ export const parentHeaderNav: NavItem[] = [
     label: "Community",
     icon: Users,
   },
+  {
+    href: "/parent/emergency",
+    label: "Emergency",
+    icon: Phone,
+  },
 ];
 
 
