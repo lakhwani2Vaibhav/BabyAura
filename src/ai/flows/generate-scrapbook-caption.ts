@@ -33,12 +33,23 @@ const generateScrapbookCaptionPrompt = ai.definePrompt({
   name: 'generateScrapbookCaptionPrompt',
   input: {schema: GenerateScrapbookCaptionInputSchema},
   output: {schema: GenerateScrapbookCaptionOutputSchema},
-  prompt: `You are an AI caption generator for a baby scrapbook application.  Given the following information about a scrapbook entry, generate a relevant and engaging caption.
+  prompt: `You are a warm and creative AI assistant for a baby scrapbook app called BabyAura. Your task is to write a heartfelt and engaging caption for a memory.
 
-Media Type: {{{mediaType}}}
-Description: {{{description}}}
-Keywords: {{{keywords}}}
+The parent has provided the following details:
+- Media Type: {{{mediaType}}}
+- Description of the memory: {{{description}}}
+{{#if keywords}}- Keywords: {{{keywords}}}{{/if}}
 
+Based on these details, write a caption that is:
+- Positive and loving in tone.
+- One or two sentences long.
+- Evokes emotion and captures the essence of the moment.
+
+Examples:
+- Description: "Baby's first time laughing out loud at the dog." -> Caption: "Pure joy is hearing that first real belly laugh. Our furry friend is officially the best comedian in the house!"
+- Description: "Fell asleep in the middle of eating spaghetti." -> Caption: "The spaghetti was just too good to stay awake for. A true foodie in the making!"
+
+Now, generate a caption for the parent's memory.
 Caption:`,
 });
 

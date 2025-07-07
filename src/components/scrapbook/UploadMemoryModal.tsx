@@ -34,14 +34,14 @@ import {
 } from "@/components/ui/select";
 import { generateScrapbookCaption } from "@/ai/flows/generate-scrapbook-caption";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, PlusCircle, Sparkles } from "lucide-react";
+import { Loader2, Plus, Sparkles } from "lucide-react";
 
 const memorySchema = z.object({
+  title: z.string().min(3, "Please provide a title."),
   mediaType: z.enum(["image", "audio", "video"]),
   description: z.string().min(10, "Please provide a more detailed description."),
   keywords: z.string().optional(),
   caption: z.string().optional(),
-  file: z.any().optional(),
 });
 
 type MemoryFormValues = z.infer<typeof memorySchema>;
@@ -54,6 +54,7 @@ export function UploadMemoryModal() {
   const form = useForm<MemoryFormValues>({
     resolver: zodResolver(memorySchema),
     defaultValues: {
+      title: "",
       mediaType: "image",
       description: "",
       keywords: "",
@@ -109,18 +110,31 @@ export function UploadMemoryModal() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="lg" className="rounded-full shadow-lg h-14 px-6">
-          <Plus className="mr-2 h-5 w-5" /> Upload Memory
+          <Plus className="mr-2 h-5 w-5" /> Add Memory
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
           <DialogTitle>Add a New Memory</DialogTitle>
           <DialogDescription>
-            Upload a photo, video, or audio recording to the scrapbook.
+            Describe a memory and our AI will help you capture it perfectly.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Title</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., Baby's First Laugh" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="mediaType"
@@ -175,7 +189,7 @@ export function UploadMemoryModal() {
                 </FormItem>
               )}
             />
-             <FormField
+            <FormField
               control={form.control}
               name="caption"
               render={({ field }) => (
@@ -198,30 +212,22 @@ export function UploadMemoryModal() {
                     </Button>
                   </div>
                   <FormControl>
-                    <Textarea placeholder="A lovely caption for this memory..." {...field} />
+                    <Textarea
+                      placeholder="A lovely caption for this memory..."
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <FormField
-                control={form.control}
-                name="file"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Upload File</FormLabel>
-                        <FormControl>
-                            <Input type="file" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
             <DialogFooter>
-                <DialogClose asChild>
-                    <Button type="button" variant="ghost">Cancel</Button>
-                </DialogClose>
-                <Button type="submit">Save Memory</Button>
+              <DialogClose asChild>
+                <Button type="button" variant="ghost">
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button type="submit">Save Memory</Button>
             </DialogFooter>
           </form>
         </Form>

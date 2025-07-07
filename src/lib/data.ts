@@ -136,42 +136,59 @@ export const communityPosts = [
   },
 ];
 
-
 export const scrapbookMemories = [
   {
     id: 1,
+    type: "image" as const,
     title: "First Smile",
     date: "2024-01-15T00:00:00.000Z",
-    iconUrl: "https://placehold.co/48x48.png",
+    url: "https://placehold.co/600x400.png",
     dataAiHint: "baby smiling",
+    caption:
+      "That gummy smile just melts my heart! Soaking in these precious moments.",
+    tags: ["firsts", "milestone", "happy"],
   },
   {
     id: 2,
+    type: "video" as const,
     title: "First Steps",
     date: "2024-03-22T00:00:00.000Z",
-    iconUrl: "https://placehold.co/48x48.png",
+    url: "https://placehold.co/600x400.png", // Placeholder for video thumbnail
     dataAiHint: "baby walking",
+    caption:
+      "Look who's on the move! A little wobbly but so determined. Go, baby, go!",
+    tags: ["firsts", "milestone", "walking"],
   },
   {
     id: 3,
-    title: "First Word",
+    type: "audio" as const,
+    title: 'First Word ("Dada")',
     date: "2024-04-10T00:00:00.000Z",
-    iconUrl: "https://placehold.co/48x48.png",
+    url: "", // No visual for audio
     dataAiHint: "baby talking",
+    caption: "And the first word is... Dada! Of course. My heart just exploded.",
+    tags: ["firsts", "milestone", "talking"],
   },
   {
     id: 4,
-    title: "First Birthday",
-    date: "2024-12-05T00:00:00.000Z",
-    iconUrl: "https://placehold.co/48x48.png",
-    dataAiHint: "baby birthday",
+    type: "image" as const,
+    title: "Visit to Grandma's",
+    date: "2024-05-01T00:00:00.000Z",
+    url: "https://placehold.co/600x400.png",
+    dataAiHint: "baby grandmother",
+    caption: "Meeting the great-grandma. So much love in one photo.",
+    tags: ["family", "grandma"],
   },
   {
     id: 5,
-    title: "First Day at School",
-    date: "2025-09-02T00:00:00.000Z",
-    iconUrl: "https://placehold.co/48x48.png",
-    dataAiHint: "child school",
+    type: "image" as const,
+    title: "First Birthday",
+    date: "2024-12-05T00:00:00.000Z",
+    url: "https://placehold.co/600x400.png",
+    dataAiHint: "baby birthday",
+    caption:
+      "One year of pure joy! We celebrated with a cake smash and lots of cuddles.",
+    tags: ["birthday", "celebration", "family"],
   },
 ];
 
