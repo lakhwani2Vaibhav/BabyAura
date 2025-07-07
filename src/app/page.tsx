@@ -7,16 +7,23 @@ import {
   Hospital,
   Stethoscope,
   Users,
+  Menu,
 } from 'lucide-react';
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+
 
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="px-4 lg:px-6 h-16 flex items-center bg-background/80 backdrop-blur-sm sticky top-0 z-50">
+      <header className="px-4 lg:px-6 h-16 flex items-center justify-between bg-background/80 backdrop-blur-sm sticky top-0 z-50">
         <Link href="#" className="flex items-center justify-center">
           <BabyAuraLogo />
         </Link>
-        <nav className="ml-auto flex gap-4 sm:gap-6 items-center">
+        <nav className="hidden md:flex gap-4 sm:gap-6 items-center">
           <Link
             href="#features"
             className="text-sm font-medium hover:underline underline-offset-4"
@@ -39,6 +46,47 @@ export default function Home() {
             <Link href="/auth/login">Login</Link>
           </Button>
         </nav>
+        <div className="md:hidden">
+            <Sheet>
+                <SheetTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                        <Menu className="h-6 w-6" />
+                        <span className="sr-only">Open menu</span>
+                    </Button>
+                </SheetTrigger>
+                <SheetContent side="right">
+                    <nav className="grid gap-6 text-lg font-medium mt-6">
+                        <Link
+                            href="#"
+                            className="flex items-center gap-2 text-lg font-semibold"
+                        >
+                            <BabyAuraLogo />
+                        </Link>
+                        <Link
+                            href="#features"
+                            className="text-muted-foreground hover:text-foreground"
+                        >
+                            Features
+                        </Link>
+                        <Link
+                            href="#hospitals"
+                            className="text-muted-foreground hover:text-foreground"
+                        >
+                            For Hospitals
+                        </Link>
+                        <Link
+                            href="#parents"
+                            className="text-muted-foreground hover:text-foreground"
+                        >
+                            For Parents
+                        </Link>
+                        <Button asChild className="mt-4">
+                            <Link href="/auth/login">Login</Link>
+                        </Button>
+                    </nav>
+                </SheetContent>
+            </Sheet>
+        </div>
       </header>
       <main className="flex-1">
         <section className="w-full pt-24 pb-12 md:pt-36 md:pb-24 lg:pt-44 lg:pb-32 xl:pt-60 xl:pb-48">
