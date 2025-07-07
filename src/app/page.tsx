@@ -37,7 +37,7 @@ import { ourDoctors } from '@/lib/data';
 
 export default function Home() {
     const plugin = React.useRef(
-    Autoplay({ delay: 3000, stopOnInteraction: true })
+    Autoplay({ delay: 1500, stopOnInteraction: true })
   )
   return (
     <div className="flex flex-col min-h-screen">
