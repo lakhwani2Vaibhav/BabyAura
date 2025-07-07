@@ -1,3 +1,5 @@
+'use client';
+
 import { parentData } from "@/lib/data";
 import { doctorData } from "@/lib/data";
 import Link from "next/link";
