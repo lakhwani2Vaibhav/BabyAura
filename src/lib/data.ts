@@ -338,3 +338,54 @@ export const ourDoctors = [
     dataAiHint: 'doctor portrait',
   },
 ];
+
+export const testimonials = [
+  {
+    id: 1,
+    name: 'Priya Sharma',
+    avatarUrl: 'https://placehold.co/48x48.png',
+    dataAiHint: 'mother portrait',
+    quote: "BabyAura has been a lifesaver! The 24/7 pediatrician support gave me peace of mind during those late-night fever scares. It's like having a doctor in your pocket.",
+    childAge: '6 month',
+  },
+  {
+    id: 2,
+    name: 'Anjali Mehta',
+    avatarUrl: 'https://placehold.co/48x48.png',
+    dataAiHint: 'mother portrait',
+    quote: "I love the growth tracker and milestone alerts. It's so rewarding to see my baby's progress, and the app makes it easy to share with our family.",
+    childAge: '1 year',
+  },
+  {
+    id: 3,
+    name: 'Sneha Gupta',
+    avatarUrl: 'https://placehold.co/48x48.png',
+    dataAiHint: 'mother portrait',
+    quote: "The AI-powered scrapbook is just magical. It helps me capture every little moment beautifully. I never thought I'd have such a well-organized baby book!",
+    childAge: '9 month',
+  },
+  {
+    id: 4,
+    name: 'Deepika Reddy',
+    avatarUrl: 'https://placehold.co/48x48.png',
+    dataAiHint: 'mother portrait',
+    quote: "As a first-time mom, the community forum has been my go-to. Getting advice from other parents who are going through the same thing is invaluable.",
+    childAge: '4 month',
+  },
+  {
+    id: 5,
+    name: 'Fatima Khan',
+    avatarUrl: 'https://placehold.co/48x48.png',
+    dataAiHint: 'mother portrait',
+    quote: "The vaccination reminders are a game-changer. I'm so forgetful with my busy schedule, but BabyAura keeps us on track with all the important shots.",
+    childAge: '1.5 year',
+  },
+  {
+    id: 6,
+    name: 'Riya Singh',
+    avatarUrl: 'https://placehold.co/48x48.png',
+    dataAiHint: 'mother portrait',
+    quote: "Finally, an app that understands what parents need. From health records to emergency support, it's the most comprehensive parenting app I've used. Highly recommend!",
+    childAge: '2 year',
+  },
+];

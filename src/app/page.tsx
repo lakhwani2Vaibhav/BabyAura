@@ -17,12 +17,13 @@ import {
   CheckCircle2,
   XCircle,
   Info,
+  Heart,
 } from 'lucide-react';
 import { Footer } from '@/components/layout/Footer';
 import { MarketingHeader } from '@/components/layout/MarketingHeader';
 import { AnimatedContent } from '@/components/layout/AnimatedContent';
 import { ScrollAnimationWrapper } from '@/components/layout/ScrollAnimationWrapper';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import React, { useState } from 'react';
 import {
@@ -33,7 +34,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel"
 import Autoplay from "embla-carousel-autoplay"
-import { ourDoctors } from '@/lib/data';
+import { ourDoctors, testimonials } from '@/lib/data';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
@@ -43,6 +44,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 
 export default function Home() {
@@ -456,6 +458,48 @@ export default function Home() {
                     </div>
                   </ScrollAnimationWrapper>
                 </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="testimonials" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
+            <div className="container px-4 md:px-6">
+              <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
+                <div className="flex flex-col items-center justify-center space-y-4 text-center">
+                  <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">
+                    Loved by Mothers Everywhere
+                  </h2>
+                  <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                    Hear what parents are saying about their BabyAura experience. Real stories from real moms.
+                  </p>
+                </div>
+              </ScrollAnimationWrapper>
+              <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 py-12 sm:grid-cols-2 lg:grid-cols-3">
+                {testimonials.map((testimonial, index) => (
+                  <ScrollAnimationWrapper
+                    key={testimonial.id}
+                    animationClasses={`animate-in fade-in zoom-in-95 duration-700 ease-out delay-${100 + index * 100}`}
+                  >
+                    <Card className="h-full flex flex-col justify-between p-6 bg-card border shadow-sm">
+                      <CardContent className="p-0 mb-4">
+                        <p className="text-foreground/90 italic">"{testimonial.quote}"</p>
+                      </CardContent>
+                      <CardFooter className="p-0 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-10 w-10">
+                            <AvatarImage src={testimonial.avatarUrl} data-ai-hint={testimonial.dataAiHint} />
+                            <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-semibold">{testimonial.name}</p>
+                            <p className="text-sm text-muted-foreground">Mother of a {testimonial.childAge} old</p>
+                          </div>
+                        </div>
+                        <Heart className="h-5 w-5 text-pink-500 fill-current" />
+                      </CardFooter>
+                    </Card>
+                  </ScrollAnimationWrapper>
+                ))}
               </div>
             </div>
           </section>
