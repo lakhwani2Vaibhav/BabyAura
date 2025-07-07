@@ -11,7 +11,6 @@ export function Footer() {
                     <Link href="/parent/consultations" className="text-sm text-muted-foreground hover:text-primary transition-colors">Consultations</Link>
                     <Link href="/parent/reports" className="text-sm text-muted-foreground hover:text-primary transition-colors">Health Records</Link>
                     <Link href="/parent/vaccination" className="text-sm text-muted-foreground hover:text-primary transition-colors">Vaccinations</Link>
-                    <Link href="/parent/emergency" className="text-sm text-muted-foreground hover:text-primary transition-colors">Emergency Care</Link>
                 </nav>
             </div>
             <div className="flex flex-col gap-4">
