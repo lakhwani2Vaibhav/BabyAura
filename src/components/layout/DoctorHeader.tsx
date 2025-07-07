@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BabyAuraLogo } from "@/components/icons/BabyAuraLogo";
 import { Button } from "@/components/ui/button";
-import { Bell, LogOut, User } from "lucide-react";
+import { Bell, LogOut, User, Menu } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -17,6 +17,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { doctorHeaderNav } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 
 export function DoctorHeader() {
   const pathname = usePathname();
@@ -29,27 +30,71 @@ export function DoctorHeader() {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center">
-        <div className="mr-8 flex">
-          <Link href="/doctor/dashboard" className="flex items-center space-x-2">
+      <div className="container flex h-16 items-center justify-between">
+        <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+          <Link
+            href="/doctor/dashboard"
+            className="flex items-center space-x-2"
+          >
             <BabyAuraLogo />
           </Link>
-        </div>
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
           {doctorHeaderNav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
                 "transition-colors hover:text-foreground/80",
-                pathname === item.href ? "text-foreground" : "text-foreground/60"
+                pathname === item.href
+                  ? "text-foreground"
+                  : "text-foreground/60"
               )}
             >
               {item.label}
             </Link>
           ))}
         </nav>
-        <div className="flex flex-1 items-center justify-end space-x-2">
+
+        <div className="md:hidden">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Menu className="h-6 w-6" />
+                <span className="sr-only">Open menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left">
+              <Link
+                href="/doctor/dashboard"
+                className="mb-6 flex items-center"
+              >
+                <BabyAuraLogo />
+              </Link>
+              <nav className="grid gap-2 text-lg font-medium">
+                {doctorHeaderNav.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
+                      pathname === item.href && "bg-muted text-primary"
+                    )}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    {item.label}
+                  </Link>
+                ))}
+              </nav>
+            </SheetContent>
+          </Sheet>
+        </div>
+
+        <div className="md:hidden">
+          <Link href="/doctor/dashboard">
+            <BabyAuraLogo />
+          </Link>
+        </div>
+
+        <div className="flex items-center justify-end space-x-2">
             <Button variant="ghost" size="icon" className="rounded-full">
                 <Bell className="h-5 w-5" />
                 <span className="sr-only">Notifications</span>
