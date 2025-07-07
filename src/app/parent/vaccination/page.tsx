@@ -1,3 +1,4 @@
+
 import {
   Card,
   CardContent,
@@ -16,6 +17,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { parentData } from "@/lib/data";
 import { CheckCircle, Clock } from "lucide-react";
+import { format } from "date-fns";
 
 export default function VaccinationPage() {
   const allVaccinations = [
@@ -49,7 +51,7 @@ export default function VaccinationPage() {
               <TableRow key={vaccine.id}>
                 <TableCell className="font-medium">{vaccine.name}</TableCell>
                 <TableCell>{vaccine.age}</TableCell>
-                <TableCell>{vaccine.date}</TableCell>
+                <TableCell>{format(new Date(vaccine.date), "MMMM d, yyyy")}</TableCell>
                 <TableCell className="text-right">
                   <Badge
                     variant={vaccine.status === "Completed" ? "default" : "secondary"}

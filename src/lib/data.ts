@@ -1,3 +1,4 @@
+
 import { addDays, format, subDays, subMonths } from "date-fns";
 
 export const parentData = {
@@ -34,26 +35,26 @@ export const parentData = {
     next: {
       id: 'v-next',
       name: "Hepatitis B (3rd dose)",
-      date: format(addDays(new Date(), 60), "MMMM d, yyyy"),
+      date: addDays(new Date(), 60).toISOString(),
       age: "6 Months",
     },
     history: [
       {
         id: "v1",
         name: "BCG",
-        date: format(subDays(new Date(), 90), "MMMM d, yyyy"),
+        date: subDays(new Date(), 90).toISOString(),
         age: "Birth",
       },
       {
         id: "v2",
         name: "OPV-0",
-        date: format(subDays(new Date(), 90), "MMMM d, yyyy"),
+        date: subDays(new Date(), 90).toISOString(),
         age: "Birth",
       },
       {
         id: "v3",
         name: "Hepatitis B - 1",
-        date: format(subDays(new Date(), 90), "MMMM d, yyyy"),
+        date: subDays(new Date(), 90).toISOString(),
         age: "Birth",
       },
     ],
