@@ -54,7 +54,7 @@ export const parentHeaderNav: NavItem[] = [
 ];
 
 
-export const doctorSidebarNav: NavItem[] = [
+export const doctorHeaderNav: NavItem[] = [
   {
     href: "/doctor/dashboard",
     label: "Dashboard",

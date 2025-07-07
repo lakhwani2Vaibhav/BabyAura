@@ -2,14 +2,16 @@
 
 import React from "react";
 import { withAuth } from "@/components/providers";
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { doctorSidebarNav } from "@/lib/constants";
+import { DoctorHeader } from "@/components/layout/DoctorHeader";
 
 function DoctorLayout({ children }: { children: React.ReactNode }) {
   return (
-    <DashboardLayout navItems={doctorSidebarNav}>
-      <div className="p-4 sm:p-6 lg:p-8">{children}</div>
-    </DashboardLayout>
+    <div className="min-h-screen bg-background text-foreground">
+      <DoctorHeader />
+      <main className="container mx-auto px-4 pt-24 pb-8">
+        {children}
+      </main>
+    </div>
   );
 }
 
