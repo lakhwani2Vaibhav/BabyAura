@@ -1,67 +1,80 @@
 import { parentData } from "@/lib/data";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { ConsultationCard } from "@/components/cards/ConsultationCard";
-import { VaccinationCard } from "@/components/cards/VaccinationCard";
 import { Button } from "@/components/ui/button";
-import { Phone, PlusCircle } from "lucide-react";
-import Link from "next/link";
+import Image from "next/image";
+import Link from 'next/link';
+import { formatDistanceToNow } from "date-fns";
 
 export default function ParentDashboardPage() {
+  const nextConsultation = parentData.upcomingConsultations[0];
+  const nextVaccination = parentData.vaccinationStatus.next;
+  const vaccinationDue = formatDistanceToNow(new Date(nextVaccination.date), { addSuffix: true });
+
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold font-headline">
-          Welcome, {parentData.babyName}'s Family!
-        </h1>
-        <p className="text-muted-foreground">
-          Here's a summary of your baby's health and upcoming events.
-        </p>
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <VaccinationCard nextVaccination={parentData.vaccinationStatus.next} />
-        <Card className="flex flex-col">
-          <CardHeader>
-            <CardTitle>Emergency Assistance</CardTitle>
-            <CardDescription>
-              Quick access in case of an emergency.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex-grow flex items-center justify-center">
-            <Button size="lg" variant="destructive" className="w-full h-24 text-lg">
-              <Phone className="mr-4 h-8 w-8" />
-              Call Emergency
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold font-headline">
-            Upcoming Consultations
-          </h2>
-          <Button variant="outline" asChild>
-            <Link href="/parent/consultations">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Schedule New
-            </Link>
+    <div className="grid lg:grid-cols-3 gap-12">
+      <div className="lg:col-span-2 space-y-12 py-2">
+        <div>
+          <h1 className="text-4xl font-bold font-headline text-foreground">
+            Welcome, {parentData.babyName}
+          </h1>
+        </div>
+        
+        <div className="space-y-3">
+          <h2 className="text-xl font-semibold">Upcoming Consultation</h2>
+          <p className="text-muted-foreground">
+            Pediatrician Consultation with {nextConsultation.doctor}
+          </p>
+          <Button asChild variant="secondary">
+            <Link href="/parent/consultations">View Details</Link>
           </Button>
         </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          {parentData.upcomingConsultations.map((consultation) => (
-            <ConsultationCard
-              key={consultation.id}
-              consultation={consultation}
-            />
-          ))}
+
+        <div className="space-y-3">
+          <h2 className="text-xl font-semibold">Vaccination Status</h2>
+          <p className="text-muted-foreground">
+            Next vaccination {vaccinationDue}
+          </p>
+          <Button asChild variant="secondary">
+            <Link href="/parent/vaccination">View Schedule</Link>
+          </Button>
         </div>
+
+        <div className="space-y-3">
+          <h2 className="text-xl font-semibold">Emergency Call</h2>
+          <p className="text-muted-foreground">
+            Connect with a healthcare professional immediately
+          </p>
+          <Button asChild variant="secondary">
+            <Link href="/parent/emergency">Call Now</Link>
+          </Button>
+        </div>
+
+      </div>
+
+      <div className="space-y-6 hidden lg:block">
+        <Image
+          src="https://placehold.co/600x400.png"
+          data-ai-hint="doctor baby"
+          alt="Doctor with a baby"
+          width={600}
+          height={400}
+          className="rounded-xl object-cover w-full aspect-[4/3]"
+        />
+        <Image
+          src="https://placehold.co/600x400.png"
+          data-ai-hint="mother child"
+          alt="Mother and child"
+          width={600}
+          height={400}
+          className="rounded-xl object-cover w-full aspect-[4/3]"
+        />
+        <Image
+          src="https://placehold.co/600x400.png"
+          data-ai-hint="mother selfie"
+          alt="Mother taking a selfie with her baby"
+          width={600}
+          height={400}
+          className="rounded-xl object-cover w-full aspect-[4/3]"
+        />
       </div>
     </div>
   );

@@ -23,7 +23,7 @@ export const parentData = {
   vaccinationStatus: {
     next: {
       name: "Hepatitis B",
-      date: addDays(new Date(), 22).toISOString(),
+      date: addDays(new Date(), 60).toISOString(),
     },
     history: [
       { id: 'v1', name: 'BCG', date: subDays(new Date(), 90).toISOString() },

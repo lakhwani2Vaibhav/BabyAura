@@ -1,22 +1,22 @@
 import {
   Baby,
   LayoutDashboard,
-  HeartPulse,
-  TestTube2,
   Phone,
-  BookHeart,
   Stethoscope,
   Users,
   FileText,
   DollarSign,
   Building,
   UserPlus,
-  History,
   Briefcase,
   Brain,
   Server,
   Activity,
   Hospital,
+  Video,
+  BarChart2,
+  CalendarCheck,
+  BookImage,
 } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -29,24 +29,19 @@ export interface NavItem {
 
 export const parentSidebarNav: NavItem[] = [
   {
-    href: "/parent/dashboard",
-    label: "Dashboard",
-    icon: <LayoutDashboard className="w-5 h-5" />,
-  },
-  {
     href: "/parent/consultations",
     label: "Consultations",
-    icon: <HeartPulse className="w-5 h-5" />,
+    icon: <Video className="w-5 h-5" />,
   },
   {
     href: "/parent/reports",
     label: "Health Reports",
-    icon: <TestTube2 className="w-5 h-5" />,
+    icon: <BarChart2 className="w-5 h-5" />,
   },
   {
     href: "/parent/vaccination",
     label: "Vaccination",
-    icon: <Baby className="w-5 h-5" />,
+    icon: <CalendarCheck className="w-5 h-5" />,
   },
   {
     href: "/parent/emergency",
@@ -56,7 +51,7 @@ export const parentSidebarNav: NavItem[] = [
   {
     href: "/parent/scrapbook",
     label: "Scrapbook",
-    icon: <BookHeart className="w-5 h-5" />,
+    icon: <BookImage className="w-5 h-5" />,
   },
 ];
 
