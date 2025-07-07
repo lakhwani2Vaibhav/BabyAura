@@ -135,9 +135,6 @@ export default function Home() {
                         <Link href="/auth/login">Get Started</Link>
                       </Button>
                       <Button size="lg" variant="outline" asChild>
-                        <Link href="#pricing">Pricing</Link>
-                      </Button>
-                      <Button size="lg" variant="outline" asChild>
                         <Link href="https://docs.google.com/forms/d/e/1FAIpQLScT83PqypfnGSLGSzdXaSx8i3MypuG31KxGF1-fC14ZwzanqA/viewform" target="_blank" rel="noopener noreferrer">
                           Join Waitlist
                         </Link>
