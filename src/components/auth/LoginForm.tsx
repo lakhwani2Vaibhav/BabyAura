@@ -1,0 +1,123 @@
+"use client";
+
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { useAuth, UserRole } from "@/hooks/use-auth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Baby, Brain, Building, Stethoscope } from "lucide-react";
+
+const loginSchema = z.object({
+  email: z.string().email({ message: "Invalid email address" }),
+  password: z.string().min(1, { message: "Password is required" }),
+});
+
+type LoginValues = z.infer<typeof loginSchema>;
+
+const roles: { value: NonNullable<UserRole>; label: string; icon: React.ReactNode }[] =
+  [
+    { value: "Parent", label: "Parent", icon: <Baby className="w-4 h-4" /> },
+    { value: "Doctor", label: "Doctor", icon: <Stethoscope className="w-4 h-4" /> },
+    { value: "Admin", label: "Admin", icon: <Building className="w-4 h-4" /> },
+    { value: "Superadmin", label: "Superadmin", icon: <Brain className="w-4 h-4" /> },
+  ];
+
+export function LoginForm() {
+  const { login } = useAuth();
+  const [selectedRole, setSelectedRole] =
+    useState<NonNullable<UserRole>>("Parent");
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "password" },
+  });
+
+  const onSubmit = (data: LoginValues) => {
+    // Dummy login
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        console.log("Dummy login for:", data.email, "as", selectedRole);
+        login(selectedRole);
+        resolve(true);
+      }, 1000);
+    });
+  };
+
+  return (
+    <Card className="w-full max-w-md mx-auto shadow-lg">
+      <CardHeader className="text-center">
+        <CardTitle className="text-2xl font-headline">Welcome Back</CardTitle>
+        <CardDescription>Select your role and sign in to continue</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Tabs
+          value={selectedRole}
+          onValueChange={(value) =>
+            setSelectedRole(value as NonNullable<UserRole>)
+          }
+          className="w-full"
+        >
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto">
+            {roles.map((role) => (
+              <TabsTrigger
+                key={role.value}
+                value={role.value}
+                className="flex items-center gap-2 text-xs md:text-sm py-2"
+              >
+                {role.icon} {role.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mt-6">
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="parent@babyaura.com"
+              {...register("email")}
+            />
+            {errors.email && (
+              <p className="text-sm text-destructive">{errors.email.message}</p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input id="password" type="password" {...register("password")} />
+            {errors.password && (
+              <p className="text-sm text-destructive">
+                {errors.password.message}
+              </p>
+            )}
+          </div>
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Signing In..." : `Sign In as ${selectedRole}`}
+          </Button>
+        </form>
+      </CardContent>
+      <CardFooter>
+        <p className="text-xs text-muted-foreground text-center w-full">
+            Don't have an account? Contact your hospital administrator.
+        </p>
+      </CardFooter>
+    </Card>
+  );
+}
