@@ -18,14 +18,19 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { parentHeaderNav } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetClose,
+} from "@/components/ui/sheet";
 import { NotificationBell } from "./NotificationBell";
 
 export function ParentHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const { role, logout } = useAuth();
-  
+
   const getInitials = (role: string | null) => {
     if (!role) return "U";
     return role.substring(0, 1).toUpperCase();
@@ -36,7 +41,10 @@ export function ParentHeader() {
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-4">
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-            <Link href="/parent/dashboard" className="flex items-center space-x-2">
+            <Link
+              href="/parent/dashboard"
+              className="flex items-center space-x-2"
+            >
               <BabyAuraLogo />
             </Link>
             {parentHeaderNav.map((item) => (
@@ -45,7 +53,9 @@ export function ParentHeader() {
                 href={item.href}
                 className={cn(
                   "transition-colors hover:text-foreground/80",
-                  pathname === item.href ? "text-foreground" : "text-foreground/60"
+                  pathname === item.href
+                    ? "text-foreground"
+                    : "text-foreground/60"
                 )}
               >
                 {item.label}
@@ -62,25 +72,28 @@ export function ParentHeader() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left">
-                <Link
-                  href="/parent/dashboard"
-                  className="mb-6 flex items-center"
-                >
-                  <BabyAuraLogo />
-                </Link>
+                <SheetClose asChild>
+                  <Link
+                    href="/parent/dashboard"
+                    className="mb-6 flex items-center"
+                  >
+                    <BabyAuraLogo />
+                  </Link>
+                </SheetClose>
                 <nav className="grid gap-2 text-lg font-medium">
                   {parentHeaderNav.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={cn(
-                        "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
-                        pathname === item.href && "bg-muted text-primary"
-                      )}
-                    >
-                      <item.icon className="h-5 w-5" />
-                      {item.label}
-                    </Link>
+                    <SheetClose asChild key={item.href}>
+                      <Link
+                        href={item.href}
+                        className={cn(
+                          "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
+                          pathname === item.href && "bg-muted text-primary"
+                        )}
+                      >
+                        <item.icon className="h-5 w-5" />
+                        {item.label}
+                      </Link>
+                    </SheetClose>
                   ))}
                 </nav>
               </SheetContent>
@@ -92,36 +105,45 @@ export function ParentHeader() {
         </div>
 
         <div className="flex items-center justify-end space-x-2">
-            <NotificationBell />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                  <Avatar className="h-9 w-9">
-                    <AvatarImage src="https://placehold.co/40x40.png" data-ai-hint="woman smiling" alt="@parent" />
-                    <AvatarFallback>{getInitials(role)}</AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{role}</p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      parent@babyaura.com
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => router.push("/parent/profile")}>
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={logout}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+          <NotificationBell />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="relative h-9 w-9 rounded-full"
+              >
+                <Avatar className="h-9 w-9">
+                  <AvatarImage
+                    src="https://placehold.co/40x40.png"
+                    data-ai-hint="woman smiling"
+                    alt="@parent"
+                  />
+                  <AvatarFallback>{getInitials(role)}</AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">{role}</p>
+                  <p className="text-xs leading-none text-muted-foreground">
+                    parent@babyaura.com
+                  </p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => router.push("/parent/profile")}
+              >
+                <User className="mr-2 h-4 w-4" />
+                <span>Profile</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={logout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>

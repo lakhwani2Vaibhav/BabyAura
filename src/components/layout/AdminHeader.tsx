@@ -18,7 +18,12 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { adminHeaderNav } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetClose,
+} from "@/components/ui/sheet";
 import { NotificationBell } from "./NotificationBell";
 
 export function AdminHeader() {
@@ -67,25 +72,28 @@ export function AdminHeader() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left">
-                <Link
-                  href="/admin/dashboard"
-                  className="mb-6 flex items-center"
-                >
-                  <BabyAuraLogo />
-                </Link>
+                <SheetClose asChild>
+                  <Link
+                    href="/admin/dashboard"
+                    className="mb-6 flex items-center"
+                  >
+                    <BabyAuraLogo />
+                  </Link>
+                </SheetClose>
                 <nav className="grid gap-2 text-lg font-medium">
                   {adminHeaderNav.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={cn(
-                        "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
-                        pathname === item.href && "bg-muted text-primary"
-                      )}
-                    >
-                      <item.icon className="h-5 w-5" />
-                      {item.label}
-                    </Link>
+                    <SheetClose asChild key={item.href}>
+                      <Link
+                        href={item.href}
+                        className={cn(
+                          "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
+                          pathname === item.href && "bg-muted text-primary"
+                        )}
+                      >
+                        <item.icon className="h-5 w-5" />
+                        {item.label}
+                      </Link>
+                    </SheetClose>
                   ))}
                 </nav>
               </SheetContent>

@@ -1,8 +1,14 @@
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { BabyAuraLogo } from '@/components/icons/BabyAuraLogo';
 import { Menu } from 'lucide-react';
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetClose,
+} from "@/components/ui/sheet";
 
 export function MarketingHeader() {
     return (
@@ -34,21 +40,31 @@ export function MarketingHeader() {
                     </SheetTrigger>
                     <SheetContent side="right">
                         <nav className="grid gap-6 text-lg font-medium mt-6">
-                            <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
-                                <BabyAuraLogo />
-                            </Link>
-                            <Link href="/features" className="text-muted-foreground hover:text-foreground">
-                                Features
-                            </Link>
-                            <Link href="/hospitals" className="text-muted-foreground hover:text-foreground">
-                                For Hospitals
-                            </Link>
-                            <Link href="/parents" className="text-muted-foreground hover:text-foreground">
-                                For Parents
-                            </Link>
-                            <Button asChild className="mt-4">
-                                <Link href="/auth/login">Login</Link>
-                            </Button>
+                            <SheetClose asChild>
+                                <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
+                                    <BabyAuraLogo />
+                                </Link>
+                            </SheetClose>
+                            <SheetClose asChild>
+                                <Link href="/features" className="text-muted-foreground hover:text-foreground">
+                                    Features
+                                </Link>
+                            </SheetClose>
+                            <SheetClose asChild>
+                                <Link href="/hospitals" className="text-muted-foreground hover:text-foreground">
+                                    For Hospitals
+                                </Link>
+                            </SheetClose>
+                            <SheetClose asChild>
+                                <Link href="/parents" className="text-muted-foreground hover:text-foreground">
+                                    For Parents
+                                </Link>
+                            </SheetClose>
+                             <SheetClose asChild>
+                                <Button asChild className="mt-4">
+                                    <Link href="/auth/login">Login</Link>
+                                </Button>
+                            </SheetClose>
                         </nav>
                     </SheetContent>
                 </Sheet>

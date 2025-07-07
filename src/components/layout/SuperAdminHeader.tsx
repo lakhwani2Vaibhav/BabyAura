@@ -18,7 +18,12 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { superAdminHeaderNav } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetClose,
+} from "@/components/ui/sheet";
 import { NotificationBell } from "./NotificationBell";
 
 export function SuperAdminHeader() {
@@ -67,25 +72,28 @@ export function SuperAdminHeader() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left">
-                <Link
-                  href="/superadmin/dashboard"
-                  className="mb-6 flex items-center"
-                >
-                  <BabyAuraLogo />
-                </Link>
+                <SheetClose asChild>
+                  <Link
+                    href="/superadmin/dashboard"
+                    className="mb-6 flex items-center"
+                  >
+                    <BabyAuraLogo />
+                  </Link>
+                </SheetClose>
                 <nav className="grid gap-2 text-lg font-medium">
                   {superAdminHeaderNav.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={cn(
-                        "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
-                        pathname === item.href && "bg-muted text-primary"
-                      )}
-                    >
-                      <item.icon className="h-5 w-5" />
-                      {item.label}
-                    </Link>
+                    <SheetClose asChild key={item.href}>
+                      <Link
+                        href={item.href}
+                        className={cn(
+                          "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
+                          pathname === item.href && "bg-muted text-primary"
+                        )}
+                      >
+                        <item.icon className="h-5 w-5" />
+                        {item.label}
+                      </Link>
+                    </SheetClose>
                   ))}
                 </nav>
               </SheetContent>
@@ -95,7 +103,7 @@ export function SuperAdminHeader() {
             </Link>
           </div>
         </div>
-        
+
         <div className="flex items-center justify-end space-x-2">
           <NotificationBell />
           <DropdownMenu>
@@ -124,7 +132,9 @@ export function SuperAdminHeader() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => router.push("/superadmin/profile")}>
+              <DropdownMenuItem
+                onClick={() => router.push("/superadmin/profile")}
+              >
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </DropdownMenuItem>
