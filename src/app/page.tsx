@@ -8,6 +8,11 @@ import {
   Baby,
   Briefcase,
   Users,
+  MessagesSquare,
+  MessageCircleMore,
+  ShieldCheck,
+  ScreenShare,
+  BookOpenCheck,
 } from 'lucide-react';
 import { Footer } from '@/components/layout/Footer';
 import { MarketingHeader } from '@/components/layout/MarketingHeader';
@@ -275,12 +280,97 @@ export default function Home() {
                     <div>
                       <p className="text-3xl font-bold">1Mn+</p>
                       <p className="text-sm text-muted-foreground">
-                        Parents Trust Babynama
+                        Parents Trust BabyAura
                       </p>
                     </div>
                   </div>
                 </div>
               </ScrollAnimationWrapper>
+            </div>
+          </section>
+
+          <section className="w-full py-12 md:py-24 lg:py-32">
+            <div className="container px-4 md:px-6">
+              <div className="grid items-center gap-12 lg:grid-cols-2">
+                <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-left-8 duration-1000 ease-out">
+                  <div className="space-y-6">
+                    <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl font-headline">
+                      Why Parents choose BabyAura
+                    </h2>
+                    <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white">
+                      Download App
+                    </Button>
+                  </div>
+                </ScrollAnimationWrapper>
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                  <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-200">
+                    <div className="flex flex-col gap-4 rounded-xl border bg-card p-6 h-full hover:shadow-lg transition-shadow">
+                      <MessagesSquare className="h-8 w-8 text-purple-600" />
+                      <div>
+                        <h3 className="text-lg font-bold">Instant Chat with Pediatricians</h3>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Get quick answers and support from experienced MD pediatricians.
+                        </p>
+                      </div>
+                    </div>
+                  </ScrollAnimationWrapper>
+                  <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-300">
+                    <div className="flex flex-col gap-4 rounded-xl border bg-card p-6 h-full hover:shadow-lg transition-shadow">
+                      <MessageCircleMore className="h-8 w-8 text-green-600" />
+                      <div>
+                        <h3 className="text-lg font-bold">Empowering, Judgment-Free Support</h3>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Ask any question, big or small, without feeling judged.
+                        </p>
+                      </div>
+                    </div>
+                  </ScrollAnimationWrapper>
+                  <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-400">
+                    <div className="flex flex-col gap-4 rounded-xl border bg-card p-6 h-full hover:shadow-lg transition-shadow">
+                      <ShieldCheck className="h-8 w-8 text-blue-600" />
+                      <div>
+                        <h3 className="text-lg font-bold">Cautious Medication</h3>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          We prioritize your child's well-being and avoid unnecessary treatments.
+                        </p>
+                      </div>
+                    </div>
+                  </ScrollAnimationWrapper>
+                  <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-500">
+                    <div className="flex flex-col gap-4 rounded-xl border bg-card p-6 h-full hover:shadow-lg transition-shadow">
+                      <Users className="h-8 w-8 text-blue-600" />
+                      <div>
+                        <h3 className="text-lg font-bold">Personalized Team of Doctors</h3>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Dedicated experts for every stage of your parenting journey.
+                        </p>
+                      </div>
+                    </div>
+                  </ScrollAnimationWrapper>
+                  <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-600">
+                    <div className="flex flex-col gap-4 rounded-xl border bg-card p-6 h-full hover:shadow-lg transition-shadow">
+                      <ScreenShare className="h-8 w-8 text-pink-600" />
+                      <div>
+                        <h3 className="text-lg font-bold">24/7 Pediatric Support</h3>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Video consultations with pediatricians, anytime you need them.
+                        </p>
+                      </div>
+                    </div>
+                  </ScrollAnimationWrapper>
+                  <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-700">
+                    <div className="flex flex-col gap-4 rounded-xl border bg-card p-6 h-full hover:shadow-lg transition-shadow">
+                      <BookOpenCheck className="h-8 w-8 text-pink-600" />
+                      <div>
+                        <h3 className="text-lg font-bold">Expert-Led Resources</h3>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Access courses and webinars from experienced pediatricians.
+                        </p>
+                      </div>
+                    </div>
+                  </ScrollAnimationWrapper>
+                </div>
+              </div>
             </div>
           </section>
 
