@@ -68,7 +68,7 @@ export default function CarePage() {
               </CardContent>
               <CardFooter>
                 <Link
-                  href="#"
+                  href={`/parent/care/${article.id}`}
                   className="flex items-center text-sm font-medium text-primary hover:underline"
                 >
                   Read More <ArrowRight className="ml-1 h-4 w-4" />
