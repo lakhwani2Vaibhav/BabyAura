@@ -37,7 +37,7 @@ import { ourDoctors } from '@/lib/data';
 
 export default function Home() {
     const plugin = React.useRef(
-    Autoplay({ delay: 1500, stopOnInteraction: true })
+    Autoplay({ delay: 1500, stopOnInteraction: false })
   )
   return (
     <div className="flex flex-col min-h-screen">
@@ -410,8 +410,6 @@ export default function Home() {
                     align: "start",
                     loop: true,
                   }}
-                  onMouseEnter={plugin.current.stop}
-                  onMouseLeave={plugin.current.reset}
                 >
                   <CarouselContent>
                     {ourDoctors.map((doctor, index) => (
