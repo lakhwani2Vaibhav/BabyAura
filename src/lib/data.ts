@@ -299,3 +299,42 @@ export const superAdminData = {
         { id: 3, timestamp: subDays(new Date(), 2).toISOString(), user: 'system', action: 'PROCESS_PAYMENT', type: 'Billing', details: 'Processed payment for Central Pediatrics' },
     ]
 };
+
+export const ourDoctors = [
+  {
+    name: 'Dr. Mamta Surpure',
+    title: 'Certified Lactation Professional, Helped 500+ Mothers',
+    imageUrl: 'https://placehold.co/250x250.png',
+    dataAiHint: 'doctor portrait',
+  },
+  {
+    name: 'Dr. Sarita Bhatia Jain',
+    title: 'Certified Lactation Professional, Helped 500+ Mothers',
+    imageUrl: 'https://placehold.co/250x250.png',
+    dataAiHint: 'doctor portrait',
+  },
+  {
+    name: 'Mehak Jain',
+    title: 'Helped 500+ Mothers',
+    imageUrl: 'https://placehold.co/250x250.png',
+    dataAiHint: 'doctor portrait',
+  },
+  {
+    name: 'Srividhya Mohan',
+    title: 'Certified Lactation Professional, Helped 500+ Mothers',
+    imageUrl: 'https://placehold.co/250x250.png',
+    dataAiHint: 'doctor portrait',
+  },
+  {
+    name: 'Dr. Anita Sharma',
+    title: 'Pediatrician, 15+ years experience',
+    imageUrl: 'https://placehold.co/250x250.png',
+    dataAiHint: 'doctor portrait',
+  },
+  {
+    name: 'Dr. Rahul Verma',
+    title: 'Child Psychologist',
+    imageUrl: 'https://placehold.co/250x250.png',
+    dataAiHint: 'doctor portrait',
+  },
+];

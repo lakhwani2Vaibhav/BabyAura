@@ -1,3 +1,5 @@
+
+'use client';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -13,16 +15,30 @@ import {
   ShieldCheck,
   ScreenShare,
   BookOpenCheck,
+  Plus,
 } from 'lucide-react';
 import { Footer } from '@/components/layout/Footer';
 import { MarketingHeader } from '@/components/layout/MarketingHeader';
 import { AnimatedContent } from '@/components/layout/AnimatedContent';
 import { ScrollAnimationWrapper } from '@/components/layout/ScrollAnimationWrapper';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import React from 'react';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
+import Autoplay from "embla-carousel-autoplay"
+import { ourDoctors } from '@/lib/data';
 
 
 export default function Home() {
+    const plugin = React.useRef(
+    Autoplay({ delay: 3000, stopOnInteraction: true })
+  )
   return (
     <div className="flex flex-col min-h-screen">
       <MarketingHeader />
@@ -371,6 +387,60 @@ export default function Home() {
                   </ScrollAnimationWrapper>
                 </div>
               </div>
+            </div>
+          </section>
+
+          <section className="w-full py-12 md:py-24 lg:py-32 bg-background">
+            <div className="container px-4 md:px-6">
+              <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
+                <div className="flex flex-col items-center justify-center space-y-4 text-center">
+                  <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">
+                    Meet Our Doctors
+                  </h2>
+                  <p className="max-w-[700px] text-muted-foreground md:text-xl/relaxed">
+                    Our team of experienced and caring professionals is here to support you.
+                  </p>
+                </div>
+              </ScrollAnimationWrapper>
+              <ScrollAnimationWrapper animationClasses="animate-in fade-in duration-1000 ease-out delay-200">
+                <Carousel
+                  plugins={[plugin.current]}
+                  className="w-full max-w-6xl mx-auto mt-12"
+                  opts={{
+                    align: "start",
+                    loop: true,
+                  }}
+                  onMouseEnter={plugin.current.stop}
+                  onMouseLeave={plugin.current.reset}
+                >
+                  <CarouselContent>
+                    {ourDoctors.map((doctor, index) => (
+                      <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                        <div className="p-1">
+                          <Card className="overflow-hidden group border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300">
+                            <div className="relative bg-blue-50 p-4 aspect-[4/3] flex items-center justify-center">
+                              <Image
+                                src={doctor.imageUrl}
+                                data-ai-hint={doctor.dataAiHint}
+                                alt={doctor.name}
+                                width={200}
+                                height={200}
+                                className="rounded-full mx-auto aspect-square object-cover border-4 border-white shadow-md transition-transform duration-300 group-hover:scale-105"
+                              />
+                            </div>
+                            <CardContent className="p-4 text-center bg-white">
+                              <h3 className="font-bold text-lg">{doctor.name}</h3>
+                              <p className="text-sm text-muted-foreground mt-1 h-10">{doctor.title}</p>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4" />
+                  <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4" />
+                </Carousel>
+              </ScrollAnimationWrapper>
             </div>
           </section>
 
