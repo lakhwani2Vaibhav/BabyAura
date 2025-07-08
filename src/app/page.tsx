@@ -166,7 +166,7 @@ export default function Home() {
                 </div>
                 <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-1000 ease-out delay-200">
                   <Image
-                    src="https://placehold.co/600x400.png"
+                    src="https://res.cloudinary.com/dg0qkunjk/image/upload/v1751958248/grok_image_xkp1vgg_f6s9on.jpg"
                     data-ai-hint="happy baby"
                     width="600"
                     height="400"
