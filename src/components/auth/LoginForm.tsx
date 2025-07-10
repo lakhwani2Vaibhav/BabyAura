@@ -18,6 +18,9 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Baby, Brain, Building, Stethoscope } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -38,25 +41,49 @@ export function LoginForm() {
   const { login } = useAuth();
   const [selectedRole, setSelectedRole] =
     useState<NonNullable<UserRole>>("Parent");
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    setValue,
   } = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "password" },
+    defaultValues: { email: `${"parent"}@babyaura.com`, password: "password" },
   });
 
-  const onSubmit = (data: LoginValues) => {
-    // Dummy login
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        console.log("Dummy login for:", data.email, "as", selectedRole);
-        login(selectedRole);
-        resolve(true);
-      }, 1000);
-    });
+  const handleRoleChange = (role: NonNullable<UserRole>) => {
+    setSelectedRole(role);
+    setValue("email", `${role.toLowerCase()}@babyaura.com`);
+    setError(null);
+  }
+
+  const onSubmit = async (data: LoginValues) => {
+    setError(null);
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...data, role: selectedRole }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "An error occurred");
+      }
+
+      toast({
+        title: "Login Successful",
+        description: `Welcome back, ${result.name}!`,
+      });
+      login(selectedRole);
+
+    } catch (err: any) {
+       setError(err.message || 'Failed to login. Please try again.');
+    }
   };
 
   return (
@@ -69,7 +96,7 @@ export function LoginForm() {
         <Tabs
           value={selectedRole}
           onValueChange={(value) =>
-            setSelectedRole(value as NonNullable<UserRole>)
+            handleRoleChange(value as NonNullable<UserRole>)
           }
           className="w-full"
         >
@@ -87,6 +114,13 @@ export function LoginForm() {
         </Tabs>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mt-6">
+           {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Login Failed</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
