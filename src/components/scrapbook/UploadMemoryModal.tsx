@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -25,21 +26,14 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { generateScrapbookCaption } from "@/ai/flows/generate-scrapbook-caption";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, Sparkles } from "lucide-react";
+import { Loader2, Plus, Sparkles, UploadCloud, Heart } from "lucide-react";
 
 const memorySchema = z.object({
-  title: z.string().min(3, "Please provide a title."),
-  mediaType: z.enum(["image", "audio", "video"]),
-  description: z.string().min(10, "Please provide a more detailed description."),
+  description: z
+    .string()
+    .min(10, "Please provide a more detailed description."),
   keywords: z.string().optional(),
   caption: z.string().optional(),
 });
@@ -49,13 +43,12 @@ type MemoryFormValues = z.infer<typeof memorySchema>;
 export function UploadMemoryModal() {
   const [open, setOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [caption, setCaption] = useState("");
   const { toast } = useToast();
 
   const form = useForm<MemoryFormValues>({
     resolver: zodResolver(memorySchema),
     defaultValues: {
-      title: "",
-      mediaType: "image",
       description: "",
       keywords: "",
       caption: "",
@@ -63,7 +56,7 @@ export function UploadMemoryModal() {
   });
 
   const handleGenerateCaption = async () => {
-    const { description, keywords, mediaType } = form.getValues();
+    const { description, keywords } = form.getValues();
     if (!description) {
       form.setError("description", {
         type: "manual",
@@ -77,9 +70,9 @@ export function UploadMemoryModal() {
       const result = await generateScrapbookCaption({
         description,
         keywords: keywords || "",
-        mediaType,
+        mediaType: "image", // Hardcoded for now, would be dynamic with file upload
       });
-      form.setValue("caption", result.caption);
+      setCaption(result.caption);
       toast({
         title: "Caption Generated!",
         description: "The AI has suggested a caption for your memory.",
@@ -97,12 +90,13 @@ export function UploadMemoryModal() {
   };
 
   const onSubmit = (data: MemoryFormValues) => {
-    console.log("New memory submitted:", data);
+    console.log("New memory submitted:", { ...data, caption });
     toast({
       title: "Memory Saved!",
       description: "Your new memory has been added to the scrapbook.",
     });
     form.reset();
+    setCaption("");
     setOpen(false);
   };
 
@@ -114,61 +108,36 @@ export function UploadMemoryModal() {
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[525px]">
-        <DialogHeader>
-          <DialogTitle>Add a New Memory</DialogTitle>
+        <DialogHeader className="text-center items-center">
+            <div className="p-2 bg-primary/10 rounded-full inline-block">
+                <Heart className="h-6 w-6 text-primary" />
+            </div>
+          <DialogTitle className="text-xl font-bold">AI Scrapbook Helper</DialogTitle>
           <DialogDescription>
-            Describe a memory and our AI will help you capture it perfectly.
+            Upload a memory, add a description, and let our AI create a
+            beautiful caption.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Title</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., Baby's First Laugh" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="mediaType"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Media Type</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select media type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="image">Image</SelectItem>
-                      <SelectItem value="video">Video</SelectItem>
-                      <SelectItem value="audio">Audio</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-4 py-4"
+          >
+            <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted">
+              <UploadCloud className="h-10 w-10 text-muted-foreground mb-2" />
+              <p className="font-semibold">Click to upload photo, audio, or video</p>
+              <p className="text-xs text-muted-foreground">PNG, JPG, MP3, MP4</p>
+            </div>
+            
             <FormField
               control={form.control}
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Describe the moment</FormLabel>
+                  <FormLabel>Memory Description</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="e.g., Baby's first time trying lemon, the face was priceless!"
+                      placeholder="e.g., Baby's first steps in the living room."
                       {...field}
                     />
                   </FormControl>
@@ -181,39 +150,10 @@ export function UploadMemoryModal() {
               name="keywords"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tags / Keywords</FormLabel>
+                  <FormLabel>Tags (comma-separated)</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., eating, funny, milestone" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="caption"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex items-center justify-between">
-                    <FormLabel>Caption</FormLabel>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleGenerateCaption}
-                      disabled={isGenerating}
-                    >
-                      {isGenerating ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      ) : (
-                        <Sparkles className="mr-2 h-4 w-4" />
-                      )}
-                      Generate with AI
-                    </Button>
-                  </div>
-                  <FormControl>
-                    <Textarea
-                      placeholder="A lovely caption for this memory..."
+                    <Input
+                      placeholder="e.g., first steps, happy, family"
                       {...field}
                     />
                   </FormControl>
@@ -221,7 +161,29 @@ export function UploadMemoryModal() {
                 </FormItem>
               )}
             />
-            <DialogFooter>
+            
+            {caption && (
+                <div className="p-4 bg-primary/10 rounded-md text-sm text-primary-foreground/90 italic border border-primary/20">
+                    <p className="font-medium text-primary">Generated Caption:</p>
+                    <p className="text-primary/90">"{caption}"</p>
+                </div>
+            )}
+            
+            <Button
+              type="button"
+              className="w-full"
+              onClick={handleGenerateCaption}
+              disabled={isGenerating}
+            >
+              {isGenerating ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="mr-2 h-4 w-4" />
+              )}
+              Generate Caption
+            </Button>
+            
+            <DialogFooter className="pt-4">
               <DialogClose asChild>
                 <Button type="button" variant="ghost">
                   Cancel
@@ -235,3 +197,4 @@ export function UploadMemoryModal() {
     </Dialog>
   );
 }
+
