@@ -1,86 +1,104 @@
-
 import { parentData } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from 'next/link';
-import { formatDistanceToNow } from "date-fns";
-import { Phone, Video, Syringe } from "lucide-react";
+import { format } from "date-fns";
+import { Calendar, Star, BookImage } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { VaccinationCard } from "@/components/cards/VaccinationCard";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function ParentDashboardPage() {
-  const nextConsultation = parentData.upcomingConsultations[0];
-  const nextVaccination = parentData.vaccinationStatus.next;
-  const vaccinationDue = formatDistanceToNow(new Date(nextVaccination.date), { addSuffix: true });
+  const { babyName, upcomingConsultations } = parentData;
+
+  const getInitials = (name: string) => {
+    const parts = name.split(" ");
+    return parts.length > 1
+      ? `${parts[0][0]}${parts[parts.length - 1][0]}`
+      : name.substring(0, 2);
+  };
 
   return (
-    <div className="grid lg:grid-cols-3 gap-8">
-      <div className="lg:col-span-2 space-y-8">
-        <div>
-          <h1 className="text-4xl font-bold font-headline text-foreground">
-            Welcome, {parentData.babyName}'s Family!
-          </h1>
-          <p className="text-xl text-muted-foreground mt-2">Here's a quick look at what's important right now.</p>
-        </div>
-        
-        <div className="grid md:grid-cols-2 gap-6">
-           <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Video className="h-6 w-6 text-primary"/>Upcoming Consultation</CardTitle>
-                <CardDescription>
-                    Your next appointment is with {nextConsultation.doctor}.
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <p className="font-semibold">{nextConsultation.date ? formatDistanceToNow(new Date(nextConsultation.date), { addSuffix: true }) : 'Soon'}</p>
-            </CardContent>
-           </Card>
+    <div className="max-w-3xl mx-auto space-y-6">
+      <Card className="bg-primary/5 border-primary/20">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold font-headline">
+            Welcome back, {babyName}'s Family!
+          </CardTitle>
+          <CardDescription>
+            Here's a summary of your baby's health.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button size="lg" className="w-full sm:w-auto" asChild>
+            <Link href="/parent/consultations">
+              <Calendar className="mr-2 h-4 w-4" />
+              Schedule Consultation
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
 
-            <VaccinationCard nextVaccination={nextVaccination} />
-        </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Calendar className="h-5 w-5 text-primary" />
+            Upcoming Consultations
+          </CardTitle>
+          <CardDescription>
+            Your upcoming scheduled appointments.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {upcomingConsultations.map((consultation) => (
+            <Card key={consultation.id} className="p-4 flex items-center gap-4">
+              <Avatar className="h-12 w-12">
+                <AvatarImage src={`https://placehold.co/100x100.png`} />
+                <AvatarFallback>{getInitials(consultation.doctor)}</AvatarFallback>
+              </Avatar>
+              <div className="flex-grow">
+                <p className="font-bold">{consultation.doctor}</p>
+                <p className="text-sm text-muted-foreground">{consultation.specialty}</p>
+                <p className="text-sm text-primary font-medium mt-1">
+                  {format(new Date(consultation.date), "yyyy-MM-dd 'at' hh:mm a")}
+                </p>
+              </div>
+              <div className="flex items-center gap-1 text-yellow-500">
+                <Star className="w-4 h-4 fill-current" />
+                <span className="font-bold">4.8</span>
+              </div>
+            </Card>
+          ))}
+        </CardContent>
+      </Card>
 
-        <Card className="bg-destructive/10 border-destructive/20">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2"><Phone className="h-6 w-6 text-destructive"/>Emergency Call</CardTitle>
-              <CardDescription className="text-destructive/80">
-                  Connect with a healthcare professional immediately.
-              </CardDescription>
-            </div>
-             <Button asChild variant="destructive">
-                <Link href="/parent/emergency">Call Now</Link>
-            </Button>
-          </CardHeader>
-        </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BookImage className="h-5 w-5 text-primary" />
+            AI Scrapbook
+          </CardTitle>
+          <CardDescription>
+            Create beautiful captions for your baby's memories.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="text-center">
+           <Image
+            src="https://placehold.co/600x400.png"
+            data-ai-hint="scrapbook baby"
+            alt="AI Scrapbook"
+            width={600}
+            height={400}
+            className="rounded-lg object-cover w-full aspect-video mb-4"
+          />
+          <p className="text-muted-foreground mb-4">
+            Turn your precious moments into lasting memories with AI-generated captions.
+          </p>
+          <Button asChild>
+            <Link href="/parent/scrapbook">Go to Scrapbook</Link>
+          </Button>
+        </CardContent>
+      </Card>
 
-      </div>
-
-      <div className="space-y-6 hidden lg:block">
-        <Image
-          src="https://placehold.co/600x400.png"
-          data-ai-hint="doctor baby"
-          alt="Doctor with a baby"
-          width={600}
-          height={400}
-          className="rounded-xl object-cover w-full aspect-[4/3]"
-        />
-        <Image
-          src="https://placehold.co/600x400.png"
-          data-ai-hint="mother child"
-          alt="Mother and child"
-          width={600}
-          height={400}
-          className="rounded-xl object-cover w-full aspect-[4/3]"
-        />
-        <Image
-          src="https://placehold.co/600x400.png"
-          data-ai-hint="mother selfie"
-          alt="Mother taking a selfie with her baby"
-          width={600}
-          height={400}
-          className="rounded-xl object-cover w-full aspect-[4/3]"
-        />
-      </div>
     </div>
   );
 }
