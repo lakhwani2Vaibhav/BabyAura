@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import Image from 'next/image';
 import Link from 'next/link';
 import { format } from "date-fns";
-import { Calendar, Star, BookImage } from "lucide-react";
+import { Calendar, Star, BookImage, ArrowRight } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { VaccinationCard } from "@/components/cards/VaccinationCard";
@@ -84,7 +84,7 @@ export default function ParentDashboardPage() {
                 Create beautiful captions for your baby's memories.
               </CardDescription>
             </CardHeader>
-            <CardContent className="text-center">
+            <CardContent className="flex flex-col items-center text-center">
               <Image
                 src="https://placehold.co/600x400.png"
                 data-ai-hint="scrapbook baby"
@@ -97,7 +97,9 @@ export default function ParentDashboardPage() {
                 Turn your precious moments into lasting memories with AI-generated captions.
               </p>
               <Button asChild>
-                <Link href="/parent/scrapbook">Go to Scrapbook</Link>
+                <Link href="/parent/scrapbook">
+                  Go to Scrapbook <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
               </Button>
             </CardContent>
           </Card>
