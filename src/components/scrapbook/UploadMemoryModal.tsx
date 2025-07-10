@@ -107,7 +107,7 @@ export function UploadMemoryModal() {
           <Plus className="mr-2 h-4 w-4" /> Add Memory
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[525px]">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader className="text-center items-center">
             <div className="p-2 bg-primary/10 rounded-full inline-block">
                 <Heart className="h-6 w-6 text-primary" />
@@ -197,4 +197,3 @@ export function UploadMemoryModal() {
     </Dialog>
   );
 }
-
