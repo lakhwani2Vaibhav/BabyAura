@@ -7,9 +7,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Baby, Calendar } from "lucide-react";
+import { Baby, Calendar, Bell, Syringe } from "lucide-react";
 import { format } from "date-fns";
 import Link from "next/link";
+import { Badge } from "../ui/badge";
 
 type Vaccination = {
   name: string;
@@ -22,25 +23,29 @@ interface VaccinationCardProps {
 
 export function VaccinationCard({ nextVaccination }: VaccinationCardProps) {
   return (
-    <Card className="bg-primary/10 border-primary/20">
+    <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Baby className="h-6 w-6" />
+          <Syringe className="h-5 w-5 text-primary" />
           Vaccination Status
         </CardTitle>
         <CardDescription>
-          Next up for your little one's protection.
+          An overview of your child's upcoming immunizations.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-2">
-        <p className="text-lg font-semibold">{nextVaccination.name}</p>
-        <div className="flex items-center gap-2 text-muted-foreground text-sm">
-          <Calendar className="h-4 w-4" />
-          <span>{format(new Date(nextVaccination.date), "EEEE, MMMM d, yyyy")}</span>
-        </div>
+        <Card className="bg-green-500/10 border-green-500/20 p-4">
+            <p className="text-sm text-green-800 font-medium">Next Vaccination</p>
+            <p className="text-lg font-bold text-green-900">{nextVaccination.name}</p>
+            <p className="text-sm text-green-800">{format(new Date(nextVaccination.date), "yyyy-MM-dd")}</p>
+        </Card>
       </CardContent>
-      <CardFooter>
-        <Button variant="link" className="p-0" asChild>
+      <CardFooter className="flex-col items-stretch gap-2">
+        <Button variant="outline">
+          <Bell className="mr-2 h-4 w-4" />
+          Set Reminder
+        </Button>
+        <Button asChild>
           <Link href="/parent/vaccination">View Full Schedule</Link>
         </Button>
       </CardFooter>
