@@ -34,26 +34,14 @@ export const parentData = {
   vaccinationStatus: {
     next: {
       id: 'v-next',
-      name: "Hepatitis B (3rd dose)",
+      name: "Hepatitis B (HepB)",
       date: addDays(new Date(), 60).toISOString(),
-      age: "6 Months",
+      age: "1-2 Months",
     },
     history: [
       {
         id: "v1",
         name: "BCG",
-        date: subDays(new Date(), 90).toISOString(),
-        age: "Birth",
-      },
-      {
-        id: "v2",
-        name: "OPV-0",
-        date: subDays(new Date(), 90).toISOString(),
-        age: "Birth",
-      },
-      {
-        id: "v3",
-        name: "Hepatitis B - 1",
         date: subDays(new Date(), 90).toISOString(),
         age: "Birth",
       },
