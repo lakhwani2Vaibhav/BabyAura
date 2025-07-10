@@ -109,8 +109,8 @@ export function UploadMemoryModal() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="lg" className="rounded-full shadow-lg h-14 px-6">
-          <Plus className="mr-2 h-5 w-5" /> Add Memory
+        <Button>
+          <Plus className="mr-2 h-4 w-4" /> Add Memory
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[525px]">
