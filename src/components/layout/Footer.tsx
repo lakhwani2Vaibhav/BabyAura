@@ -8,7 +8,7 @@ export function Footer() {
             <div className="flex flex-col gap-4">
                 <h4 className="font-semibold text-foreground">For Parents</h4>
                 <nav className="flex flex-col gap-3">
-                    <Link href="/parent/consultations" className="text-sm text-muted-foreground hover:text-primary transition-colors">Consultations</Link>
+                    <Link href="/auth/login" className="text-sm text-muted-foreground hover:text-primary transition-colors">Consultations</Link>
                     <Link href="/parent/reports" className="text-sm text-muted-foreground hover:text-primary transition-colors">Health Records</Link>
                     <Link href="/parent/vaccination" className="text-sm text-muted-foreground hover:text-primary transition-colors">Vaccinations</Link>
                 </nav>
