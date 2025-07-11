@@ -18,6 +18,7 @@ import {
   XCircle,
   Info,
   Heart,
+  BookImage,
 } from 'lucide-react';
 import { Footer } from '@/components/layout/Footer';
 import { MarketingHeader } from '@/components/layout/MarketingHeader';
@@ -467,11 +468,11 @@ export default function Home() {
                   </ScrollAnimationWrapper>
                   <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-700">
                     <div className="flex flex-col gap-4 rounded-xl border bg-card p-6 h-full hover:shadow-lg transition-shadow">
-                      <BookOpenCheck className="h-8 w-8 text-pink-600" />
+                      <BookImage className="h-8 w-8 text-orange-600" />
                       <div>
-                        <h3 className="text-lg font-bold">Expert-Led Resources</h3>
+                        <h3 className="text-lg font-bold">Scrapbook for Precious Memories</h3>
                         <p className="text-sm text-muted-foreground mt-1">
-                          Access courses and webinars from experienced pediatricians.
+                          Capture and cherish every milestone with our AI-powered digital scrapbook.
                         </p>
                       </div>
                     </div>
