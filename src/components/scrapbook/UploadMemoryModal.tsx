@@ -29,6 +29,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { generateScrapbookCaption } from "@/ai/flows/generate-scrapbook-caption";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Plus, Sparkles, UploadCloud, Heart } from "lucide-react";
+import { ScrollArea } from "../ui/scroll-area";
 
 const memorySchema = z.object({
   description: z
@@ -118,81 +119,83 @@ export function UploadMemoryModal() {
             beautiful caption.
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4 py-4"
-          >
-            <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted">
-              <UploadCloud className="h-10 w-10 text-muted-foreground mb-2" />
-              <p className="font-semibold">Click to upload photo, audio, or video</p>
-              <p className="text-xs text-muted-foreground">PNG, JPG, MP3, MP4</p>
-            </div>
-            
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Memory Description</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="e.g., Baby's first steps in the living room."
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="keywords"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tags (comma-separated)</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="e.g., first steps, happy, family"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            {caption && (
-                <div className="p-4 bg-primary/10 rounded-md text-sm text-primary-foreground/90 italic border border-primary/20">
-                    <p className="font-medium text-primary">Generated Caption:</p>
-                    <p className="text-primary/90">"{caption}"</p>
-                </div>
-            )}
-            
-            <Button
-              type="button"
-              className="w-full"
-              onClick={handleGenerateCaption}
-              disabled={isGenerating}
+        <ScrollArea className="h-[60vh] md:h-auto -mr-6 pr-6">
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-4 py-4"
             >
-              {isGenerating ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="mr-2 h-4 w-4" />
+              <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted">
+                <UploadCloud className="h-10 w-10 text-muted-foreground mb-2" />
+                <p className="font-semibold">Click to upload photo, audio, or video</p>
+                <p className="text-xs text-muted-foreground">PNG, JPG, MP3, MP4</p>
+              </div>
+              
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Memory Description</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="e.g., Baby's first steps in the living room."
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="keywords"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tags (comma-separated)</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="e.g., first steps, happy, family"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              {caption && (
+                  <div className="p-4 bg-primary/10 rounded-md text-sm text-primary-foreground/90 italic border border-primary/20">
+                      <p className="font-medium text-primary">Generated Caption:</p>
+                      <p className="text-primary/90">"{caption}"</p>
+                  </div>
               )}
-              Generate Caption
-            </Button>
-            
-            <DialogFooter className="pt-4">
-              <DialogClose asChild>
-                <Button type="button" variant="ghost">
-                  Cancel
-                </Button>
-              </DialogClose>
-              <Button type="submit">Save Memory</Button>
-            </DialogFooter>
-          </form>
-        </Form>
+              
+              <Button
+                type="button"
+                className="w-full"
+                onClick={handleGenerateCaption}
+                disabled={isGenerating}
+              >
+                {isGenerating ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Sparkles className="mr-2 h-4 w-4" />
+                )}
+                Generate Caption
+              </Button>
+              
+              <DialogFooter className="pt-4 !mt-6">
+                <DialogClose asChild>
+                  <Button type="button" variant="ghost">
+                    Cancel
+                  </Button>
+                </DialogClose>
+                <Button type="submit">Save Memory</Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
