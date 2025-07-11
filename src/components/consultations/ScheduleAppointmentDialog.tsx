@@ -86,10 +86,12 @@ export function ScheduleAppointmentDialog() {
 
   const resetState = () => {
     setOpen(false);
-    setStep("select_doctor");
-    setSelectedDoctor(null);
-    setSelectedDate(new Date());
-    setSelectedTime(null);
+    setTimeout(() => {
+        setStep("select_doctor");
+        setSelectedDoctor(null);
+        setSelectedDate(new Date());
+        setSelectedTime(null);
+    }, 300);
   };
 
   const handleBack = () => {
@@ -118,8 +120,8 @@ export function ScheduleAppointmentDialog() {
                 Choose an available doctor to schedule a consultation.
               </DialogDescription>
             </DialogHeader>
-            <div className="py-4">
-              <ScrollArea className="h-96 pr-4">
+            <ScrollArea className="h-[60vh] md:h-auto">
+              <div className="py-4 pr-6">
                 <div className="space-y-4">
                   {adminData.doctors
                     .filter((d) => d.status === "Active")
@@ -154,8 +156,8 @@ export function ScheduleAppointmentDialog() {
                       </div>
                     ))}
                 </div>
-              </ScrollArea>
-            </div>
+              </div>
+            </ScrollArea>
           </>
         );
 
@@ -176,34 +178,34 @@ export function ScheduleAppointmentDialog() {
                 With <span className="font-semibold text-primary">{selectedDoctor?.name}</span>
               </DialogDescription>
             </DialogHeader>
-            <div className="grid md:grid-cols-2 gap-6 py-4">
-              <div className="flex justify-center">
-                 <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={setSelectedDate}
-                    disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
-                    className="rounded-md border"
-                  />
-              </div>
-              <div>
-                <p className="text-sm font-medium mb-2">Available Slots for {format(selectedDate!, "MMMM d")}</p>
-                 <ScrollArea className="h-64 pr-4">
-                    <div className="grid grid-cols-2 gap-2">
-                      {availableTimeSlots.map((time) => (
-                        <Button
-                          key={time}
-                          variant={selectedTime === time ? "default" : "outline"}
-                          onClick={() => setSelectedTime(time)}
-                        >
-                          {time}
-                        </Button>
-                      ))}
-                    </div>
-                 </ScrollArea>
-              </div>
-            </div>
-            <DialogFooter>
+            <ScrollArea className="h-[60vh] md:h-auto">
+                <div className="grid md:grid-cols-2 gap-6 py-4 pr-6">
+                <div className="flex justify-center">
+                    <Calendar
+                        mode="single"
+                        selected={selectedDate}
+                        onSelect={setSelectedDate}
+                        disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
+                        className="rounded-md border"
+                    />
+                </div>
+                <div>
+                    <p className="text-sm font-medium mb-2">Available Slots for {format(selectedDate!, "MMMM d")}</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {availableTimeSlots.map((time) => (
+                            <Button
+                            key={time}
+                            variant={selectedTime === time ? "default" : "outline"}
+                            onClick={() => setSelectedTime(time)}
+                            >
+                            {time}
+                            </Button>
+                        ))}
+                        </div>
+                </div>
+                </div>
+            </ScrollArea>
+            <DialogFooter className="pt-4">
               <Button
                 className="w-full"
                 disabled={!selectedTime || !selectedDate}
@@ -232,32 +234,34 @@ export function ScheduleAppointmentDialog() {
                         Please review the details below before confirming.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="py-4 space-y-4">
-                    <div className="flex items-center gap-4 rounded-lg border p-4">
-                        <Avatar className="h-12 w-12">
-                          <AvatarImage src={selectedDoctor?.avatarUrl} />
-                          <AvatarFallback>
-                            {getInitials(selectedDoctor?.name || "")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                            <p className="font-bold">{selectedDoctor?.name}</p>
-                            <p className="text-sm text-muted-foreground">{selectedDoctor?.specialty}</p>
+                 <ScrollArea className="h-[60vh] md:h-auto">
+                    <div className="py-4 pr-6 space-y-4">
+                        <div className="flex items-center gap-4 rounded-lg border p-4">
+                            <Avatar className="h-12 w-12">
+                            <AvatarImage src={selectedDoctor?.avatarUrl} />
+                            <AvatarFallback>
+                                {getInitials(selectedDoctor?.name || "")}
+                            </AvatarFallback>
+                            </Avatar>
+                            <div>
+                                <p className="font-bold">{selectedDoctor?.name}</p>
+                                <p className="text-sm text-muted-foreground">{selectedDoctor?.specialty}</p>
+                            </div>
+                        </div>
+                        <Separator />
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                                <span className="text-muted-foreground">Date:</span>
+                                <span className="font-semibold">{format(selectedDate!, "EEEE, MMMM d, yyyy")}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-muted-foreground">Time:</span>
+                                <span className="font-semibold">{selectedTime}</span>
+                            </div>
                         </div>
                     </div>
-                     <Separator />
-                     <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                            <span className="text-muted-foreground">Date:</span>
-                            <span className="font-semibold">{format(selectedDate!, "EEEE, MMMM d, yyyy")}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                            <span className="text-muted-foreground">Time:</span>
-                            <span className="font-semibold">{selectedTime}</span>
-                        </div>
-                     </div>
-                </div>
-                 <DialogFooter>
+                </ScrollArea>
+                 <DialogFooter className="pt-4">
                     <DialogClose asChild>
                         <Button type="button" variant="ghost">
                             Cancel
@@ -281,7 +285,7 @@ export function ScheduleAppointmentDialog() {
           New Appointment
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-xl md:max-w-2xl lg:max-w-3xl" onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={resetState}>
+      <DialogContent className="max-w-md md:max-w-2xl" onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={resetState}>
         {renderStepContent()}
       </DialogContent>
     </Dialog>
