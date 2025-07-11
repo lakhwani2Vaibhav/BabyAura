@@ -91,13 +91,13 @@ export default function Home() {
   const featuresList = [
       { name: 'Dedicated Pediatrics Support', info: '24/7 access to our pediatricians.' },
       { name: '24/7 Call Assistance', info: 'Immediate help via call anytime.' },
-      { name: 'Automated Essentials Delivery', info: 'Automated delivery of baby essentials.' },
       { name: 'Growth Trackers & Milestones', info: 'Track your baby\'s growth and milestones.' },
       { name: 'Immunization Alerts & Support', info: 'Get alerts for upcoming immunizations.' },
       { name: 'Health Feedback & Prescription Reminders', info: 'Reminders for prescriptions and health feedback.' },
       { name: 'Quick Chat/Call Support', info: 'Quick support via chat or call.' },
       { name: 'Dedicated Dietician Support', info: 'Get support from a dedicated dietician.' },
       { name: 'AI Assistance', info: 'Get AI-powered assistance for your queries.' },
+      { name: 'Automated Essentials Delivery', info: 'Automated delivery of baby essentials.' },
       { name: 'Early Access to Beta Updates', info: 'Get early access to our new features.' },
   ];
 
@@ -105,25 +105,25 @@ export default function Home() {
     basic: {
       'Dedicated Pediatrics Support': true,
       '24/7 Call Assistance': true,
-      'Automated Essentials Delivery': false,
       'Growth Trackers & Milestones': true,
       'Immunization Alerts & Support': true,
       'Health Feedback & Prescription Reminders': true,
-      'Quick Chat/Call Support': '3 Credits',
-      'Dedicated Dietician Support': false,
+      'Quick Chat/Call Support': true,
+      'Dedicated Dietician Support': true,
       'AI Assistance': 'Simple',
+      'Automated Essentials Delivery': false,
       'Early Access to Beta Updates': false,
     },
     premium: {
       'Dedicated Pediatrics Support': true,
       '24/7 Call Assistance': true,
-      'Automated Essentials Delivery': true,
       'Growth Trackers & Milestones': true,
       'Immunization Alerts & Support': true,
       'Health Feedback & Prescription Reminders': true,
       'Quick Chat/Call Support': '5 Credits',
       'Dedicated Dietician Support': true,
       'AI Assistance': 'Advanced',
+      'Automated Essentials Delivery': true,
       'Early Access to Beta Updates': true,
     }
   };
@@ -176,7 +176,7 @@ export default function Home() {
                 </ScrollAnimationWrapper>
               </div>
               
-              {/* <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out delay-600">
+              <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out delay-600">
                 <div className="mt-12 flex items-center justify-center gap-8 text-center md:gap-16">
                   <div className="flex items-center gap-4">
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
@@ -201,7 +201,7 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-              </ScrollAnimationWrapper> */}
+              </ScrollAnimationWrapper>
             </div>
           </section>
 
