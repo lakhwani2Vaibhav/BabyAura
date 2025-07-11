@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   Card,
   CardDescription,
@@ -9,35 +8,10 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { parentData } from "@/lib/data";
 import { ConsultationCard } from "@/components/cards/ConsultationCard";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-  DialogClose,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
+import { ScheduleAppointmentDialog } from "@/components/consultations/ScheduleAppointmentDialog";
 
 export default function ConsultationsPage() {
   const { upcomingConsultations, pastConsultations } = parentData;
-  const [open, setOpen] = useState(false);
-  const { toast } = useToast();
-
-  const handleScheduleAppointment = () => {
-    toast({
-      title: "Appointment Scheduled",
-      description: "Your new appointment has been successfully scheduled.",
-    });
-    setOpen(false);
-  };
 
   return (
     <div className="space-y-6">
@@ -48,52 +22,7 @@ export default function ConsultationsPage() {
             View past and upcoming consultations. Schedule new appointments.
           </p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              New Appointment
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Schedule New Appointment</DialogTitle>
-              <DialogDescription>
-                Fill in the details to schedule a new consultation.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="doctor-name">Doctor Name</Label>
-                <Input
-                  id="doctor-name"
-                  placeholder="e.g., Dr. Emily Carter"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="date-time">Date & Time</Label>
-                <Input id="date-time" placeholder="e.g., Tomorrow at 10:00 AM" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="reason">Reason for Visit</Label>
-                <Textarea
-                  id="reason"
-                  placeholder="e.g., Routine check-up, fever, etc."
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button type="button" variant="secondary">
-                  Cancel
-                </Button>
-              </DialogClose>
-              <Button type="button" onClick={handleScheduleAppointment}>
-                Schedule
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <ScheduleAppointmentDialog />
       </div>
 
       <Tabs defaultValue="upcoming">
