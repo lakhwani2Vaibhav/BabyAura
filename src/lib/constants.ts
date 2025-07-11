@@ -28,8 +28,13 @@ export interface NavItem {
 export const parentHeaderNav: NavItem[] = [
   {
     href: "/parent/dashboard",
-    label: "Overview",
+    label: "Home",
     icon: LayoutDashboard,
+  },
+  {
+    href: "/parent/consultations",
+    label: "Consultations",
+    icon: Video,
   },
   {
     href: "/parent/scrapbook",
