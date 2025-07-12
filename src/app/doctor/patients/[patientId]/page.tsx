@@ -97,12 +97,12 @@ export default function PatientProfilePage({
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <p>
-              <strong>Status:</strong>{" "}
+            <div className="flex items-center gap-2">
+              <strong>Status:</strong>
               <Badge variant={patient.status === "Active" ? "default" : "secondary"}>
                 {patient.status}
               </Badge>
-            </p>
+            </div>
             <p>
               <strong>Last Visit:</strong>{" "}
               {format(new Date(patient.lastVisit), "MMMM d, yyyy")}
