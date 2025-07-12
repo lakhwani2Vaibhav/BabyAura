@@ -1,4 +1,3 @@
-
 import { addDays, format, subDays, subMonths } from "date-fns";
 
 export const parentData = {
@@ -103,6 +102,42 @@ export const careArticles = [
     imageUrl: "https://placehold.co/600x400.png",
     author: "BabyAura Health Team",
   },
+];
+
+export const blogPosts = [
+    {
+        id: 1,
+        slug: 'navigating-postpartum-the-fourth-trimester',
+        title: "Navigating Postpartum: A Guide to the Fourth Trimester",
+        author: "Dr. Emily Carter",
+        date: "2024-07-10T00:00:00.000Z",
+        imageUrl: "https://placehold.co/1200x600.png",
+        content: `The "fourth trimester" is the 12-week period immediately after you've had your baby. It's a time of huge physical and emotional change for both you and your baby. Understanding these changes can help you navigate this special, and sometimes challenging, period with more confidence. Your body is recovering from childbirth, your hormones are fluctuating wildly, and you're learning to care for a brand new human being who is completely dependent on you.
+
+One of the most important things to remember during this time is to be kind to yourself. It's okay to not have it all figured out. Rest when you can, accept help when it's offered, and focus on the two most important things: your recovery and bonding with your baby. This is not the time for worrying about a clean house or a gourmet meal. It's a time for healing, learning, and falling in love.`
+    },
+    {
+        id: 2,
+        slug: 'decoding-your-babys-cries',
+        title: "Decoding Your Baby's Cries: What Are They Trying to Tell You?",
+        author: "BabyAura Health Team",
+        date: "2024-06-25T00:00:00.000Z",
+        imageUrl: "https://placehold.co/1200x600.png",
+        content: `A baby's cry is their primary form of communication. It can be distressing for parents, but learning to interpret different cries is a key part of the parenting journey. While it takes time, you'll soon become an expert in your baby's unique language. The most common reasons for crying are often referred to as the "Big Three": hunger, a dirty diaper, or sleepiness. Always check these first.
+
+Beyond the basics, cries can also signal other needs. A high-pitched, intense cry might mean pain, perhaps from gas or teething. A whiny, fussy cry could indicate boredom or a need for comfort. A "neh" sound can signal hunger, while an "owh" sound might be tied to sleepiness. Pay attention to these subtle cues and your baby's body language. Over time, you'll learn to distinguish between a "pick me up" cry and an "I'm in pain" cry, strengthening your bond and making you a more responsive caregiver.`
+    },
+    {
+        id: 3,
+        slug: 'the-ultimate-guide-to-tummy-time',
+        title: "The Ultimate Guide to Tummy Time",
+        author: "Dr. Ben Adams",
+        date: "2024-06-12T00:00:00.000Z",
+        imageUrl: "https://placehold.co/1200x600.png",
+        content: `Tummy time is crucial for your baby's development. It's the simple act of placing your baby on their stomach while they are awake and supervised. This activity helps them build the muscles in their neck, shoulders, and back, which are essential for milestones like rolling over, sitting up, and crawling. It also helps prevent flat spots from developing on the back of their head.
+
+You can start tummy time from day one, beginning with very short sessions of just a minute or two, a few times a day. You can lay your baby on your chest or lap to start. As they get stronger, you can move to a play mat on the floor. Make it fun by getting down on their level, talking to them, and using engaging toys. The goal is to gradually work up to about 15-30 minutes of total tummy time per day by the time they are three months old. Remember, every little bit counts!`
+    }
 ];
 
 export const communityPosts = [
