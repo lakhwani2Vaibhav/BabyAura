@@ -457,32 +457,6 @@ export default function Home() {
 
           <section id="testimonials" className="w-full py-12 md:py-24 lg:py-32 bg-muted dark:bg-card">
             <div className="container px-4 md:px-6">
-              <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
-                <div className="flex items-center justify-center gap-8 text-center md:gap-16">
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                      <Briefcase className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-3xl font-bold">X+</p>
-                      <p className="text-sm text-muted-foreground">
-                        Expert doctors
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                      <Users className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-3xl font-bold">X+</p>
-                      <p className="text-sm text-muted-foreground">
-                        Parents Trust BabyAura
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </ScrollAnimationWrapper>
               <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out delay-200">
                 <div className="mt-12 flex flex-col items-center justify-center space-y-4 text-center">
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">
