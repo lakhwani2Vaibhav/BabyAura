@@ -421,9 +421,9 @@ export default function Home() {
                     <div className="flex flex-col gap-4 rounded-xl border bg-card p-6 h-full hover:shadow-lg transition-shadow">
                       <Users className="h-8 w-8 text-blue-600" />
                       <div>
-                        <h3 className="text-lg font-bold">Personalized Team of Doctors</h3>
+                        <h3 className="text-lg font-bold">Your family doctors one tap away</h3>
                         <p className="text-sm text-muted-foreground mt-1">
-                          Dedicated experts for every stage of your parenting journey.
+                          We connect you directly with your trusted hospital doctors, bringing expert care from the hospital right to your home.
                         </p>
                       </div>
                     </div>
@@ -457,7 +457,7 @@ export default function Home() {
 
           <section id="testimonials" className="w-full py-12 md:py-24 lg:py-32 bg-muted dark:bg-card">
             <div className="container px-4 md:px-6">
-              <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out delay-600">
+              <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
                 <div className="flex items-center justify-center gap-8 text-center md:gap-16">
                   <div className="flex items-center gap-4">
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
@@ -483,7 +483,7 @@ export default function Home() {
                   </div>
                 </div>
               </ScrollAnimationWrapper>
-              <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
+              <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out delay-200">
                 <div className="mt-12 flex flex-col items-center justify-center space-y-4 text-center">
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">
                     Loved by Mothers Everywhere
