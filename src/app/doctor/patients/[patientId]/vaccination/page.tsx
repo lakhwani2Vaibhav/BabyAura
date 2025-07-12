@@ -40,12 +40,13 @@ type Vaccination = {
 type VaccinationWithStatus = Vaccination & { status: "Upcoming" | "Taken" | "Missed" };
 
 export default function DoctorPatientVaccinationPage({ params }: { params: { patientId: string } }) {
+  const { patientId } = params;
   const [activeTab, setActiveTab] = useState<"upcoming" | "taken" | "missed">("upcoming");
   const [open, setOpen] = useState(false);
   const [selectedVaccine, setSelectedVaccine] = useState<Vaccination | null>(null);
   const { toast } = useToast();
   
-  const patient = doctorData.patients.find((p) => p.id === params.patientId);
+  const patient = doctorData.patients.find((p) => p.id === patientId);
 
   if (!patient) {
       return notFound();
@@ -99,7 +100,7 @@ export default function DoctorPatientVaccinationPage({ params }: { params: { pat
     <>
         <div className="mb-4">
             <Button asChild variant="outline">
-                <Link href={`/doctor/patients/${params.patientId}`}>
+                <Link href={`/doctor/patients/${patientId}`}>
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back to Patient Profile
                 </Link>
