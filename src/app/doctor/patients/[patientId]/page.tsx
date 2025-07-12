@@ -36,7 +36,8 @@ export default function PatientProfilePage({
 }: {
   params: { patientId: string };
 }) {
-  const patient = doctorData.patients.find((p) => p.id === params.patientId);
+  const { patientId } = params;
+  const patient = doctorData.patients.find((p) => p.id === patientId);
   const babyData = parentData; // Using parentData as a template for a single baby's detailed info
 
   if (!patient) {
