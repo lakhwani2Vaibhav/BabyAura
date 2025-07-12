@@ -5,6 +5,7 @@ import { Footer } from '@/components/layout/Footer';
 import { MarketingHeader } from '@/components/layout/MarketingHeader';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
 import {
   Baby,
   Stethoscope,
@@ -19,6 +20,10 @@ import {
   LayoutDashboard,
   LucideIcon,
   Info,
+  Syringe,
+  FileHeart,
+  Bot,
+  Box,
 } from 'lucide-react';
 import React from 'react';
 import { ScrollAnimationWrapper } from '@/components/layout/ScrollAnimationWrapper';
@@ -29,6 +34,7 @@ interface Feature {
   title: string;
   description: string;
   details: string;
+  badge?: string;
 }
 
 const featuresData: { [key: string]: Feature[] } = {
@@ -40,22 +46,35 @@ const featuresData: { [key: string]: Feature[] } = {
       details: "No more stressful clinic visits. Our seamless tele-consultation feature ensures you get expert medical advice when you need it, saving you time and providing peace of mind."
     },
     {
+      icon: FileHeart,
+      title: "Health Records",
+      description: "All your child's health reports, prescriptions, and medical history in one secure place.",
+      details: "Easily access and share crucial health information with any caregiver or specialist. Cautious prescription logs ensure you have a clear, safe medication history."
+    },
+    {
+      icon: Syringe,
+      title: "Vaccination Schedule",
+      description: "Never miss an important shot with our automated vaccination tracker and scheduler.",
+      details: "Get timely reminders for upcoming immunizations and maintain a complete digital record, ensuring your baby is always protected and up-to-date."
+    },
+     {
       icon: BookImage,
       title: "AI Scrapbook",
       description: "Capture and cherish every milestone with AI-generated heartfelt captions.",
       details: "Simply upload a photo, and our unique AI assistant helps you write the perfect, loving caption, creating a beautiful digital story of your baby's journey that's easy to share."
     },
-    {
-      icon: BarChart2,
-      title: "Growth Tracking",
-      description: "Monitor your baby's development with intuitive, interactive charts.",
-      details: "Easily log weight and height to visualize your baby's growth trajectory. This helps you and your doctor ensure they are on the right track, empowering you with data-driven confidence."
+     {
+      icon: Bot,
+      title: "AI-Powered Nutritionist",
+      description: "Receive personalized nutrition plans and advice from our advanced AI.",
+      details: "Get customized meal plans and feeding schedules based on your baby's age, weight, and dietary needs. Our AI helps you create a healthy nutrition chart for optimal growth."
     },
     {
-      icon: Users,
-      title: "Community Forum",
-      description: "Join a supportive community to connect with other parents on a similar journey.",
-      details: "Share experiences, ask questions, and find solidarity in a private, judgment-free space. Parenthood is a team sport, and our community is your biggest cheerleader."
+      icon: Box,
+      title: "Automated Essentials Delivery",
+      description: "Get baby essentials delivered to your doorstep automatically each month.",
+      details: "Our upcoming subscription service ensures you never run out of diapers, wipes, and other essentials. Automated billing makes it effortless. (Coming Soon!)",
+      badge: "Coming Soon"
     },
   ],
   doctor: [
@@ -181,11 +200,16 @@ const FeatureGrid = ({ features }: { features: Feature[] }) => (
         animationClasses={`animate-in fade-in zoom-in-95 duration-700 ease-out delay-${100 + (index * 100)}`}
       >
         <Card className="h-full flex flex-col p-6">
-          <CardHeader className="p-0 flex flex-row items-center gap-4">
-            <div className="bg-primary/10 p-4 rounded-full">
-              <feature.icon className="h-8 w-8 text-primary" />
+          <CardHeader className="p-0 flex flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="bg-primary/10 p-4 rounded-full">
+                <feature.icon className="h-8 w-8 text-primary" />
+              </div>
+              <CardTitle className="text-xl">{feature.title}</CardTitle>
             </div>
-            <CardTitle className="text-xl">{feature.title}</CardTitle>
+            {feature.badge && (
+                <Badge variant="secondary">{feature.badge}</Badge>
+            )}
           </CardHeader>
           <CardContent className="p-0 pt-4">
             <p className="text-muted-foreground">{feature.description}</p>
