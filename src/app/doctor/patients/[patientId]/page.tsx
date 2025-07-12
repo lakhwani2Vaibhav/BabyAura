@@ -134,7 +134,7 @@ export default function PatientProfilePage({
               )}
             </p>
             <Button variant="link" asChild className="p-0">
-              <Link href="/parent/vaccination">View Full Schedule</Link>
+              <Link href={`/doctor/patients/${patientId}/vaccination`}>View Full Schedule</Link>
             </Button>
           </CardContent>
         </Card>
