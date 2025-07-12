@@ -39,8 +39,7 @@ type Vaccination = {
 
 type VaccinationWithStatus = Vaccination & { status: "Upcoming" | "Taken" | "Missed" };
 
-export default function DoctorPatientVaccinationPage({ params }: { params: { patientId: string } }) {
-  const { patientId } = params;
+export default function DoctorPatientVaccinationPage({ params: { patientId } }: { params: { patientId: string } }) {
   const [activeTab, setActiveTab] = useState<"upcoming" | "taken" | "missed">("upcoming");
   const [open, setOpen] = useState(false);
   const [selectedVaccine, setSelectedVaccine] = useState<Vaccination | null>(null);
