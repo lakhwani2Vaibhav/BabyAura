@@ -166,8 +166,8 @@ export function UploadMemoryModal() {
             beautiful caption.
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="h-[60vh]">
-          <div className="pr-6">
+        <ScrollArea className="h-[60vh] -mx-6">
+          <div className="px-6">
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
