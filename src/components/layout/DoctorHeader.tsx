@@ -146,10 +146,10 @@ export function DoctorHeader() {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                onClick={() => router.push("/doctor/profile")}
+                onClick={() => router.push("/doctor/settings")}
               >
                 <User className="mr-2 h-4 w-4" />
-                <span>Profile</span>
+                <span>Settings & Profile</span>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={logout}>
                 <LogOut className="mr-2 h-4 w-4" />

@@ -16,6 +16,7 @@ import {
   CalendarCheck,
   BookImage,
   BookHeart,
+  Settings,
   type LucideIcon,
 } from "lucide-react";
 
@@ -86,6 +87,11 @@ export const doctorHeaderNav: NavItem[] = [
     href: "/doctor/earnings",
     label: "Earnings",
     icon: DollarSign,
+  },
+  {
+    href: "/doctor/settings",
+    label: "Settings",
+    icon: Settings,
   },
 ];
 
