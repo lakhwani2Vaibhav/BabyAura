@@ -12,13 +12,6 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import {
   Plus,
@@ -31,9 +24,7 @@ import { useToast } from "@/hooks/use-toast";
 import { adminData } from "@/lib/data";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Calendar } from "../ui/calendar";
-import { Badge } from "../ui/badge";
 import { format } from "date-fns";
-import { cn } from "@/lib/utils";
 import { ScrollArea } from "../ui/scroll-area";
 import { Separator } from "../ui/separator";
 
@@ -120,42 +111,40 @@ export function ScheduleAppointmentDialog() {
                 Choose an available doctor to schedule a consultation.
               </DialogDescription>
             </DialogHeader>
-            <ScrollArea className="h-[60vh] md:h-auto">
-              <div className="py-4 pr-6">
-                <div className="space-y-4">
-                  {adminData.doctors
-                    .filter((d) => d.status === "Active")
-                    .map((doctor) => (
-                      <div
-                        key={doctor.id}
-                        className="flex items-center gap-4 rounded-lg border p-4"
-                      >
-                        <Avatar className="h-12 w-12">
-                          <AvatarImage src={doctor.avatarUrl} />
-                          <AvatarFallback>
-                            {getInitials(doctor.name)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-grow">
-                          <p className="font-semibold">{doctor.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {doctor.specialty}
-                          </p>
-                        </div>
-                        <div className="flex flex-col sm:flex-row gap-2">
-                           <Button variant="outline" size="sm" onClick={handleChatClick}>
-                             <MessageSquare className="h-4 w-4 mr-2" /> Chat
-                           </Button>
-                           <Button
-                            size="sm"
-                            onClick={() => handleSelectDoctor(doctor)}
-                          >
-                            <Video className="h-4 w-4 mr-2" /> Schedule
-                          </Button>
-                        </div>
+            <ScrollArea className="max-h-[60vh] md:max-h-none -mr-6 pr-6">
+              <div className="py-4 space-y-4">
+                {adminData.doctors
+                  .filter((d) => d.status === "Active")
+                  .map((doctor) => (
+                    <div
+                      key={doctor.id}
+                      className="flex items-center gap-4 rounded-lg border p-4"
+                    >
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src={doctor.avatarUrl} />
+                        <AvatarFallback>
+                          {getInitials(doctor.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-grow">
+                        <p className="font-semibold">{doctor.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {doctor.specialty}
+                        </p>
                       </div>
-                    ))}
-                </div>
+                      <div className="flex flex-col sm:flex-row gap-2">
+                         <Button variant="outline" size="sm" onClick={handleChatClick}>
+                           <MessageSquare className="h-4 w-4 mr-2" /> Chat
+                         </Button>
+                         <Button
+                          size="sm"
+                          onClick={() => handleSelectDoctor(doctor)}
+                        >
+                          <Video className="h-4 w-4 mr-2" /> Schedule
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
               </div>
             </ScrollArea>
           </>
@@ -178,8 +167,8 @@ export function ScheduleAppointmentDialog() {
                 With <span className="font-semibold text-primary">{selectedDoctor?.name}</span>
               </DialogDescription>
             </DialogHeader>
-            <ScrollArea className="h-[60vh] md:h-auto">
-                <div className="grid md:grid-cols-2 gap-6 py-4 pr-6">
+            <ScrollArea className="max-h-[60vh] md:max-h-none -mr-6 pr-6">
+                <div className="grid md:grid-cols-2 gap-6 py-4">
                 <div className="flex justify-center">
                     <Calendar
                         mode="single"
@@ -234,8 +223,8 @@ export function ScheduleAppointmentDialog() {
                         Please review the details below before confirming.
                     </DialogDescription>
                 </DialogHeader>
-                 <ScrollArea className="h-[60vh] md:h-auto">
-                    <div className="py-4 pr-6 space-y-4">
+                 <ScrollArea className="max-h-[60vh] md:max-h-none -mr-6 pr-6">
+                    <div className="py-4 space-y-4">
                         <div className="flex items-center gap-4 rounded-lg border p-4">
                             <Avatar className="h-12 w-12">
                             <AvatarImage src={selectedDoctor?.avatarUrl} />
@@ -285,7 +274,10 @@ export function ScheduleAppointmentDialog() {
           New Appointment
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md md:max-w-2xl" onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={resetState}>
+      <DialogContent className="max-w-md md:max-w-2xl" onInteractOutside={(e) => {
+          if(!open) return;
+          e.preventDefault();
+        }} onEscapeKeyDown={resetState}>
         {renderStepContent()}
       </DialogContent>
     </Dialog>
