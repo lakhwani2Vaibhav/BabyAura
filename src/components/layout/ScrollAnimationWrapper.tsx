@@ -25,8 +25,10 @@ export function ScrollAnimationWrapper({
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        // Set the state based on whether the element is intersecting or not.
-        setInView(entry.isIntersecting);
+        if (entry.isIntersecting) {
+            setInView(true);
+            observer.unobserve(element);
+        }
       },
       { threshold }
     );
@@ -50,7 +52,7 @@ export function ScrollAnimationWrapper({
         className: cn(
           children.props.className,
           'transition-opacity',
-          !inView && 'opacity-0', // Hide until in view
+          !inView && 'opacity-0',
           inView && animationClasses
         ),
       })}

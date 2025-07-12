@@ -198,5 +198,3 @@ const FeatureGrid = ({ features }: { features: Feature[] }) => (
     ))}
   </div>
 );
-
-    
