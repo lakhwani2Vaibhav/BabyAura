@@ -15,6 +15,7 @@ import {
   BarChart2,
   CalendarCheck,
   BookImage,
+  BookHeart,
   type LucideIcon,
 } from "lucide-react";
 
@@ -130,6 +131,11 @@ export const superAdminHeaderNav: NavItem[] = [
     href: "/superadmin/analytics",
     label: "Analytics",
     icon: Activity,
+  },
+    {
+    href: "/superadmin/care",
+    label: "Care Content",
+    icon: BookHeart,
   },
   {
     href: "/superadmin/logs",

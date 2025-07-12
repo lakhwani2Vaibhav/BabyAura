@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -11,58 +12,14 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { careArticles as initialCareArticles } from "@/lib/data";
-import { ArrowRight, Search, Plus } from "lucide-react";
+import { ArrowRight, Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-  DialogClose,
-} from "@/components/ui/dialog";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-
-
-const articleSchema = z.object({
-  title: z.string().min(5, "Title must be at least 5 characters long."),
-  description: z
-    .string()
-    .min(20, "Article content must be at least 20 characters long."),
-});
-
-type ArticleFormValues = z.infer<typeof articleSchema>;
 
 export default function CarePage() {
   const [articles, setArticles] = useState(initialCareArticles);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredArticles, setFilteredArticles] = useState(articles);
-  const [open, setOpen] = useState(false);
-  const { toast } = useToast();
-
-  const form = useForm<ArticleFormValues>({
-    resolver: zodResolver(articleSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-    },
-  });
 
   useEffect(() => {
     const results = articles.filter(
@@ -74,95 +31,14 @@ export default function CarePage() {
     setFilteredArticles(results);
   }, [searchTerm, articles]);
 
-  const onSubmit = (data: ArticleFormValues) => {
-    const newArticle = {
-      id: articles.length + 1,
-      title: data.title,
-      description: data.description,
-      author: "Parent's Name", // In a real app, this would come from user data
-      imageUrl: "https://placehold.co/600x400.png",
-    };
-    setArticles([newArticle, ...articles]);
-    toast({
-      title: "Article Published!",
-      description: "Your new article is now live for the community to see.",
-    });
-    form.reset();
-    setOpen(false);
-  };
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold font-headline">Care Resources</h1>
-          <p className="text-muted-foreground">
-            Find and share articles and resources for baby care.
-          </p>
-        </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" /> Create Article
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Create a New Article</DialogTitle>
-              <DialogDescription>
-                Share your knowledge and experience with the community.
-              </DialogDescription>
-            </DialogHeader>
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-4 py-4"
-              >
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Title</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="A catchy title for your article"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Content</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Write your article here..."
-                          {...field}
-                          rows={8}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <DialogFooter>
-                  <DialogClose asChild>
-                    <Button type="button" variant="ghost">
-                      Cancel
-                    </Button>
-                  </DialogClose>
-                  <Button type="submit">Publish Article</Button>
-                </DialogFooter>
-              </form>
-            </Form>
-          </DialogContent>
-        </Dialog>
+      <div>
+        <h1 className="text-3xl font-bold font-headline">Care Resources</h1>
+        <p className="text-muted-foreground">
+          Expert articles and resources for your baby's care.
+        </p>
       </div>
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
