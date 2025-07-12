@@ -97,8 +97,8 @@ export default function Home() {
       { name: 'Health Feedback & Prescription Reminders', info: 'Reminders for prescriptions and health feedback.' },
       { name: 'Quick Chat/Call Support', info: 'Quick support via chat or call.' },
       { name: 'Dedicated Dietician Support', info: 'Get support from a dedicated dietician.' },
-      { name: 'AI Assistance', info: 'Get AI-powered assistance for your queries.' },
       { name: 'Automated Essentials Delivery', info: 'Automated delivery of baby essentials.' },
+      { name: 'AI Assistance', info: 'Get AI-powered assistance for your queries.' },
       { name: 'Early Access to Beta Updates', info: 'Get early access to our new features.' },
   ];
 
@@ -111,8 +111,8 @@ export default function Home() {
       'Health Feedback & Prescription Reminders': true,
       'Quick Chat/Call Support': true,
       'Dedicated Dietician Support': true,
-      'AI Assistance': 'Simple',
       'Automated Essentials Delivery': false,
+      'AI Assistance': 'Simple',
       'Early Access to Beta Updates': false,
     },
     premium: {
@@ -123,8 +123,8 @@ export default function Home() {
       'Health Feedback & Prescription Reminders': true,
       'Quick Chat/Call Support': '5 Credits',
       'Dedicated Dietician Support': true,
-      'AI Assistance': 'Advanced',
       'Automated Essentials Delivery': true,
+      'AI Assistance': 'Advanced',
       'Early Access to Beta Updates': true,
     }
   };
@@ -458,7 +458,7 @@ export default function Home() {
           <section id="testimonials" className="w-full py-12 md:py-24 lg:py-32 bg-muted dark:bg-card">
             <div className="container px-4 md:px-6">
               <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out delay-600">
-                <div className="mt-12 flex items-center justify-center gap-8 text-center md:gap-16">
+                <div className="flex items-center justify-center gap-8 text-center md:gap-16">
                   <div className="flex items-center gap-4">
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
                       <Briefcase className="h-6 w-6 text-primary" />
@@ -484,7 +484,7 @@ export default function Home() {
                 </div>
               </ScrollAnimationWrapper>
               <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
-                <div className="flex flex-col items-center justify-center space-y-4 text-center">
+                <div className="mt-12 flex flex-col items-center justify-center space-y-4 text-center">
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">
                     Loved by Mothers Everywhere
                   </h2>
