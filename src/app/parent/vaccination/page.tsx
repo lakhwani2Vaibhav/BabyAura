@@ -118,26 +118,31 @@ export default function VaccinationPage() {
 
           <div className="space-y-4">
             {currentVaccinations.map((vaccine) => (
-              <Card key={vaccine.id} className="flex items-center p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/50 mr-4">
-                  {getStatusIcon(vaccine.status)}
+              <Card key={vaccine.id} className="flex flex-col sm:flex-row sm:items-center p-4 gap-4">
+                <div className="flex items-center gap-4 flex-grow">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/50 flex-shrink-0">
+                    {getStatusIcon(vaccine.status)}
+                  </div>
+                  <div>
+                    <p className="font-semibold">{vaccine.name}</p>
+                    <p className="text-sm text-muted-foreground">Due: {vaccine.age}</p>
+                  </div>
                 </div>
-                <div className="flex-grow">
-                  <p className="font-semibold">{vaccine.name}</p>
-                  <p className="text-sm text-muted-foreground">Due: {vaccine.age}</p>
+
+                <div className="flex items-center gap-4 sm:ml-auto flex-shrink-0">
+                  {vaccine.status === "Upcoming" && (
+                    <>
+                      <Badge variant="outline" className="border-blue-500/50 text-blue-600 bg-blue-500/10">Upcoming</Badge>
+                      <Button onClick={() => handleScheduleClick(vaccine)} className="w-full sm:w-auto">Schedule Now</Button>
+                    </>
+                  )}
+                  {vaccine.status === "Taken" && (
+                      <Badge variant="default" className="bg-green-100 text-green-800 border-green-200 hover:bg-green-200">Taken</Badge>
+                  )}
+                  {vaccine.status === "Missed" && (
+                      <Badge variant="destructive">Missed</Badge>
+                  )}
                 </div>
-                {vaccine.status === "Upcoming" && (
-                  <>
-                    <Badge variant="outline" className="mr-4 border-blue-500/50 text-blue-600 bg-blue-500/10">Upcoming</Badge>
-                    <Button onClick={() => handleScheduleClick(vaccine)}>Schedule Now</Button>
-                  </>
-                )}
-                {vaccine.status === "Taken" && (
-                    <Badge variant="default" className="bg-green-100 text-green-800 border-green-200 hover:bg-green-200">Taken</Badge>
-                )}
-                {vaccine.status === "Missed" && (
-                    <Badge variant="destructive">Missed</Badge>
-                )}
               </Card>
             ))}
           </div>
