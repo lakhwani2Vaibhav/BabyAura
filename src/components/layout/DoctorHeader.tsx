@@ -38,6 +38,13 @@ export function DoctorHeader() {
     return role.substring(0, 1).toUpperCase();
   };
 
+  const isNavItemActive = (navItemPath: string, matchFn?: (pathname: string) => boolean) => {
+    if (matchFn) {
+      return matchFn(pathname);
+    }
+    return pathname === navItemPath;
+  };
+
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
@@ -55,7 +62,7 @@ export function DoctorHeader() {
                 href={item.href}
                 className={cn(
                   "transition-colors hover:text-foreground/80",
-                  pathname === item.href
+                  isNavItemActive(item.href, item.match)
                     ? "text-foreground"
                     : "text-foreground/60"
                 )}
@@ -93,7 +100,7 @@ export function DoctorHeader() {
                         href={item.href}
                         className={cn(
                           "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
-                          pathname === item.href && "bg-muted text-primary"
+                          isNavItemActive(item.href, item.match) && "bg-muted text-primary"
                         )}
                       >
                         <item.icon className="h-5 w-5" />

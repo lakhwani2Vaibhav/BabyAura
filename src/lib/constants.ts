@@ -75,6 +75,7 @@ export const doctorHeaderNav: NavItem[] = [
     href: "/doctor/patients",
     label: "Patients",
     icon: Users,
+    match: (pathname) => pathname.startsWith("/doctor/patients"),
   },
   {
     href: "/doctor/prescriptions",
