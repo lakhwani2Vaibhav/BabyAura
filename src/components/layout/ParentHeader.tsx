@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { BabyAuraLogo } from "@/components/icons/BabyAuraLogo";
 import { Button } from "@/components/ui/button";
-import { LogOut, User, Menu } from "lucide-react";
+import { LogOut, User, Menu, ShieldAlert } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -101,6 +101,14 @@ export function ParentHeader() {
                       </Link>
                     </SheetClose>
                   ))}
+                   <SheetClose asChild>
+                      <Button asChild variant="destructive" className="justify-start gap-4 px-3 animate-wave-destructive mt-4">
+                          <Link href="/parent/emergency">
+                              <ShieldAlert className="h-5 w-5" />
+                              Emergency
+                          </Link>
+                      </Button>
+                  </SheetClose>
                 </nav>
               </SheetContent>
             </Sheet>
@@ -111,6 +119,12 @@ export function ParentHeader() {
         </div>
 
         <div className="flex items-center justify-end space-x-2">
+           <Button asChild variant="destructive" size="sm" className="animate-wave-destructive hidden sm:flex">
+              <Link href="/parent/emergency">
+                  <ShieldAlert className="mr-2 h-4 w-4" />
+                  Emergency
+              </Link>
+          </Button>
           <NotificationBell />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
