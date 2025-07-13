@@ -109,16 +109,10 @@ export default function TimelinePage() {
 
   return (
     <div className="space-y-6">
-      <Card className="border-primary/20 bg-primary/5">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold font-headline">
-            Hey Mrs. CRO (Chief Responsible Officer)!
-          </CardTitle>
-          <CardDescription>
-            Here’s a look at your day. You’re doing great!
-          </CardDescription>
-        </CardHeader>
-      </Card>
+       <div className="text-center">
+            <h1 className="text-3xl font-bold font-headline tracking-tight">Your Daily Command Center, Mrs. CRO!</h1>
+            <p className="text-muted-foreground mt-2">Here’s a look at your day. You’re doing great!</p>
+        </div>
 
       <Tabs defaultValue="daily">
         <TabsList className="grid w-full grid-cols-2">
@@ -128,7 +122,7 @@ export default function TimelinePage() {
         <TabsContent value="daily" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>Your Daily Timeline</CardTitle>
+              <CardTitle>Today's Timeline</CardTitle>
               <CardDescription>
                 A plan for today. Use the prompter below to make changes. This list refreshes every 24 hours.
               </CardDescription>
