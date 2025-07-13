@@ -18,6 +18,7 @@ import {
   BookHeart,
   Settings,
   type LucideIcon,
+  ListChecks,
 } from "lucide-react";
 
 export interface NavItem {
@@ -32,6 +33,11 @@ export const parentHeaderNav: NavItem[] = [
     href: "/parent/dashboard",
     label: "Home",
     icon: LayoutDashboard,
+  },
+  {
+    href: "/parent/timeline",
+    label: "Timeline",
+    icon: ListChecks,
   },
   {
     href: "/parent/consultations",
