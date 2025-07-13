@@ -24,6 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { updateParentTimeline } from "@/ai/flows/update-parent-timeline";
+import { ScrollAnimationWrapper } from "@/components/layout/ScrollAnimationWrapper";
 
 
 const initialDailyTasks = [
@@ -120,74 +121,78 @@ export default function TimelinePage() {
           <TabsTrigger value="long-term">Long-Term Schedule</TabsTrigger>
         </TabsList>
         <TabsContent value="daily" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Today's Timeline</CardTitle>
-              <CardDescription>
-                A plan for today. Use the prompter below to make changes. This list refreshes every 24 hours.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-1">
-                <div className="flex justify-between items-center mb-2">
-                    <p className="text-sm font-medium text-muted-foreground">Daily Progress</p>
-                    <p className="text-sm font-semibold">{completedTasks} / {totalTasks} tasks done</p>
+          <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out">
+            <Card>
+              <CardHeader>
+                <CardTitle>Today's Timeline</CardTitle>
+                <CardDescription>
+                  A plan for today. Use the prompter below to make changes. This list refreshes every 24 hours.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-1">
+                  <div className="flex justify-between items-center mb-2">
+                      <p className="text-sm font-medium text-muted-foreground">Daily Progress</p>
+                      <p className="text-sm font-semibold">{completedTasks} / {totalTasks} tasks done</p>
+                  </div>
+                  <Progress value={progressPercentage} className="w-full h-2" />
                 </div>
-                <Progress value={progressPercentage} className="w-full h-2" />
-              </div>
 
-              <div className="space-y-2 pt-4">
-                {tasks.map((task) => (
-                  <ChecklistItem
-                    key={task.id}
-                    id={task.id}
-                    text={task.text}
-                    completed={task.completed}
-                    onToggle={toggleTask}
+                <div className="space-y-2 pt-4">
+                  {tasks.map((task) => (
+                    <ChecklistItem
+                      key={task.id}
+                      id={task.id}
+                      text={task.text}
+                      completed={task.completed}
+                      onToggle={toggleTask}
+                    />
+                  ))}
+                </div>
+              </CardContent>
+               <CardFooter>
+                <form onSubmit={handlePromptSubmit} className="w-full flex items-center gap-2">
+                  <Bot className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                  <Input 
+                      placeholder="e.g., 'Add feeding at 2pm' or 'mark tummy time as done'"
+                      value={prompt}
+                      onChange={(e) => setPrompt(e.target.value)}
+                      disabled={isUpdating}
                   />
-                ))}
-              </div>
-            </CardContent>
-             <CardFooter>
-              <form onSubmit={handlePromptSubmit} className="w-full flex items-center gap-2">
-                <Bot className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                <Input 
-                    placeholder="e.g., 'Add feeding at 2pm' or 'mark tummy time as done'"
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    disabled={isUpdating}
-                />
-                <Button type="submit" disabled={isUpdating}>
-                  {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : "Update"}
-                </Button>
-              </form>
-            </CardFooter>
-          </Card>
+                  <Button type="submit" disabled={isUpdating}>
+                    {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : "Update"}
+                  </Button>
+                </form>
+              </CardFooter>
+            </Card>
+          </ScrollAnimationWrapper>
         </TabsContent>
         <TabsContent value="long-term" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Long-Term Schedule</CardTitle>
-              <CardDescription>
-                Important upcoming milestones and appointments.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {longTermSchedule.map((item) => (
-                <Card key={item.id} className="p-4 flex items-center gap-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 flex-shrink-0">
-                    <item.icon className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="flex-grow">
-                    <p className="font-semibold">{item.title}</p>
-                  </div>
-                  <div className="text-sm text-muted-foreground text-right">
-                    {item.due}
-                  </div>
-                </Card>
-              ))}
-            </CardContent>
-          </Card>
+          <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out">
+            <Card>
+              <CardHeader>
+                <CardTitle>Long-Term Schedule</CardTitle>
+                <CardDescription>
+                  Important upcoming milestones and appointments.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {longTermSchedule.map((item) => (
+                  <Card key={item.id} className="p-4 flex items-center gap-4">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 flex-shrink-0">
+                      <item.icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="flex-grow">
+                      <p className="font-semibold">{item.title}</p>
+                    </div>
+                    <div className="text-sm text-muted-foreground text-right">
+                      {item.due}
+                    </div>
+                  </Card>
+                ))}
+              </CardContent>
+            </Card>
+          </ScrollAnimationWrapper>
         </TabsContent>
       </Tabs>
     </div>
