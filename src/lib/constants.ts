@@ -84,6 +84,16 @@ export const doctorHeaderNav: NavItem[] = [
     icon: FileText,
   },
   {
+    href: "/doctor/care",
+    label: "Care Content",
+    icon: BookHeart,
+  },
+  {
+    href: "/doctor/community",
+    label: "Community",
+    icon: Users,
+  },
+  {
     href: "/doctor/earnings",
     label: "Earnings",
     icon: DollarSign,

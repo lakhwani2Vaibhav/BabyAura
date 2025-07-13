@@ -17,7 +17,7 @@ import { Heart, MessageSquare, PenSquare, ShieldCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 
-export default function CommunityPage() {
+export default function DoctorCommunityPage() {
   const [posts, setPosts] = useState(initialPosts);
   const [newPostContent, setNewPostContent] = useState("");
   const { toast } = useToast();
@@ -28,9 +28,9 @@ export default function CommunityPage() {
     const newPost = {
       id: Date.now(),
       author: {
-        name: "Parent's Name",
+        name: "Dr. Emily Carter",
         avatarUrl: "https://placehold.co/40x40.png",
-        isDoctor: false,
+        isDoctor: true,
       },
       timestamp: "Just now",
       content: newPostContent,
@@ -50,18 +50,21 @@ export default function CommunityPage() {
     <div className="grid md:grid-cols-3 gap-8">
       <div className="md:col-span-2 space-y-6">
         <Card>
-          <CardHeader className="flex flex-row items-start gap-4">
+          <CardHeader>
+            <CardTitle>Community Feed</CardTitle>
+          </CardHeader>
+          <CardContent className="flex items-start gap-4">
             <Avatar>
               <AvatarImage
                 src="https://placehold.co/40x40.png"
-                data-ai-hint="woman smiling"
-                alt="@parent"
+                data-ai-hint="doctor smiling"
+                alt="@doctor"
               />
-              <AvatarFallback>P</AvatarFallback>
+              <AvatarFallback>DR</AvatarFallback>
             </Avatar>
             <div className="w-full">
               <Textarea
-                placeholder="Share your thoughts or ask a question..."
+                placeholder="Share an update or answer a question..."
                 value={newPostContent}
                 onChange={(e) => setNewPostContent(e.target.value)}
               />
@@ -69,7 +72,7 @@ export default function CommunityPage() {
                 <PenSquare className="mr-2 h-4 w-4" /> Post
               </Button>
             </div>
-          </CardHeader>
+          </CardContent>
         </Card>
 
         <div className="space-y-4">
@@ -83,7 +86,7 @@ export default function CommunityPage() {
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                   <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2">
                     <p className="font-semibold">{post.author.name}</p>
                     {post.author.isDoctor && (
                         <Badge variant="outline" className="border-primary/50 bg-primary/10 text-primary text-xs">

@@ -143,7 +143,7 @@ You can start tummy time from day one, beginning with very short sessions of jus
 export const communityPosts = [
   {
     id: 1,
-    author: { name: "Jessica M.", avatarUrl: "https://placehold.co/40x40.png" },
+    author: { name: "Jessica M.", avatarUrl: "https://placehold.co/40x40.png", isDoctor: false },
     timestamp: "2 hours ago",
     content: "Any tips for dealing with teething? My little one is having such a tough time! 😢",
     likes: 15,
@@ -151,7 +151,7 @@ export const communityPosts = [
   },
   {
     id: 2,
-    author: { name: "David L.", avatarUrl: "https://placehold.co/40x40.png" },
+    author: { name: "David L.", avatarUrl: "https://placehold.co/40x40.png", isDoctor: false },
     timestamp: "1 day ago",
     content: "We just had our 4-month check-up and everything is looking great! So proud of this little guy.",
     likes: 32,
