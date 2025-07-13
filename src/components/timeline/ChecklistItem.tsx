@@ -25,7 +25,8 @@ export function ChecklistItem({ id, text, completed, onToggle }: ChecklistItemPr
       <Checkbox
         id={`task-${id}`}
         checked={completed}
-        onCheckedChange={() => onToggle(id)}
+        // The onCheckedChange is handled by the parent div's onClick
+        aria-label={`Mark task '${text}' as ${completed ? 'incomplete' : 'complete'}`}
         className="h-5 w-5 rounded-full"
       />
       <label
