@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import Image from 'next/image';
 import Link from 'next/link';
 import { format } from "date-fns";
-import { Calendar, Star, BookImage, ArrowRight } from "lucide-react";
+import { Calendar, Star, BookImage, ArrowRight, Video } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { VaccinationCard } from "@/components/cards/VaccinationCard";
@@ -53,22 +53,34 @@ export default function ParentDashboardPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {upcomingConsultations.map((consultation) => (
-                <Card key={consultation.id} className="p-4 flex items-center gap-4">
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage src={`https://placehold.co/100x100.png`} data-ai-hint="doctor portrait" />
-                    <AvatarFallback>{getInitials(consultation.doctor)}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-grow">
-                    <p className="font-bold">{consultation.doctor}</p>
-                    <p className="text-sm text-muted-foreground">{consultation.specialty}</p>
-                    <p className="text-sm text-primary font-medium mt-1">
-                      {format(new Date(consultation.date), "yyyy-MM-dd 'at' hh:mm a")}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-1 text-yellow-500">
-                    <Star className="w-4 h-4 fill-current" />
-                    <span className="font-bold">4.8</span>
-                  </div>
+                <Card key={consultation.id} className="p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                   <div className="flex items-center gap-4 w-full">
+                      <Avatar className="h-12 w-12 flex-shrink-0">
+                        <AvatarImage src={`https://placehold.co/100x100.png`} data-ai-hint="doctor portrait" />
+                        <AvatarFallback>{getInitials(consultation.doctor)}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-grow">
+                        <div className="flex justify-between items-center">
+                            <p className="font-bold">{consultation.doctor}</p>
+                            <div className="flex sm:hidden items-center gap-1 text-yellow-500">
+                                <Star className="w-4 h-4 fill-current" />
+                                <span className="font-bold text-sm">4.8</span>
+                            </div>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{consultation.specialty}</p>
+                        <p className="text-sm text-primary font-medium mt-1">
+                          {format(new Date(consultation.date), "yyyy-MM-dd 'at' hh:mm a")}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="hidden sm:flex items-center gap-1 text-yellow-500">
+                        <Star className="w-4 h-4 fill-current" />
+                        <span className="font-bold">4.8</span>
+                    </div>
+                    <Button className="w-full sm:w-auto flex-shrink-0">
+                        <Video className="mr-2 h-4 w-4" />
+                        Join Call
+                    </Button>
                 </Card>
               ))}
             </CardContent>
