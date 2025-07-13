@@ -23,21 +23,18 @@ export function ChecklistItem({ id, text, completed, onToggle }: ChecklistItemPr
       )}
     >
       <Checkbox
-        id={`task-${id}`}
         checked={completed}
-        // The onCheckedChange is handled by the parent div's onClick
-        aria-label={`Mark task '${text}' as ${completed ? 'incomplete' : 'complete'}`}
-        className="h-5 w-5 rounded-full"
+        aria-label={`Task: ${text}`}
+        className="h-5 w-5 rounded-full pointer-events-none"
       />
-      <label
-        htmlFor={`task-${id}`}
+      <span
         className={cn(
-          "flex-1 text-sm font-medium cursor-pointer",
+          "flex-1 text-sm font-medium",
           completed ? "text-muted-foreground line-through" : "text-foreground"
         )}
       >
         {text}
-      </label>
+      </span>
     </div>
   );
 }
