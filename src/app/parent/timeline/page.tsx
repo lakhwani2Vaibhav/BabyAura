@@ -6,6 +6,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -14,9 +15,16 @@ import {
   Baby,
   Syringe,
   Stethoscope,
+  Bot,
+  Loader2
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { ChecklistItem } from "@/components/timeline/ChecklistItem";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { updateParentTimeline } from "@/ai/flows/update-parent-timeline";
+
 
 const initialDailyTasks = [
   { id: 1, text: "Morning feeding (8:00 AM)", completed: true },
@@ -46,6 +54,10 @@ const longTermSchedule = [
 
 export default function TimelinePage() {
   const [tasks, setTasks] = useState(initialDailyTasks);
+  const [prompt, setPrompt] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
+  const { toast } = useToast();
+
 
   const toggleTask = (taskId: number) => {
     setTasks(
@@ -53,6 +65,42 @@ export default function TimelinePage() {
         task.id === taskId ? { ...task, completed: !task.completed } : task
       )
     );
+  };
+
+  const handlePromptSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!prompt.trim()) return;
+
+    setIsUpdating(true);
+    try {
+      const result = await updateParentTimeline({
+        prompt: prompt,
+        currentTasks: tasks,
+      });
+      if (result.updatedTasks) {
+        setTasks(result.updatedTasks);
+        toast({
+          title: "Timeline Updated!",
+          description: "Your AI assistant has updated your checklist.",
+        });
+      } else {
+         toast({
+          variant: "destructive",
+          title: "Update Failed",
+          description: "The AI couldn't understand the request. Please try rephrasing.",
+        });
+      }
+    } catch (error) {
+       toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Something went wrong while updating your timeline.",
+      });
+      console.error(error);
+    } finally {
+      setPrompt("");
+      setIsUpdating(false);
+    }
   };
   
   const completedTasks = tasks.filter(task => task.completed).length;
@@ -82,7 +130,7 @@ export default function TimelinePage() {
             <CardHeader>
               <CardTitle>Your Daily Timeline</CardTitle>
               <CardDescription>
-                A plan for today. This checklist refreshes every 24 hours.
+                A plan for today. Use the prompter below to make changes. This list refreshes every 24 hours.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -106,6 +154,20 @@ export default function TimelinePage() {
                 ))}
               </div>
             </CardContent>
+             <CardFooter>
+              <form onSubmit={handlePromptSubmit} className="w-full flex items-center gap-2">
+                <Bot className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                <Input 
+                    placeholder="e.g., 'Add feeding at 2pm' or 'mark tummy time as done'"
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    disabled={isUpdating}
+                />
+                <Button type="submit" disabled={isUpdating}>
+                  {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : "Update"}
+                </Button>
+              </form>
+            </CardFooter>
           </Card>
         </TabsContent>
         <TabsContent value="long-term" className="mt-6">
