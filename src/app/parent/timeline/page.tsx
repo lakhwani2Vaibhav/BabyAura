@@ -14,11 +14,7 @@ import {
   Baby,
   Syringe,
   Stethoscope,
-  Clock,
-  CheckCircle2,
-  Circle,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ChecklistItem } from "@/components/timeline/ChecklistItem";
 
@@ -68,7 +64,7 @@ export default function TimelinePage() {
       <Card className="border-primary/20 bg-primary/5">
         <CardHeader>
           <CardTitle className="text-2xl font-bold font-headline">
-            Hey Mr. CRO (Chief Responsible Officer)!
+            Hey Mrs. CRO (Chief Responsible Officer)!
           </CardTitle>
           <CardDescription>
             Here’s a look at your day. You’re doing great!
@@ -95,7 +91,7 @@ export default function TimelinePage() {
                     <p className="text-sm font-medium text-muted-foreground">Daily Progress</p>
                     <p className="text-sm font-semibold">{completedTasks} / {totalTasks} tasks done</p>
                 </div>
-                <Progress value={progressPercentage} className="w-full" />
+                <Progress value={progressPercentage} className="w-full h-2" />
               </div>
 
               <div className="space-y-2 pt-4">

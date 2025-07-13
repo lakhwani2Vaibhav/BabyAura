@@ -16,15 +16,17 @@ export function ChecklistItem({ id, text, completed, onToggle }: ChecklistItemPr
     <div
       onClick={() => onToggle(id)}
       className={cn(
-        "flex items-center gap-3 rounded-lg p-3 cursor-pointer transition-all",
-        completed ? "bg-green-500/10" : "bg-muted/50 hover:bg-muted"
+        "flex items-center gap-4 rounded-lg p-3 cursor-pointer transition-all border",
+        completed
+          ? "bg-green-500/10 border-green-500/20"
+          : "bg-muted/50 hover:bg-muted"
       )}
     >
       <Checkbox
         id={`task-${id}`}
         checked={completed}
         onCheckedChange={() => onToggle(id)}
-        className="h-5 w-5"
+        className="h-5 w-5 rounded-full"
       />
       <label
         htmlFor={`task-${id}`}
