@@ -20,6 +20,7 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import Link from "next/link";
+import { useToast } from "@/hooks/use-toast";
 
 const registerSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
@@ -32,6 +33,7 @@ type RegisterValues = z.infer<typeof registerSchema>;
 export function RegisterForm() {
   const { login } = useAuth();
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const {
     register,
@@ -55,6 +57,11 @@ export function RegisterForm() {
       if (!response.ok) {
         throw new Error(result.message || "An error occurred");
       }
+      
+      toast({
+        title: "Account Created!",
+        description: "Welcome to BabyAura. Let's get started.",
+      });
 
       login("Parent");
 
@@ -67,7 +74,7 @@ export function RegisterForm() {
     <Card className="w-full max-w-md mx-auto shadow-lg">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl font-headline">Create Your Account</CardTitle>
-        <CardDescription>Join the BabyAura family today!</CardDescription>
+        <CardDescription>Join the BabyAura family today! This form is for parents only.</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mt-6">

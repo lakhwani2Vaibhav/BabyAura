@@ -18,7 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Baby, Brain, Building, Stethoscope } from "lucide-react";
+import { Baby, Stethoscope } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
@@ -35,8 +35,6 @@ const roles: { value: NonNullable<UserRole>; label: string; icon: React.ReactNod
   [
     { value: "Parent", label: "Parent", icon: <Baby className="w-4 h-4" /> },
     { value: "Doctor", label: "Doctor", icon: <Stethoscope className="w-4 h-4" /> },
-    { value: "Admin", label: "Admin", icon: <Building className="w-4 h-4" /> },
-    { value: "Superadmin", label: "Superadmin", icon: <Brain className="w-4 h-4" /> },
   ];
 
 export function LoginForm() {
@@ -56,7 +54,7 @@ export function LoginForm() {
     defaultValues: { email: `${"parent"}@babyaura.com`, password: "password" },
   });
 
-  const handleRoleChange = (role: NonNullable<UserRole>) => {
+  const handleRoleChange = (role: "Parent" | "Doctor") => {
     setSelectedRole(role);
     setValue("email", `${role.toLowerCase()}@babyaura.com`);
     setError(null);
@@ -98,15 +96,15 @@ export function LoginForm() {
         <Tabs
           value={selectedRole}
           onValueChange={(value) =>
-            handleRoleChange(value as NonNullable<UserRole>)
+            handleRoleChange(value as "Parent" | "Doctor")
           }
           className="w-full"
         >
-          <TabsList className="flex flex-wrap h-auto justify-center gap-1">
+          <TabsList className="grid w-full grid-cols-2">
             {roles.map((role) => (
               <TabsTrigger
                 key={role.value}
-                value={role.value}
+                value={role.value as string}
                 className="flex items-center justify-center gap-1 text-xs md:text-sm py-2"
               >
                 {role.icon} {role.label}
@@ -128,7 +126,7 @@ export function LoginForm() {
             <Input
               id="email"
               type="email"
-              placeholder="parent@babyaura.com"
+              placeholder={`${selectedRole.toLowerCase()}@babyaura.com`}
               {...register("email")}
             />
             {errors.email && (
@@ -137,7 +135,7 @@ export function LoginForm() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" {...register("password")} />
+            <Input id="password" type="password" {...register("password")} defaultValue="password" />
             {errors.password && (
               <p className="text-sm text-destructive">
                 {errors.password.message}
