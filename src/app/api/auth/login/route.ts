@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { findUserByEmail, seedUsers } from "@/services/user-service";
 import bcrypt from "bcrypt";
-import type { UserRole } from "@/hooks/use-auth";
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,19 +16,6 @@ export async function POST(req: NextRequest) {
       );
     }
     
-    // For admin/superadmin, check if they are logging in via the correct, separate flow.
-    // This is a placeholder for a future dedicated admin login page.
-    // For now, we block them from the main login form.
-    if (role === "Admin" || role === "Superadmin") {
-      const user = await findUserByEmail(email);
-      if (user) {
-        // Here you might have a different logic path, e.g. checking a different flag
-        // or just allowing it if we decide to have a unified login API.
-        // For this implementation, we will assume admins will have a different portal/login page eventually.
-      }
-    }
-
-
     const user = await findUserByEmail(email);
 
     if (!user) {

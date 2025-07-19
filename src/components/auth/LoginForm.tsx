@@ -18,7 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Baby, Stethoscope } from "lucide-react";
+import { Baby, Stethoscope, Shield, UserCog } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
@@ -35,6 +35,8 @@ const roles: { value: NonNullable<UserRole>; label: string; icon: React.ReactNod
   [
     { value: "Parent", label: "Parent", icon: <Baby className="w-4 h-4" /> },
     { value: "Doctor", label: "Doctor", icon: <Stethoscope className="w-4 h-4" /> },
+    { value: "Admin", label: "Admin", icon: <Shield className="w-4 h-4" /> },
+    { value: "Superadmin", label: "Superadmin", icon: <UserCog className="w-4 h-4" /> },
   ];
 
 export function LoginForm() {
@@ -54,7 +56,7 @@ export function LoginForm() {
     defaultValues: { email: `${"parent"}@babyaura.com`, password: "password" },
   });
 
-  const handleRoleChange = (role: "Parent" | "Doctor") => {
+  const handleRoleChange = (role: NonNullable<UserRole>) => {
     setSelectedRole(role);
     setValue("email", `${role.toLowerCase()}@babyaura.com`);
     setError(null);
@@ -96,11 +98,11 @@ export function LoginForm() {
         <Tabs
           value={selectedRole}
           onValueChange={(value) =>
-            handleRoleChange(value as "Parent" | "Doctor")
+            handleRoleChange(value as NonNullable<UserRole>)
           }
           className="w-full"
         >
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-4">
             {roles.map((role) => (
               <TabsTrigger
                 key={role.value}
@@ -151,11 +153,11 @@ export function LoginForm() {
         <p className="text-xs text-muted-foreground text-center w-full">
             Don't have an account?{" "}
             <Link href="/auth/register" className="text-primary hover:underline">
-                Sign Up
+                Sign Up as a Parent
             </Link>
         </p>
          <p className="text-xs text-muted-foreground text-center w-full">
-            Doctor or Admin? Contact your hospital administrator.
+            Doctors and Admins must be invited by their organization.
         </p>
       </CardFooter>
     </Card>
