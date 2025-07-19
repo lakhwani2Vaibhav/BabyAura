@@ -17,6 +17,27 @@ export const findUserByEmail = async (email: string) => {
     return await usersCollection.findOne({ email });
 };
 
+export const createUser = async ({ name, email, password, role }: any) => {
+  const usersCollection = await getUsersCollection();
+  const saltRounds = 10;
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+  const userDocument = {
+    name,
+    email,
+    password: hashedPassword,
+    role,
+    createdAt: new Date(),
+  };
+
+  const result = await usersCollection.insertOne(userDocument);
+  
+  return {
+    ...userDocument,
+    _id: result.insertedId,
+  };
+};
+
 export const seedUsers = async () => {
   const usersCollection = await getUsersCollection();
   const userCount = await usersCollection.countDocuments();

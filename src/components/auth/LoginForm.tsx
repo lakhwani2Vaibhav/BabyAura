@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -21,6 +22,7 @@ import { Baby, Brain, Building, Stethoscope } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import Link from 'next/link';
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -147,9 +149,15 @@ export function LoginForm() {
           </Button>
         </form>
       </CardContent>
-      <CardFooter>
+      <CardFooter className="flex-col gap-2">
         <p className="text-xs text-muted-foreground text-center w-full">
-            Don't have an account? Contact your hospital administrator.
+            Don't have an account?{" "}
+            <Link href="/auth/register" className="text-primary hover:underline">
+                Sign Up
+            </Link>
+        </p>
+         <p className="text-xs text-muted-foreground text-center w-full">
+            Doctor or Admin? Contact your hospital administrator.
         </p>
       </CardFooter>
     </Card>
