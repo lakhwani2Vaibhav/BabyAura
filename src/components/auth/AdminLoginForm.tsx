@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useAuth, UserRole } from "@/hooks/use-auth";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,15 +13,12 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Baby, Stethoscope } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Shield } from "lucide-react";
 import Link from 'next/link';
 
 const loginSchema = z.object({
@@ -31,16 +28,8 @@ const loginSchema = z.object({
 
 type LoginValues = z.infer<typeof loginSchema>;
 
-const roles: { value: NonNullable<UserRole>; label: string; icon: React.ReactNode }[] =
-  [
-    { value: "Parent", label: "Parent", icon: <Baby className="w-4 h-4" /> },
-    { value: "Doctor", label: "Doctor", icon: <Stethoscope className="w-4 h-4" /> },
-  ];
-
-export function LoginForm() {
+export function AdminLoginForm() {
   const { login } = useAuth();
-  const [selectedRole, setSelectedRole] =
-    useState<NonNullable<UserRole>>("Parent");
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
@@ -48,17 +37,10 @@ export function LoginForm() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    setValue,
   } = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: `${"parent"}@babyaura.com`, password: "password" },
+    defaultValues: { email: "admin@babyaura.com", password: "password" },
   });
-
-  const handleRoleChange = (role: NonNullable<UserRole>) => {
-    setSelectedRole(role);
-    setValue("email", `${role.toLowerCase()}@babyaura.com`);
-    setError(null);
-  }
 
   const onSubmit = async (data: LoginValues) => {
     setError(null);
@@ -66,7 +48,7 @@ export function LoginForm() {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, role: selectedRole }),
+        body: JSON.stringify({ ...data, role: "Admin" }),
       });
 
       const result = await response.json();
@@ -79,7 +61,7 @@ export function LoginForm() {
         title: "Login Successful",
         description: `Welcome back, ${result.name}!`,
       });
-      login(selectedRole);
+      login("Admin");
 
     } catch (err: any) {
        setError(err.message || 'Failed to login. Please try again.');
@@ -89,30 +71,13 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-md mx-auto shadow-lg">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-headline">Welcome Back</CardTitle>
-        <CardDescription>Select your role and sign in to continue</CardDescription>
+        <div className="mx-auto bg-primary/10 p-3 rounded-full w-fit">
+            <Shield className="w-8 h-8 text-primary" />
+        </div>
+        <CardTitle className="text-2xl font-headline mt-2">Hospital Admin Login</CardTitle>
+        <CardDescription>Enter your credentials to access the admin dashboard.</CardDescription>
       </CardHeader>
       <CardContent>
-        <Tabs
-          value={selectedRole}
-          onValueChange={(value) =>
-            handleRoleChange(value as NonNullable<UserRole>)
-          }
-          className="w-full"
-        >
-          <TabsList className="grid w-full grid-cols-2">
-            {roles.map((role) => (
-              <TabsTrigger
-                key={role.value}
-                value={role.value as string}
-                className="flex items-center justify-center gap-1 text-xs md:text-sm py-2"
-              >
-                {role.icon} {role.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mt-6">
            {error && (
             <Alert variant="destructive">
@@ -126,7 +91,7 @@ export function LoginForm() {
             <Input
               id="email"
               type="email"
-              placeholder={`${selectedRole.toLowerCase()}@babyaura.com`}
+              placeholder="admin@babyaura.com"
               {...register("email")}
             />
             {errors.email && (
@@ -143,19 +108,16 @@ export function LoginForm() {
             )}
           </div>
           <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? "Signing In..." : `Sign In as ${selectedRole}`}
+            {isSubmitting ? "Signing In..." : "Sign In"}
           </Button>
         </form>
       </CardContent>
-      <CardFooter className="flex-col gap-2">
+       <CardFooter>
         <p className="text-xs text-muted-foreground text-center w-full">
-            Don't have an account?{" "}
-            <Link href="/auth/register" className="text-primary hover:underline">
-                Sign Up as a Parent
+            Not an admin? Go to{" "}
+            <Link href="/auth/login" className="text-primary hover:underline">
+                Parent/Doctor login
             </Link>
-        </p>
-         <p className="text-xs text-muted-foreground text-center w-full">
-            Doctors must be invited by their organization.
         </p>
       </CardFooter>
     </Card>
