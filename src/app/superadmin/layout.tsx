@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from "react";
@@ -15,4 +16,4 @@ function SuperAdminLayout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default withAuth(SuperAdminLayout, ["Superadmin"]);
+export default withAuth(SuperAdminLayout, ["Superadmin"], { loginPath: '/superadmin/login' });

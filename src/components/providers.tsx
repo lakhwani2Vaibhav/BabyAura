@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -48,7 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => {
     localStorage.removeItem("userRole");
     setRole(null);
-    router.push("/auth/login");
+    router.push("/");
   }, [router]);
 
   return (
@@ -60,15 +61,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function withAuth<P extends object>(
   WrappedComponent: ComponentType<P>,
-  allowedRoles: NonNullable<UserRole>[]
+  allowedRoles: NonNullable<UserRole>[],
+  options?: { loginPath?: string }
 ) {
   const WithAuthComponent = (props: P) => {
     const { role, loading } = useAuth();
     const router = useRouter();
+    const loginPath = options?.loginPath || '/auth/login';
 
     useEffect(() => {
-      if (!loading && (!role || !allowedRoles.includes(role))) {
-        router.push("/auth/login");
+      if (loading) {
+        return;
+      }
+      
+      if (!role) {
+        router.push(loginPath);
+        return;
+      }
+
+      if (!allowedRoles.includes(role)) {
+        // If user is logged in but with a wrong role, redirect to their own dashboard
+        const userDashboard = roleRedirects[role];
+        if (userDashboard) {
+           router.push(userDashboard);
+        } else {
+           router.push(loginPath);
+        }
       }
     }, [role, loading, router]);
 
