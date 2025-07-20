@@ -13,6 +13,7 @@ import { CheckCircle, Zap, TrendingUp, Handshake, DollarSign, LayoutGrid, BarCha
 import React from 'react';
 import { PartnershipForm } from '@/components/hospitals/PartnershipForm';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 
 const hospitalTestimonials = [
     {
@@ -135,7 +136,7 @@ export default function HospitalsPage() {
                         <p className="text-muted-foreground italic mb-6">"{testimonial.quote}"</p>
                         <div className="flex items-center gap-4">
                             <Avatar className="h-12 w-12">
-                                <AvatarImage src={testimonial.avatar} />
+                                <AvatarImage src={testimonial.avatar} data-ai-hint="person portrait" />
                                 <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
                             </Avatar>
                             <div>
