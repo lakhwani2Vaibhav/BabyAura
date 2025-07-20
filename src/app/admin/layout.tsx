@@ -16,4 +16,4 @@ function AdminLayout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default withAuth(AdminLayout, ["Admin", "Superadmin"], { loginPath: '/admin/login' });
+export default withAuth(AdminLayout, ["Admin", "Superadmin"], { loginPath: '/auth/login/admins' });

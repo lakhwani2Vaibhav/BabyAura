@@ -16,4 +16,4 @@ function SuperAdminLayout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default withAuth(SuperAdminLayout, ["Superadmin"], { loginPath: '/superadmin/login' });
+export default withAuth(SuperAdminLayout, ["Superadmin"], { loginPath: '/auth/login/admins' });
