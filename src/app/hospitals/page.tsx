@@ -1,4 +1,6 @@
 
+"use client";
+
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -6,29 +8,50 @@ import { Footer } from '@/components/layout/Footer';
 import { MarketingHeader } from '@/components/layout/MarketingHeader';
 import { AnimatedContent } from '@/components/layout/AnimatedContent';
 import { ScrollAnimationWrapper } from '@/components/layout/ScrollAnimationWrapper';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, Zap, TrendingUp, Handshake, DollarSign, LayoutGrid } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { CheckCircle, Zap, TrendingUp, Handshake, DollarSign, LayoutGrid, BarChart, Users, Heart } from 'lucide-react';
+import React from 'react';
+import { PartnershipForm } from '@/components/hospitals/PartnershipForm';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
+const hospitalTestimonials = [
+    {
+        quote: "Partnering with BabyAura transformed our postnatal care program. Our patient satisfaction scores have never been higher, and our doctors appreciate the streamlined communication.",
+        name: "Dr. Alisha Chen",
+        title: "Chief Medical Officer, General Hospital",
+        avatar: "https://placehold.co/100x100.png"
+    },
+    {
+        quote: "The recurring revenue model has opened up a new, predictable income stream for us. The no-upfront-cost option made the decision to join incredibly easy.",
+        name: "Mark Johnson",
+        title: "CEO, Lakeside Children's",
+        avatar: "https://placehold.co/100x100.png"
+    }
+];
 
 export default function HospitalsPage() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-muted/20">
       <MarketingHeader />
       <main className="flex-1">
         <AnimatedContent>
           {/* Hero Section */}
-          <section id="hospitals-hero" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
+          <section id="hospitals-hero" className="w-full py-16 md:py-24 lg:py-32 landing-page-gradient-bg">
             <div className="container px-4 md:px-6">
               <div className="grid items-center gap-6 lg:grid-cols-2 lg:gap-12">
                 <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-left-8 duration-1000 ease-out">
                   <div className="flex flex-col justify-center space-y-4">
-                    <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">
-                      Transform Postnatal Care at Your Hospital
+                    <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl font-headline">
+                      Become a Leader in Digital Postnatal Care
                     </h1>
                     <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                      Partner with BabyAura to offer a state-of-the-art digital care platform. Enhance patient satisfaction, improve outcomes, and create new revenue streams.
+                      Elevate your patient experience, empower your doctors, and unlock new revenue streams with BabyAura’s all-in-one digital care platform.
                     </p>
                     <div className="flex flex-col gap-2 min-[400px]:flex-row">
                       <Button size="lg" asChild>
+                        <Link href="#partner-form">Become a Partner</Link>
+                      </Button>
+                      <Button size="lg" variant="outline" asChild>
                         <Link href="/contact?subject=DemoRequest">Schedule a Demo</Link>
                       </Button>
                     </div>
@@ -36,12 +59,12 @@ export default function HospitalsPage() {
                 </ScrollAnimationWrapper>
                 <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-1000 ease-out delay-200">
                   <Image
-                    src="https://placehold.co/600x400.png"
-                    data-ai-hint="hospital building"
+                    src="https://placehold.co/600x450.png"
+                    data-ai-hint="doctor tablet patient"
                     width="600"
-                    height="400"
-                    alt="For Hospitals"
-                    className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full"
+                    height="450"
+                    alt="Doctor showing patient a tablet"
+                    className="mx-auto aspect-[4/3] overflow-hidden rounded-xl object-cover shadow-2xl"
                   />
                 </ScrollAnimationWrapper>
               </div>
@@ -49,120 +72,101 @@ export default function HospitalsPage() {
           </section>
 
           {/* Benefits Section */}
-          <section id="benefits" className="w-full py-12 md:py-24">
+          <section id="benefits" className="w-full py-12 md:py-24 bg-background">
             <div className="container px-4 md:px-6">
               <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
                 <div className="text-center space-y-4 mb-12">
-                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl font-headline">Why Partner with BabyAura?</h2>
-                  <p className="max-w-3xl mx-auto text-muted-foreground md:text-xl">A partnership that benefits your patients, your doctors, and your bottom line.</p>
+                    <Badge variant="outline" className="text-primary border-primary/50 py-1 px-3">Our Value Proposition</Badge>
+                    <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl font-headline">A Partnership for the Future of Healthcare</h2>
+                    <p className="max-w-3xl mx-auto text-muted-foreground md:text-xl">Go beyond traditional care. Offer a premium, continuous-care experience that parents love and doctors prefer.</p>
                 </div>
               </ScrollAnimationWrapper>
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                 <BenefitCard
-                  icon={<Handshake className="h-8 w-8 text-primary" />}
-                  title="Enhance Patient Engagement"
-                  description="Provide continuous care from hospital to home, increasing patient loyalty and satisfaction."
+                  icon={<DollarSign className="h-8 w-8 text-primary" />}
+                  title="Create Recurring Revenue"
+                  description="Introduce a new, predictable revenue stream with our subscription model. Start with no upfront cost and grow with our flexible partnership options."
+                />
+                <BenefitCard
+                  icon={<Heart className="h-8 w-8 text-primary" />}
+                  title="Enhance Quality of Care"
+                  description="Improve patient outcomes with continuous monitoring, proactive communication, and a secure digital health record from hospital to home."
                 />
                 <BenefitCard
                   icon={<Zap className="h-8 w-8 text-primary" />}
-                  title="Streamline Doctor Workflow"
-                  description="Efficiently manage patients, appointments, and prescriptions through an intuitive digital interface."
-                />
-                <BenefitCard
-                  icon={<TrendingUp className="h-8 w-8 text-primary" />}
-                  title="Improve Health Outcomes"
-                  description="Enable proactive monitoring and timely interventions with integrated growth and vaccination tracking."
+                  title="Become a Tech-Forward Hospital"
+                  description="Differentiate your hospital by offering a state-of-the-art digital experience that modern parents expect. Boost your brand and patient loyalty."
                 />
               </div>
             </div>
           </section>
           
-          {/* Features Showcase */}
-          <section id="features" className="w-full py-12 md:py-24 bg-muted">
+          {/* How It Works Section */}
+          <section id="how-it-works" className="w-full py-12 md:py-24 bg-muted/40">
             <div className="container px-4 md:px-6">
-              <div className="grid items-center gap-12 lg:grid-cols-2">
-                 <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-1000 ease-out">
-                    <Image
-                      src="https://placehold.co/600x400.png"
-                      data-ai-hint="dashboard analytics"
-                      width={600}
-                      height={400}
-                      alt="Admin Dashboard"
-                      className="mx-auto aspect-video overflow-hidden rounded-xl object-cover"
-                    />
-                  </ScrollAnimationWrapper>
-                <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-right-8 duration-1000 ease-out">
-                  <div className="space-y-4">
-                    <div className="inline-block rounded-lg bg-primary/10 px-3 py-1 text-sm text-primary font-medium">
-                      Powerful Features
+                 <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
+                    <div className="text-center space-y-4 mb-16">
+                        <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl font-headline">Seamless Integration in 3 Simple Steps</h2>
                     </div>
-                    <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl font-headline">Powerful Dashboards for Seamless Management</h2>
-                    <p className="text-muted-foreground">Our plug-and-play system is designed for rapid onboarding and immediate impact. Get a comprehensive overview of your hospital's performance, manage doctors, and monitor patient statistics with our powerful admin dashboard.</p>
-                     <ul className="space-y-3">
-                        <li className="flex items-start gap-3">
-                          <CheckCircle className="h-5 w-5 mt-1 text-green-500" />
-                          <span>Onboard doctors, manage profiles, and monitor patient loads.</span>
-                        </li>
-                        <li className="flex items-start gap-3">
-                          <CheckCircle className="h-5 w-5 mt-1 text-green-500" />
-                          <span>View key metrics on doctors, parents, and subscriptions.</span>
-                        </li>
-                         <li className="flex items-start gap-3">
-                          <CheckCircle className="h-5 w-5 mt-1 text-green-500" />
-                          <span>Customize your hospital's profile and specialties.</span>
-                        </li>
-                      </ul>
-                  </div>
                 </ScrollAnimationWrapper>
-              </div>
+                <div className="relative grid gap-12 md:grid-cols-3">
+                    <div className="absolute top-1/2 left-0 w-full h-0.5 bg-border -translate-y-1/2 hidden md:block"></div>
+                    <StepCard step="1" title="Express Interest" description="Fill out our simple partnership form to begin the conversation. No commitment required." />
+                    <StepCard step="2" title="Onboard Your Team" description="Our plug-and-play platform makes it easy to set up your hospital and onboard your doctors in minutes." />
+                    <StepCard step="3" title="Engage Your Patients" description="Start offering BabyAura to new parents, providing them with unparalleled support from the moment they leave the hospital." />
+                </div>
             </div>
           </section>
-
-          {/* Business Models Section */}
-           <section id="business-models" className="w-full py-12 md:py-24">
+          
+          {/* Testimonials */}
+          <section id="testimonials" className="w-full py-12 md:py-24 bg-background">
             <div className="container px-4 md:px-6">
                <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
                 <div className="text-center space-y-4 mb-12">
-                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl font-headline">Flexible Business Models</h2>
-                  <p className="max-w-3xl mx-auto text-muted-foreground md:text-xl">Choose a partnership model that aligns with your hospital's financial goals.</p>
+                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl font-headline">Trusted by Leading Hospitals</h2>
+                  <p className="max-w-3xl mx-auto text-muted-foreground md:text-xl">Hear from administrators who have transformed their care with BabyAura.</p>
                 </div>
               </ScrollAnimationWrapper>
               <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto">
-                <Card>
-                  <CardHeader>
-                    <LayoutGrid className="h-8 w-8 text-primary mb-2" />
-                    <CardTitle>Licensing Fee</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground">A straightforward, fixed monthly or annual fee for using the BabyAura platform. Ideal for predictable budgeting and unlimited usage within the agreed terms.</p>
-                  </CardContent>
-                </Card>
-                 <Card>
-                  <CardHeader>
-                    <DollarSign className="h-8 w-8 text-primary mb-2" />
-                    <CardTitle>Revenue Sharing</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground">A collaborative model where we share a percentage of the revenue generated from parent subscriptions and consultations. A true partnership focused on mutual growth.</p>
-                  </CardContent>
-                </Card>
+                {hospitalTestimonials.map(testimonial => (
+                <ScrollAnimationWrapper key={testimonial.name} animationClasses="animate-in fade-in zoom-in-95 duration-1000 ease-out">
+                    <Card className="h-full">
+                    <CardContent className="p-6">
+                        <p className="text-muted-foreground italic mb-6">"{testimonial.quote}"</p>
+                        <div className="flex items-center gap-4">
+                            <Avatar className="h-12 w-12">
+                                <AvatarImage src={testimonial.avatar} />
+                                <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                                <p className="font-semibold">{testimonial.name}</p>
+                                <p className="text-sm text-muted-foreground">{testimonial.title}</p>
+                            </div>
+                        </div>
+                    </CardContent>
+                    </Card>
+                </ScrollAnimationWrapper>
+                ))}
               </div>
             </div>
           </section>
 
-          {/* CTA Section */}
-          <section id="demo" className="w-full py-12 md:py-24 bg-primary text-primary-foreground">
-             <div className="container px-4 md:px-6 text-center">
+          {/* Partnership Form Section */}
+          <section id="partner-form" className="w-full py-12 md:py-24 bg-muted/40">
+             <div className="container px-4 md:px-6">
                <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-1000 ease-out">
-                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Ready to Elevate Your Patient Care?</h2>
-                  <p className="max-w-2xl mx-auto mt-4 text-primary-foreground/80">
-                    Let's explore how BabyAura can integrate with your hospital. Schedule a personalized demo with our team today.
-                  </p>
-                  <div className="mt-6">
-                     <Button size="lg" variant="secondary" asChild>
-                        <Link href="/contact?subject=DemoRequest">Schedule a Demo</Link>
-                    </Button>
-                  </div>
+                    <div className="max-w-3xl mx-auto">
+                        <Card className="shadow-2xl">
+                            <CardHeader className="text-center p-8 bg-background rounded-t-lg">
+                                <Handshake className="mx-auto h-12 w-12 text-primary mb-4" />
+                                <CardTitle className="text-3xl font-bold font-headline">Start Your Partnership Journey</CardTitle>
+                                <CardDescription className="text-lg text-muted-foreground">Fill out the form below, and our partnership team will contact you within 24 hours.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="p-6 md:p-8">
+                                <PartnershipForm />
+                            </CardContent>
+                        </Card>
+                    </div>
                </ScrollAnimationWrapper>
              </div>
           </section>
@@ -177,17 +181,31 @@ export default function HospitalsPage() {
 function BenefitCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
   return (
     <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-1000 ease-out">
-      <Card className="h-full">
-        <CardHeader className="flex flex-col items-center text-center">
-          <div className="bg-primary/10 p-3 rounded-full mb-4">
+      <Card className="h-full text-center border-none shadow-none bg-transparent">
+        <CardHeader className="flex flex-col items-center">
+          <div className="bg-primary/10 p-4 rounded-full mb-4 inline-flex">
             {icon}
           </div>
           <CardTitle>{title}</CardTitle>
         </CardHeader>
-        <CardContent className="text-center text-muted-foreground">
+        <CardContent className="text-muted-foreground">
           <p>{description}</p>
         </CardContent>
       </Card>
     </ScrollAnimationWrapper>
   );
+}
+
+function StepCard({ step, title, description }: { step: string, title: string, description: string }) {
+    return (
+        <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-1000 ease-out">
+        <div className="relative text-center p-4">
+             <div className="relative z-10 mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-2xl border-4 border-muted/40 mb-4">
+                {step}
+            </div>
+            <h3 className="text-xl font-semibold mb-2">{title}</h3>
+            <p className="text-muted-foreground">{description}</p>
+        </div>
+        </ScrollAnimationWrapper>
+    );
 }
