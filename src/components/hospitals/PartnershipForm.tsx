@@ -64,7 +64,17 @@ export function PartnershipForm() {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(fullFormSchema),
-    mode: "onTouched"
+    mode: "onTouched",
+    defaultValues: {
+      hospitalName: "",
+      hospitalAddress: "",
+      hospitalSize: undefined,
+      adminName: "",
+      adminEmail: "",
+      adminPhone: "",
+      businessModel: undefined,
+      comments: "",
+    },
   });
 
   const watchedFields = useWatch({ control: form.control });
