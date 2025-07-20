@@ -23,6 +23,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import Link from 'next/link';
+import { Separator } from "../ui/separator";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -147,16 +148,31 @@ export function LoginForm() {
           </Button>
         </form>
       </CardContent>
-      <CardFooter className="flex-col gap-2">
-        <p className="text-xs text-muted-foreground text-center w-full">
-            Don't have an account?{" "}
-            <Link href="/auth/register" className="text-primary hover:underline">
-                Sign Up as a Parent
-            </Link>
-        </p>
-         <p className="text-xs text-muted-foreground text-center w-full">
-            Doctors must be invited by their organization.
-        </p>
+      <CardFooter className="flex-col gap-4">
+        <div className="text-center text-xs text-muted-foreground w-full space-y-1">
+            <p>
+                Don't have an account?{" "}
+                <Link href="/auth/register" className="text-primary hover:underline">
+                    Sign Up as a Parent
+                </Link>
+            </p>
+            <p>
+                Doctors must be invited by their organization.
+            </p>
+        </div>
+        <Separator />
+        <div className="text-center text-xs text-muted-foreground">
+            <p>
+                Are you an administrator? Login as a {" "}
+                <Link href="/admin/login" className="font-semibold text-primary hover:underline">
+                    Hospital Admin
+                </Link>
+                {" "}or{" "}
+                 <Link href="/superadmin/login" className="font-semibold text-primary hover:underline">
+                    Superadmin
+                </Link>
+            </p>
+        </div>
       </CardFooter>
     </Card>
   );
