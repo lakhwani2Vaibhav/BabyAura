@@ -25,10 +25,9 @@ export function ScrollAnimationWrapper({
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-            setInView(true);
-            observer.unobserve(element);
-        }
+        // Set inView state based on whether the element is intersecting.
+        // This allows the animation to trigger every time it enters the viewport.
+        setInView(entry.isIntersecting);
       },
       { threshold }
     );
@@ -51,7 +50,7 @@ export function ScrollAnimationWrapper({
       {cloneElement(children, {
         className: cn(
           children.props.className,
-          'transition-opacity',
+          'transition-all duration-500 ease-out',
           !inView && 'opacity-0',
           inView && animationClasses
         ),
