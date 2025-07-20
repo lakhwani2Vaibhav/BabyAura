@@ -9,11 +9,12 @@ import { MarketingHeader } from '@/components/layout/MarketingHeader';
 import { AnimatedContent } from '@/components/layout/AnimatedContent';
 import { ScrollAnimationWrapper } from '@/components/layout/ScrollAnimationWrapper';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { CheckCircle, Zap, TrendingUp, Handshake, DollarSign, LayoutGrid, BarChart, Users, Heart } from 'lucide-react';
+import { DollarSign, Heart, Zap, Handshake } from 'lucide-react';
 import React from 'react';
 import { PartnershipForm } from '@/components/hospitals/PartnershipForm';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { HowItWorksSteps } from '@/components/hospitals/HowItWorksSteps';
 
 const hospitalTestimonials = [
     {
@@ -110,12 +111,7 @@ export default function HospitalsPage() {
                         <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl font-headline">Seamless Integration in 3 Simple Steps</h2>
                     </div>
                 </ScrollAnimationWrapper>
-                <div className="relative grid gap-12 md:grid-cols-3">
-                    <div className="absolute top-1/2 left-0 w-full h-0.5 bg-border -translate-y-1/2 hidden md:block"></div>
-                    <StepCard step="1" title="Express Interest" description="Fill out our simple partnership form to begin the conversation. No commitment required." />
-                    <StepCard step="2" title="Onboard Your Team" description="Our plug-and-play platform makes it easy to set up your hospital and onboard your doctors in minutes." />
-                    <StepCard step="3" title="Engage Your Patients" description="Start offering BabyAura to new parents, providing them with unparalleled support from the moment they leave the hospital." />
-                </div>
+                <HowItWorksSteps />
             </div>
           </section>
           
@@ -195,18 +191,4 @@ function BenefitCard({ icon, title, description }: { icon: React.ReactNode, titl
       </Card>
     </ScrollAnimationWrapper>
   );
-}
-
-function StepCard({ step, title, description }: { step: string, title: string, description: string }) {
-    return (
-        <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-1000 ease-out">
-        <div className="relative text-center p-4">
-             <div className="relative z-10 mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-2xl border-4 border-muted/40 mb-4">
-                {step}
-            </div>
-            <h3 className="text-xl font-semibold mb-2">{title}</h3>
-            <p className="text-muted-foreground">{description}</p>
-        </div>
-        </ScrollAnimationWrapper>
-    );
 }
