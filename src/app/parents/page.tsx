@@ -8,8 +8,8 @@ import { Footer } from '@/components/layout/Footer';
 import { MarketingHeader } from '@/components/layout/MarketingHeader';
 import { AnimatedContent } from '@/components/layout/AnimatedContent';
 import { ScrollAnimationWrapper } from '@/components/layout/ScrollAnimationWrapper';
-import { CheckCircle, ShieldCheck, Video, FileText, BookImage } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { ShieldCheck, Video, FileText, BookImage } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const parentTestimonials = [
