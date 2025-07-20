@@ -80,43 +80,50 @@ export default function ParentsPage() {
           {/* The BabyAura Difference Section */}
           <section className="w-full py-12 md:py-24 bg-background">
             <div className="container px-4 md:px-6">
-                 <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
+                <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
                     <div className="text-center space-y-4 mb-16">
                         <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl font-headline">The Confidence of Connected Care</h2>
                         <p className="max-w-3xl mx-auto text-muted-foreground md:text-xl">Stop guessing. Start getting answers from the professionals who know your child's history.</p>
                     </div>
-                 </ScrollAnimationWrapper>
-                 <div className="max-w-4xl mx-auto">
-                    <div className="grid grid-cols-2 gap-4 md:gap-8 items-center">
-                        <div className="text-right space-y-2">
-                           <h3 className="text-xl md:text-2xl font-bold text-muted-foreground/80">Typical Apps</h3>
-                           <p className="text-xs md:text-sm text-muted-foreground">Generic advice, isolated data.</p>
-                        </div>
-                        <div className="text-left space-y-2">
-                            <h3 className="text-xl md:text-2xl font-bold text-primary">BabyAura</h3>
-                            <p className="text-xs md:text-sm text-muted-foreground">Your trusted medical team, connected.</p>
-                        </div>
-                    </div>
-                     <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-1000 ease-out delay-200">
-                        <div className="mt-8 space-y-4">
-                            {comparisonPoints.map((point) => (
-                                <div key={point.feature} className="grid grid-cols-2 items-center gap-2 p-3 rounded-lg bg-card border">
-                                    <div className="flex items-center justify-end text-right gap-2 text-muted-foreground">
-                                        <p className="text-sm md:text-base">{point.others}</p>
-                                        <XCircle className="h-5 w-5 text-red-400 flex-shrink-0" />
-                                    </div>
-                                    <div className="flex items-center justify-start text-left gap-2">
-                                        <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
-                                        <p className="text-sm md:text-base font-semibold text-foreground">{point.babyaura}</p>
-                                    </div>
-                                    <div className="col-span-2 text-center text-xs font-semibold uppercase text-muted-foreground tracking-widest pt-1">
-                                        {point.feature}
-                                    </div>
-                                </div>
-                            ))}
+                </ScrollAnimationWrapper>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                    {/* Column for Typical Apps */}
+                    <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-1000 ease-out delay-100">
+                        <div className="space-y-6 p-6 rounded-xl border bg-muted/50 h-full">
+                            <h3 className="text-2xl font-bold text-center text-muted-foreground">Typical Parenting Apps</h3>
+                            <ul className="space-y-4">
+                                {comparisonPoints.map((point) => (
+                                    <li key={point.feature} className="flex items-start gap-4 p-4 rounded-lg bg-background/50">
+                                        <XCircle className="h-6 w-6 text-red-400 flex-shrink-0 mt-1" />
+                                        <div>
+                                            <p className="font-semibold text-muted-foreground">{point.feature}</p>
+                                            <p className="text-sm text-muted-foreground/80">{point.others}</p>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
                         </div>
                     </ScrollAnimationWrapper>
-                 </div>
+
+                    {/* Column for BabyAura */}
+                     <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-1000 ease-out delay-200">
+                        <div className="space-y-6 p-6 rounded-xl border-2 border-primary bg-primary/5 h-full shadow-2xl shadow-primary/10">
+                            <h3 className="text-2xl font-bold text-center text-primary">BabyAura</h3>
+                             <ul className="space-y-4">
+                                {comparisonPoints.map((point) => (
+                                    <li key={point.feature} className="flex items-start gap-4 p-4 rounded-lg bg-background">
+                                        <CheckCircle2 className="h-6 w-6 text-green-500 flex-shrink-0 mt-1" />
+                                        <div>
+                                            <p className="font-semibold text-foreground">{point.feature}</p>
+                                            <p className="text-sm text-muted-foreground">{point.babyaura}</p>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </ScrollAnimationWrapper>
+                </div>
             </div>
           </section>
 
