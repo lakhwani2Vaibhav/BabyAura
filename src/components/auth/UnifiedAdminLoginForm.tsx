@@ -18,12 +18,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Baby, Stethoscope } from "lucide-react";
+import { Shield, UserCog } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import Link from 'next/link';
-import { Separator } from "../ui/separator";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -32,16 +31,16 @@ const loginSchema = z.object({
 
 type LoginValues = z.infer<typeof loginSchema>;
 
-const roles: { value: NonNullable<UserRole>; label: string; icon: React.ReactNode }[] =
+const adminRoles: { value: "Admin" | "Superadmin"; label: string; icon: React.ReactNode }[] =
   [
-    { value: "Parent", label: "Parent", icon: <Baby className="w-4 h-4" /> },
-    { value: "Doctor", label: "Doctor", icon: <Stethoscope className="w-4 h-4" /> },
+    { value: "Admin", label: "Hospital Admin", icon: <Shield className="w-4 h-4" /> },
+    { value: "Superadmin", label: "Superadmin", icon: <UserCog className="w-4 h-4" /> },
   ];
 
-export function LoginForm() {
+export function UnifiedAdminLoginForm() {
   const { login } = useAuth();
   const [selectedRole, setSelectedRole] =
-    useState<NonNullable<UserRole>>("Parent");
+    useState<"Admin" | "Superadmin">("Admin");
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
@@ -52,10 +51,10 @@ export function LoginForm() {
     setValue,
   } = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: `${"parent"}@babyaura.com`, password: "password" },
+    defaultValues: { email: "admin@babyaura.com", password: "password" },
   });
 
-  const handleRoleChange = (role: NonNullable<UserRole>) => {
+  const handleRoleChange = (role: "Admin" | "Superadmin") => {
     setSelectedRole(role);
     setValue("email", `${role.toLowerCase()}@babyaura.com`);
     setError(null);
@@ -90,22 +89,22 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-md mx-auto shadow-lg">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-headline">Welcome Back</CardTitle>
+        <CardTitle className="text-2xl font-headline">Administrator Login</CardTitle>
         <CardDescription>Select your role and sign in to continue</CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs
           value={selectedRole}
           onValueChange={(value) =>
-            handleRoleChange(value as NonNullable<UserRole>)
+            handleRoleChange(value as "Admin" | "Superadmin")
           }
           className="w-full"
         >
           <TabsList className="grid w-full grid-cols-2">
-            {roles.map((role) => (
+            {adminRoles.map((role) => (
               <TabsTrigger
                 key={role.value}
-                value={role.value as string}
+                value={role.value}
                 className="flex items-center justify-center gap-1 text-xs md:text-sm py-2"
               >
                 {role.icon} {role.label}
@@ -148,28 +147,15 @@ export function LoginForm() {
           </Button>
         </form>
       </CardContent>
-      <CardFooter className="flex-col gap-4">
-        <div className="text-center text-xs text-muted-foreground w-full space-y-1">
-            <p>
-                Don't have an account?{" "}
-                <Link href="/auth/register" className="text-primary hover:underline">
-                    Sign Up as a Parent
-                </Link>
-            </p>
-            <p>
-                Doctors must be invited by their organization.
-            </p>
-        </div>
-        <Separator />
-        <div className="text-center text-xs text-muted-foreground">
-            <p>
-                Are you an administrator?{" "}
-                <Link href="/auth/login/admins" className="font-semibold text-primary hover:underline">
-                    Login Here
-                </Link>
-            </p>
-        </div>
+      <CardFooter>
+        <p className="text-xs text-muted-foreground text-center w-full">
+            Not an administrator? Go to{" "}
+            <Link href="/auth/login" className="text-primary hover:underline">
+                Parent/Doctor login
+            </Link>
+        </p>
       </CardFooter>
     </Card>
   );
 }
+
