@@ -88,7 +88,7 @@ export function withAuth<P extends object>(
            router.push(loginPath);
         }
       }
-    }, [role, loading, router]);
+    }, [role, loading, allowedRoles, loginPath]);
 
     if (loading || !role || !allowedRoles.includes(role)) {
       return (
