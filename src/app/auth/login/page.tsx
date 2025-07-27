@@ -4,13 +4,15 @@ import Link from 'next/link';
 
 export default function LoginPage() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-muted p-4">
-      <div className="absolute top-4 left-4">
-        <Link href="/">
-          <BabyAuraLogo />
-        </Link>
+    <div className="flex min-h-screen w-full flex-col items-center justify-center bg-muted p-4">
+      <div className="w-full max-w-md">
+        <div className="flex justify-center mb-6">
+          <Link href="/">
+            <BabyAuraLogo />
+          </Link>
+        </div>
+        <LoginForm />
       </div>
-      <LoginForm />
     </div>
   );
 }
