@@ -323,43 +323,22 @@ export const superAdminData = {
     ]
 };
 
-export const ourDoctors = [
-  {
-    name: 'Dr. Mamta Surpure',
-    title: 'Certified Lactation Professional, Helped 500+ Mothers',
-    imageUrl: 'https://placehold.co/250x250.png',
-    dataAiHint: 'doctor portrait',
-  },
-  {
-    name: 'Dr. Sarita Bhatia Jain',
-    title: 'Certified Lactation Professional, Helped 500+ Mothers',
-    imageUrl: 'https://placehold.co/250x250.png',
-    dataAiHint: 'doctor portrait',
-  },
-  {
-    name: 'Mehak Jain',
-    title: 'Helped 500+ Mothers',
-    imageUrl: 'https://placehold.co/250x250.png',
-    dataAiHint: 'doctor portrait',
-  },
-  {
-    name: 'Srividhya Mohan',
-    title: 'Certified Lactation Professional, Helped 500+ Mothers',
-    imageUrl: 'https://placehold.co/250x250.png',
-    dataAiHint: 'doctor portrait',
-  },
-  {
-    name: 'Dr. Anita Sharma',
-    title: 'Pediatrician, 15+ years experience',
-    imageUrl: 'https://placehold.co/250x250.png',
-    dataAiHint: 'doctor portrait',
-  },
-  {
-    name: 'Dr. Rahul Verma',
-    title: 'Child Psychologist',
-    imageUrl: 'https://placehold.co/250x250.png',
-    dataAiHint: 'doctor portrait',
-  },
+export const endorsements = [
+    {
+      name: 'IIIT Bangalore',
+      description: 'Digital Health Initiatives',
+      type: 'academic' as const,
+    },
+    {
+      name: 'Wadhwani Foundation',
+      description: 'Liftoff Program',
+      type: 'foundation' as const,
+    },
+    {
+      name: 'Dr. Devanand Kolothodi',
+      description: 'Advisor, Fmr. Regional CEO, Aster DM Healthcare',
+      type: 'advisor' as const,
+    },
 ];
 
 export const testimonials = [

@@ -1,3 +1,4 @@
+
 'use client';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -7,18 +8,18 @@ import {
   FileText,
   Phone,
   Baby,
-  Briefcase,
   Users,
   MessagesSquare,
   MessageCircleMore,
   ShieldCheck,
   ScreenShare,
-  BookOpenCheck,
+  BookImage,
   CheckCircle2,
   XCircle,
   Info,
-  Heart,
-  BookImage,
+  Building,
+  GraduationCap,
+  Sparkles,
 } from 'lucide-react';
 import { Footer } from '@/components/layout/Footer';
 import { MarketingHeader } from '@/components/layout/MarketingHeader';
@@ -27,54 +28,18 @@ import { ScrollAnimationWrapper } from '@/components/layout/ScrollAnimationWrapp
 import { Card, CardContent, CardHeader, CardFooter, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import React, { useState } from 'react';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel"
-import Autoplay from "embla-carousel-autoplay"
-import { ourDoctors, testimonials } from '@/lib/data';
+import { endorsements } from '@/lib/data';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useToast } from '@/hooks/use-toast';
-
 
 export default function Home() {
-    const plugin = React.useRef(
-    Autoplay({ delay: 1500, stopOnInteraction: false })
-  )
   const [isAnnual, setIsAnnual] = useState(false);
-  const { toast } = useToast();
-
-  const handleDownloadClick = () => {
-    toast({
-      title: "App Coming Soon!",
-      description: (
-        <span>
-          Our mobile app is under development.{" "}
-          <Link
-            href="https://docs.google.com/forms/d/e/1FAIpQLScT83PqypfnGSLGSzdXaSx8i3MypuG31KxGF1-fC14ZwzanqA/viewform"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline font-semibold"
-          >
-            Join the waitlist
-          </Link>{" "}
-          to be notified!
-        </span>
-      ),
-    });
-  };
 
   const plans = {
     monthly: {
@@ -129,6 +94,19 @@ export default function Home() {
     }
   };
 
+  const getEndorsementIcon = (type: 'academic' | 'foundation' | 'advisor' | 'default') => {
+    switch (type) {
+        case 'academic':
+            return <GraduationCap className="h-10 w-10 text-primary" />;
+        case 'foundation':
+            return <Sparkles className="h-10 w-10 text-primary" />;
+        case 'advisor':
+            return <Stethoscope className="h-10 w-10 text-primary" />;
+        default:
+            return <Building className="h-10 w-10 text-primary" />;
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen landing-page-gradient-bg">
       <MarketingHeader />
@@ -141,26 +119,22 @@ export default function Home() {
                   <div className="space-y-2">
                     <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-top-4 duration-1000 ease-out">
                       <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none font-headline">
-                        Welcome to BabyAura
+                        Digitizing Post-Discharge Newborn Care
                       </h1>
                     </ScrollAnimationWrapper>
                     <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-top-2 duration-1000 ease-out delay-200">
                       <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                        Digital care for your little one, from hospital to home. We
-                        provide a seamless e-care system for postnatal and early
-                        childhood support.
+                        BabyAura is a plug-and-play e-care system for hospitals, enhancing patient care from hospital to home and creating new revenue streams.
                       </p>
                     </ScrollAnimationWrapper>
                   </div>
                   <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-top-0 duration-1000 ease-out delay-400">
                     <div className="flex flex-col gap-2 min-[400px]:flex-row">
                       <Button size="lg" asChild>
-                        <Link href="/auth/login">Get Started</Link>
+                        <Link href="/hospitals">Partner With Us</Link>
                       </Button>
                       <Button size="lg" variant="outline" asChild>
-                        <Link href="https://docs.google.com/forms/d/e/1FAIpQLScT83PqypfnGSLGSzdXaSx8i3MypuG31KxGF1-fC14ZwzanqA/viewform" target="_blank" rel="noopener noreferrer">
-                          Join Waitlist
-                        </Link>
+                        <Link href="/auth/login">Parent Login</Link>
                       </Button>
                     </div>
                   </ScrollAnimationWrapper>
@@ -192,7 +166,7 @@ export default function Home() {
                     </h2>
                     <p className="max-w-[700px] text-muted-foreground md:text-xl/relaxed">
                       Everything parents need for their baby's health journey, powered by
-                      expert medical professionals.
+                      expert medical professionals from your hospital.
                     </p>
                   </div>
                 </div>
@@ -254,132 +228,21 @@ export default function Home() {
             </div>
           </section>
 
-          <section className="w-full py-12 md:py-24 lg:py-32 bg-[#FFF7F1] dark:bg-zinc-900/40">
-            <div className="container px-4 md:px-6">
-              <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
-                <div className="flex flex-col items-center justify-center space-y-4 text-center">
-                  <div className="inline-block rounded-md border border-orange-400/20 bg-orange-400/10 px-3 py-1 text-sm text-orange-600 dark:text-orange-400">
-                    INDIA&apos;S #1 PARENTING PLATFORM
-                  </div>
-                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl font-headline">
-                    How Can We Help You Today?
-                  </h2>
-                </div>
-              </ScrollAnimationWrapper>
-
-              <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 py-12 sm:grid-cols-2 lg:grid-cols-3">
-                <ScrollAnimationWrapper
-                  animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out"
-                  className="lg:col-span-2"
-                >
-                  <Card className="group relative flex h-full min-h-[220px] flex-col justify-between overflow-hidden rounded-xl border-2 border-orange-400 p-6 transition-transform duration-300 hover:scale-105 md:flex-row md:items-center">
-                    <div className="z-10 flex-1">
-                      <h3 className="text-2xl font-bold">24/7 Pediatric Care</h3>
-                      <Badge className="mt-2 border-none bg-orange-400 text-orange-50 hover:bg-orange-500">
-                        ★ Featured
-                      </Badge>
-                    </div>
-                    <div className="relative mt-4 h-36 w-full md:mt-0 md:h-full md:w-2/5">
-                      <Image
-                        src="https://placehold.co/250x150.png"
-                        data-ai-hint="doctor baby"
-                        alt="Pediatric Care"
-                        layout="fill"
-                        objectFit="contain"
-                        className="transition-transform duration-300 group-hover:scale-110 md:absolute md:right-0 md:bottom-0"
-                      />
-                    </div>
-                  </Card>
-                </ScrollAnimationWrapper>
-
-                <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-100">
-                  <Card className="group relative flex h-full flex-col justify-between overflow-hidden rounded-xl p-6 transition-transform duration-300 hover:scale-105">
-                    <h3 className="text-xl font-bold">Pregnancy Webinar</h3>
-                    <Image
-                      src="https://placehold.co/200x150.png"
-                      data-ai-hint="pregnant woman"
-                      alt="Pregnancy Webinar"
-                      width={180}
-                      height={180}
-                      className="mt-4 self-end transition-transform duration-300 group-hover:scale-110"
-                    />
-                  </Card>
-                </ScrollAnimationWrapper>
-
-                <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-200">
-                  <Card className="group relative flex h-full flex-col justify-between overflow-hidden rounded-xl p-6 transition-transform duration-300 hover:scale-105">
-                    <h3 className="text-xl font-bold">
-                      Breastfeeding Guidance
-                    </h3>
-                    <Image
-                      src="https://placehold.co/200x150.png"
-                      data-ai-hint="mother breastfeeding"
-                      alt="Breastfeeding Guidance"
-                      width={180}
-                      height={180}
-                      className="mt-4 self-end transition-transform duration-300 group-hover:scale-110"
-                    />
-                  </Card>
-                </ScrollAnimationWrapper>
-
-                <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-300">
-                  <Card className="group relative flex h-full flex-col justify-between overflow-hidden rounded-xl p-6 transition-transform duration-300 hover:scale-105">
-                    <h3 className="text-xl font-bold">Baby Vaccinations</h3>
-                    <Image
-                      src="https://placehold.co/200x150.png"
-                      data-ai-hint="baby vaccine"
-                      alt="Baby Vaccinations"
-                      width={180}
-                      height={180}
-                      className="mt-4 self-end transition-transform duration-300 group-hover:scale-110"
-                    />
-                  </Card>
-                </ScrollAnimationWrapper>
-
-                <div className="flex flex-col gap-6">
-                  <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-400">
-                    <Card className="group relative flex h-full items-center justify-between overflow-hidden rounded-xl p-4 transition-transform duration-300 hover:scale-105">
-                      <h3 className="text-lg font-semibold">
-                        Solids/Nutrition Planning
-                      </h3>
-                      <Image
-                        src="https://placehold.co/80x60.png"
-                        data-ai-hint="toddler eating"
-                        alt="Nutrition"
-                        width={80}
-                        height={60}
-                        className="transition-transform duration-300 group-hover:scale-110"
-                      />
-                    </Card>
-                  </ScrollAnimationWrapper>
-                  <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-500">
-                    <Card className="group relative flex h-full items-center justify-between overflow-hidden rounded-xl p-4 transition-transform duration-300 hover:scale-105">
-                      <h3 className="text-lg font-semibold">Sleep Support</h3>
-                      <Image
-                        src="https://placehold.co/80x60.png"
-                        data-ai-hint="baby sleeping"
-                        alt="Sleep Support"
-                        width={80}
-                        height={60}
-                        className="transition-transform duration-300 group-hover:scale-110"
-                      />
-                    </Card>
-                  </ScrollAnimationWrapper>
-                </div>
-              </div>
-            </div>
-          </section>
-
           <section className="w-full py-12 md:py-24 lg:py-32">
             <div className="container px-4 md:px-6">
               <div className="grid items-center gap-12 lg:grid-cols-2">
                 <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-left-8 duration-1000 ease-out">
                   <div className="space-y-6">
                     <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl font-headline">
-                      Why Parents choose BabyAura
+                      Why Hospitals Choose BabyAura
                     </h2>
-                    <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white" onClick={handleDownloadClick}>
-                      Download App
+                    <p className="text-muted-foreground md:text-lg">
+                      Enhance patient loyalty, improve post-discharge care outcomes, and create a new recurring revenue stream for your institution.
+                    </p>
+                    <Button size="lg" asChild>
+                        <Link href="/hospitals">
+                           Learn More for Hospitals
+                        </Link>
                     </Button>
                   </div>
                 </ScrollAnimationWrapper>
@@ -388,9 +251,9 @@ export default function Home() {
                     <div className="flex flex-col gap-4 rounded-xl border bg-card p-6 h-full hover:shadow-lg transition-shadow">
                       <MessagesSquare className="h-8 w-8 text-purple-600" />
                       <div>
-                        <h3 className="text-lg font-bold">Instant Chat with Pediatricians</h3>
+                        <h3 className="text-lg font-bold">Streamlined Communication</h3>
                         <p className="text-sm text-muted-foreground mt-1">
-                          Get quick answers and support from experienced MD pediatricians.
+                          Reduce administrative overhead with secure, direct-to-patient messaging and tele-consultations.
                         </p>
                       </div>
                     </div>
@@ -399,9 +262,9 @@ export default function Home() {
                     <div className="flex flex-col gap-4 rounded-xl border bg-card p-6 h-full hover:shadow-lg transition-shadow">
                       <MessageCircleMore className="h-8 w-8 text-green-600" />
                       <div>
-                        <h3 className="text-lg font-bold">Empowering, Judgment-Free Support</h3>
+                        <h3 className="text-lg font-bold">Plug-and-Play Platform</h3>
                         <p className="text-sm text-muted-foreground mt-1">
-                          Ask any question, big or small, without feeling judged.
+                          Our system integrates seamlessly with no upfront costs and flexible business models.
                         </p>
                       </div>
                     </div>
@@ -410,42 +273,20 @@ export default function Home() {
                     <div className="flex flex-col gap-4 rounded-xl border bg-card p-6 h-full hover:shadow-lg transition-shadow">
                       <ShieldCheck className="h-8 w-8 text-blue-600" />
                       <div>
-                        <h3 className="text-lg font-bold">Cautious Medication</h3>
+                        <h3 className="text-lg font-bold">Enhanced Patient Retention</h3>
                         <p className="text-sm text-muted-foreground mt-1">
-                          We prioritize your child's well-being and avoid unnecessary treatments.
+                          Offer a premium digital experience that modern parents expect, boosting loyalty to your hospital.
                         </p>
                       </div>
                     </div>
                   </ScrollAnimationWrapper>
                   <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-500">
                     <div className="flex flex-col gap-4 rounded-xl border bg-card p-6 h-full hover:shadow-lg transition-shadow">
-                      <Users className="h-8 w-8 text-blue-600" />
-                      <div>
-                        <h3 className="text-lg font-bold">Your family doctors one tap away</h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          We connect you directly with your trusted hospital doctors, bringing expert care from the hospital right to your home.
-                        </p>
-                      </div>
-                    </div>
-                  </ScrollAnimationWrapper>
-                  <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-600">
-                    <div className="flex flex-col gap-4 rounded-xl border bg-card p-6 h-full hover:shadow-lg transition-shadow">
-                      <ScreenShare className="h-8 w-8 text-pink-600" />
-                      <div>
-                        <h3 className="text-lg font-bold">24/7 Pediatric Support</h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Video consultations with pediatricians, anytime you need them.
-                        </p>
-                      </div>
-                    </div>
-                  </ScrollAnimationWrapper>
-                  <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-700">
-                    <div className="flex flex-col gap-4 rounded-xl border bg-card p-6 h-full hover:shadow-lg transition-shadow">
                       <BookImage className="h-8 w-8 text-orange-600" />
                       <div>
-                        <h3 className="text-lg font-bold">Scrapbook for Precious Memories</h3>
+                        <h3 className="text-lg font-bold">AI-Powered Insights</h3>
                         <p className="text-sm text-muted-foreground mt-1">
-                          Capture and cherish every milestone with our AI-powered digital scrapbook.
+                          Leverage AI tools for patient timeline management and scrapbook generation, adding value to your care packages.
                         </p>
                       </div>
                     </div>
@@ -455,41 +296,34 @@ export default function Home() {
             </div>
           </section>
 
-          <section id="testimonials" className="w-full py-12 md:py-24 lg:py-32 bg-muted dark:bg-card">
+          <section className="w-full py-12 md:py-24 lg:py-32 bg-muted dark:bg-card">
             <div className="container px-4 md:px-6">
-              <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out delay-200">
-                <div className="mt-12 flex flex-col items-center justify-center space-y-4 text-center">
+              <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
+                <div className="flex flex-col items-center justify-center space-y-4 text-center">
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">
-                    Loved by Mothers Everywhere
+                    Endorsed By & Advised By
                   </h2>
-                  <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                    Hear what parents are saying about their BabyAura experience. Real stories from real moms.
+                  <p className="max-w-[700px] text-muted-foreground md:text-xl/relaxed">
+                    Our platform is backed by leading institutions and experts in digital health and healthcare management.
                   </p>
                 </div>
               </ScrollAnimationWrapper>
-              <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 py-12 sm:grid-cols-2 lg:grid-cols-3">
-                {testimonials.map((testimonial, index) => (
+              <div className="mx-auto grid max-w-5xl items-start gap-8 sm:grid-cols-2 md:grid-cols-3 md:gap-12 py-12">
+                {endorsements.map((item, index) => (
                   <ScrollAnimationWrapper
-                    key={testimonial.id}
-                    animationClasses={`animate-in fade-in zoom-in-95 duration-700 ease-out delay-${100 + index * 100}`}
+                    key={index}
+                    animationClasses={`animate-in fade-in zoom-in-95 duration-700 ease-out delay-${200 + index * 100}`}
                   >
-                    <Card className="h-full flex flex-col justify-between p-6 bg-card border shadow-sm">
-                      <CardContent className="p-0 mb-4">
-                        <p className="text-foreground/90 italic">"{testimonial.quote}"</p>
-                      </CardContent>
-                      <CardFooter className="p-0 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <Avatar className="h-10 w-10">
-                            <AvatarImage src={testimonial.avatarUrl} data-ai-hint={testimonial.dataAiHint} />
-                            <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="font-semibold">{testimonial.name}</p>
-                            <p className="text-sm text-muted-foreground">Mother of a {testimonial.childAge} old</p>
-                          </div>
+                    <Card className="h-full text-center flex flex-col items-center p-6 bg-background shadow-md hover:shadow-xl transition-shadow">
+                      <CardHeader className="p-0">
+                        <div className="bg-primary/10 p-4 rounded-full mb-4">
+                          {getEndorsementIcon(item.type)}
                         </div>
-                        <Heart className="h-5 w-5 text-pink-500 fill-current" />
-                      </CardFooter>
+                      </CardHeader>
+                      <CardContent className="p-0">
+                        <h3 className="text-lg font-bold">{item.name}</h3>
+                        <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
+                      </CardContent>
                     </Card>
                   </ScrollAnimationWrapper>
                 ))}
@@ -497,59 +331,7 @@ export default function Home() {
             </div>
           </section>
 
-          <section className="w-full py-12 md:py-24 lg:py-32 bg-background">
-            <div className="container px-4 md:px-6">
-              <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
-                <div className="flex flex-col items-center justify-center space-y-4 text-center">
-                  <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">
-                    Meet Our Doctors
-                  </h2>
-                  <p className="max-w-[700px] text-muted-foreground md:text-xl/relaxed">
-                    Our team of experienced and caring professionals is here to support you.
-                  </p>
-                </div>
-              </ScrollAnimationWrapper>
-              <ScrollAnimationWrapper animationClasses="animate-in fade-in duration-1000 ease-out delay-200">
-                <Carousel
-                  plugins={[plugin.current]}
-                  className="w-full max-w-6xl mx-auto mt-12"
-                  opts={{
-                    align: "start",
-                    loop: true,
-                  }}
-                >
-                  <CarouselContent>
-                    {ourDoctors.map((doctor, index) => (
-                      <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
-                        <div className="p-1">
-                          <Card className="overflow-hidden group border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300">
-                            <div className="relative bg-blue-50 dark:bg-blue-900/20 p-4 aspect-[4/3] flex items-center justify-center">
-                              <Image
-                                src={doctor.imageUrl}
-                                data-ai-hint={doctor.dataAiHint}
-                                alt={doctor.name}
-                                width={200}
-                                height={200}
-                                className="rounded-full mx-auto aspect-square object-cover border-4 border-white shadow-md transition-transform duration-300 group-hover:scale-105"
-                              />
-                            </div>
-                            <CardContent className="p-4 text-center bg-white dark:bg-card">
-                              <h3 className="font-bold text-lg">{doctor.name}</h3>
-                              <p className="text-sm text-muted-foreground mt-1 h-10">{doctor.title}</p>
-                            </CardContent>
-                          </Card>
-                        </div>
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                  <CarouselPrevious className="absolute left-2 top-1/2 -translate-y-1/2" />
-                  <CarouselNext className="absolute right-2 top-1/2 -translate-y-1/2" />
-                </Carousel>
-              </ScrollAnimationWrapper>
-            </div>
-          </section>
-
-           <section id="pricing" className="w-full py-12 md:py-24 lg:py-32 bg-muted dark:bg-card">
+           <section id="pricing" className="w-full py-12 md:py-24 lg:py-32 bg-background">
             <TooltipProvider>
               <div className="container px-4 md:px-6">
                  <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
@@ -572,8 +354,8 @@ export default function Home() {
                     </div>
                   </ScrollAnimationWrapper>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start max-w-7xl mx-auto lg:sticky-container">
-                   <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-left-8 duration-1000 ease-out delay-300" className="lg:order-2 order-3 lg:sticky top-24">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start max-w-7xl mx-auto">
+                   <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-left-8 duration-1000 ease-out delay-300" className="lg:order-2 order-3">
                       <Card>
                         <CardHeader>
                             <CardTitle className="text-xl">Features</CardTitle>
@@ -646,12 +428,10 @@ export default function Home() {
                         </CardContent>
                     </Card>
                    </ScrollAnimationWrapper>
-
                 </div>
               </div>
             </TooltipProvider>
           </section>
-
 
           <section className="w-full py-12 md:py-24 lg:py-32 bg-muted dark:bg-card">
             <div className="container px-4 md:px-6">
