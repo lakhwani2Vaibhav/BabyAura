@@ -124,7 +124,7 @@ export default function Home() {
                     </ScrollAnimationWrapper>
                     <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-top-2 duration-1000 ease-out delay-200">
                       <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                        BabyAura is a plug-and-play e-care system for hospitals, enhancing patient care from hospital to home and creating new revenue streams.
+                        A plug-and-play e-care system for hospitals to extend their trusted care from hospital to home, fostering lasting patient relationships.
                       </p>
                     </ScrollAnimationWrapper>
                   </div>
