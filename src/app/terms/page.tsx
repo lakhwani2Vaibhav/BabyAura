@@ -33,7 +33,7 @@ export default function TermsOfServicePage() {
 
             <h2 className="mt-8 text-2xl font-bold">5. Contact Us</h2>
             <p>
-              If you have any questions about these Terms, please contact us at <a href="mailto:support@babyaura.com" className="text-primary hover:underline">support@babyaura.com</a>.
+              If you have any questions about these Terms, please contact us at <a href="mailto:babyauraindia@gmail.com" className="text-primary hover:underline">babyauraindia@gmail.com</a>.
             </p>
           </div>
         </div>

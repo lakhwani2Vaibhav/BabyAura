@@ -9,9 +9,8 @@ import { MarketingHeader } from '@/components/layout/MarketingHeader';
 import { AnimatedContent } from '@/components/layout/AnimatedContent';
 import { ScrollAnimationWrapper } from '@/components/layout/ScrollAnimationWrapper';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { DollarSign, Heart, Zap, Handshake } from 'lucide-react';
+import { DollarSign, Heart, Zap, Handshake, Mail } from 'lucide-react';
 import React from 'react';
-import { PartnershipForm } from '@/components/hospitals/PartnershipForm';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { HowItWorksSteps } from '@/components/hospitals/HowItWorksSteps';
@@ -51,10 +50,10 @@ export default function HospitalsPage() {
                     </p>
                     <div className="flex flex-col gap-2 min-[400px]:flex-row">
                       <Button size="lg" asChild>
-                        <Link href="#partner-form">Become a Partner</Link>
+                        <a href="mailto:babyauraindia@gmail.com?subject=Partnership Inquiry">Become a Partner</a>
                       </Button>
                       <Button size="lg" variant="outline" asChild>
-                        <Link href="/contact?subject=DemoRequest">Schedule a Demo</Link>
+                        <a href="mailto:babyauraindia@gmail.com?subject=Demo Request">Schedule a Demo</a>
                       </Button>
                     </div>
                   </div>
@@ -157,10 +156,15 @@ export default function HospitalsPage() {
                             <CardHeader className="text-center p-8 bg-background rounded-t-lg">
                                 <Handshake className="mx-auto h-12 w-12 text-primary mb-4" />
                                 <CardTitle className="text-3xl font-bold font-headline">Start Your Partnership Journey</CardTitle>
-                                <CardDescription className="text-lg text-muted-foreground">Fill out the form below, and our partnership team will contact you within 24 hours.</CardDescription>
+                                <CardDescription className="text-lg text-muted-foreground">Contact our partnership team today to get started.</CardDescription>
                             </CardHeader>
-                            <CardContent className="p-6 md:p-8">
-                                <PartnershipForm />
+                            <CardContent className="p-6 md:p-8 flex justify-center">
+                                <Button asChild size="lg">
+                                  <a href="mailto:babyauraindia@gmail.com?subject=Partnership Inquiry">
+                                    <Mail className="mr-2 h-5 w-5" />
+                                    Contact Partnership Team
+                                  </a>
+                                </Button>
                             </CardContent>
                         </Card>
                     </div>

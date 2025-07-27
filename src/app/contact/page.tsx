@@ -1,24 +1,14 @@
+
 "use client";
 
 import { Footer } from "@/components/layout/Footer";
 import { MarketingHeader } from "@/components/layout/MarketingHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
+import { Mail } from "lucide-react";
 
 export default function ContactPage() {
-    const { toast } = useToast();
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        toast({
-            title: "Message Sent!",
-            description: "Thank you for contacting us. We'll get back to you shortly.",
-        });
-    }
+    
   return (
     <div className="flex flex-col min-h-screen">
       <MarketingHeader />
@@ -28,24 +18,15 @@ export default function ContactPage() {
                 <Card>
                     <CardHeader className="text-center">
                         <CardTitle className="text-3xl font-bold font-headline">Contact Us</CardTitle>
-                        <CardDescription>We'd love to hear from you. Fill out the form below.</CardDescription>
+                        <CardDescription>We'd love to hear from you. Click the button below to send us an email.</CardDescription>
                     </CardHeader>
-                    <CardContent>
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="name">Name</Label>
-                                <Input id="name" placeholder="Your Name" required />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="email">Email</Label>
-                                <Input id="email" type="email" placeholder="your@email.com" required />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="message">Message</Label>
-                                <Textarea id="message" placeholder="Your message..." required />
-                            </div>
-                            <Button type="submit" className="w-full">Send Message</Button>
-                        </form>
+                    <CardContent className="flex justify-center">
+                        <Button asChild size="lg">
+                            <a href="mailto:babyauraindia@gmail.com">
+                                <Mail className="mr-2 h-5 w-5" />
+                                Send us an Email
+                            </a>
+                        </Button>
                     </CardContent>
                 </Card>
             </div>
