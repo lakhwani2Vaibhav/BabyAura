@@ -267,9 +267,9 @@ export const adminData = {
         churnRate: "2.5%",
     },
     doctors: [
-        { id: 'd1', name: 'Dr. Emily Carter', specialty: 'Pediatrics', patients: 150, status: 'Active' as const, avatarUrl: 'https://placehold.co/40x40.png' },
-        { id: 'd2', name: 'Dr. Ben Adams', specialty: 'Nutrition', patients: 80, status: 'Active' as const, avatarUrl: 'https://placehold.co/40x40.png' },
-        { id: 'd3', name: 'Dr. Sarah Lee', specialty: 'Pediatrics', patients: 26, status: 'On Leave' as const, avatarUrl: 'https://placehold.co/40x40.png' },
+        { id: 'd1', name: 'Dr. Emily Carter', specialty: 'Pediatrics', patients: 150, status: 'Active' as const, avatarUrl: 'https://placehold.co/40x40.png', consultationsThisMonth: 85, satisfaction: 4.9 },
+        { id: 'd2', name: 'Dr. Ben Adams', specialty: 'Nutrition', patients: 80, status: 'Active' as const, avatarUrl: 'https://placehold.co/40x40.png', consultationsThisMonth: 42, satisfaction: 4.8 },
+        { id: 'd3', name: 'Dr. Sarah Lee', specialty: 'Pediatrics', patients: 26, status: 'On Leave' as const, avatarUrl: 'https://placehold.co/40x40.png', consultationsThisMonth: 5, satisfaction: 4.7 },
     ],
      patients: [
       { id: 'p1', name: 'Baby Smith', assignedDoctor: 'Dr. Emily Carter', lastVisit: subDays(new Date(), 10).toISOString(), status: 'Active' as const, avatarUrl: 'https://placehold.co/40x40.png' },

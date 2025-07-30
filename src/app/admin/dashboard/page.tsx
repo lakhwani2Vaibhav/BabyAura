@@ -8,6 +8,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter
 } from "@/components/ui/card";
 import { MetricCard } from "@/components/cards/MetricCard";
 import {
@@ -16,6 +17,8 @@ import {
   DollarSign,
   CheckCircle,
   Activity,
+  UserCheck,
+  Star
 } from "lucide-react";
 import {
   Table,
@@ -29,10 +32,18 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function AdminDashboardPage() {
   const router = useRouter();
   const handleCardClick = () => router.push('/admin/analytics');
+  
+  const getInitials = (name: string) => {
+    const parts = name.split(" ");
+    return parts.length > 1
+      ? `${parts[0][0]}${parts[parts.length - 1][0]}`
+      : name.substring(0, 2);
+  };
 
   return (
     <div className="space-y-8">
@@ -84,35 +95,58 @@ export default function AdminDashboardPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Doctor Management</CardTitle>
+          <CardTitle>Doctor Activity Snapshot</CardTitle>
           <CardDescription>
-            Overview of doctors at your facility.
+            Overview of doctor performance and workload.
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Doctor Name</TableHead>
-                <TableHead>Specialty</TableHead>
-                <TableHead className="text-right">Patients</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {adminData.doctors.map((doctor) => (
-                <TableRow key={doctor.id}>
-                  <TableCell className="font-medium">{doctor.name}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{doctor.specialty}</Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {doctor.patients}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+        <CardContent className="space-y-4">
+            {adminData.doctors.map((doctor) => (
+            <Card key={doctor.id} className="flex flex-col sm:flex-row items-start sm:items-center p-4 gap-4">
+                <div className="flex items-center gap-4 w-full sm:w-1/3">
+                    <Avatar className="h-12 w-12">
+                        <AvatarImage src={doctor.avatarUrl} />
+                        <AvatarFallback>{getInitials(doctor.name)}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-grow">
+                        <p className="font-bold">{doctor.name}</p>
+                        <p className="text-sm text-muted-foreground">{doctor.specialty}</p>
+                    </div>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 flex-grow w-full sm:w-2/3">
+                    <div className="flex items-center gap-2">
+                        <Users className="h-5 w-5 text-muted-foreground" />
+                        <div>
+                            <p className="font-semibold">{doctor.patients}</p>
+                            <p className="text-xs text-muted-foreground">Patients</p>
+                        </div>
+                    </div>
+                     <div className="flex items-center gap-2">
+                        <UserCheck className="h-5 w-5 text-muted-foreground" />
+                        <div>
+                            <p className="font-semibold">{doctor.consultationsThisMonth}</p>
+                            <p className="text-xs text-muted-foreground">Consults (30d)</p>
+                        </div>
+                    </div>
+                     <div className="flex items-center gap-2">
+                        <Star className="h-5 w-5 text-muted-foreground" />
+                        <div>
+                            <p className="font-semibold">{doctor.satisfaction}</p>
+                            <p className="text-xs text-muted-foreground">Rating</p>
+                        </div>
+                    </div>
+                </div>
+                <Button variant="outline" size="sm" asChild className="w-full sm:w-auto flex-shrink-0">
+                    <Link href={`/admin/doctors`}>View Profile</Link>
+                </Button>
+            </Card>
+            ))}
         </CardContent>
+         <CardFooter>
+            <Button variant="ghost" asChild className="w-full">
+                <Link href="/admin/doctors">Manage All Doctors</Link>
+            </Button>
+        </CardFooter>
       </Card>
     </div>
   );
