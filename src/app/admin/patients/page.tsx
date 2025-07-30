@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
+import Link from "next/link";
 
 export default function PatientsPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -74,15 +75,15 @@ export default function PatientsPage() {
               filteredParents.map((patient) => (
                 <TableRow key={patient.id}>
                   <TableCell className="font-medium">
-                    <div className="flex items-center gap-3">
+                    <Link href={`/doctor/patients/${patient.id}`} className="flex items-center gap-3 group">
                       <Avatar>
                         <AvatarImage src={patient.avatarUrl} />
                         <AvatarFallback>
                           {getInitials(patient.name)}
                         </AvatarFallback>
                       </Avatar>
-                      <span>{patient.name}</span>
-                    </div>
+                      <span className="group-hover:underline">{patient.name}</span>
+                    </Link>
                   </TableCell>
                   <TableCell>{patient.assignedDoctor}</TableCell>
                   <TableCell>
