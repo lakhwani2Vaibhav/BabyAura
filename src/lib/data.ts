@@ -263,6 +263,8 @@ export const adminData = {
         doctors: 12,
         parents: 256,
         activeSubscriptions: 240,
+        monthlyRevenue: 12000,
+        churnRate: "2.5%",
     },
     doctors: [
         { id: 'd1', name: 'Dr. Emily Carter', specialty: 'Pediatrics', patients: 150, status: 'Active' as const, avatarUrl: 'https://placehold.co/40x40.png' },

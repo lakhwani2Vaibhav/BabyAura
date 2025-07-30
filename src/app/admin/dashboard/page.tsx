@@ -13,6 +13,9 @@ import { MetricCard } from "@/components/cards/MetricCard";
 import {
   Stethoscope,
   Users,
+  TrendingDown,
+  DollarSign,
+  CheckCircle,
 } from "lucide-react";
 import {
   Table,
@@ -34,7 +37,7 @@ export default function AdminDashboardPage() {
           Manage your hospital's operations on BabyAura.
         </p>
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <MetricCard
           title="Doctors Onboarded"
           value={adminData.metrics.doctors}
@@ -45,6 +48,17 @@ export default function AdminDashboardPage() {
           value={adminData.metrics.parents}
           icon={<Users className="h-5 w-5 text-muted-foreground" />}
         />
+        <MetricCard
+          title="Active Subscriptions"
+          value={adminData.metrics.activeSubscriptions}
+          icon={<CheckCircle className="h-5 w-5 text-muted-foreground" />}
+        />
+        <MetricCard
+          title="Monthly Revenue"
+          value={`$${adminData.metrics.monthlyRevenue.toLocaleString()}`}
+          icon={<DollarSign className="h-5 w-5 text-muted-foreground" />}
+        />
+        
       </div>
 
       <Card>
