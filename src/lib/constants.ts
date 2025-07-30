@@ -54,16 +54,6 @@ export const parentHeaderNav: NavItem[] = [
     label: "Growth",
     icon: BarChart2,
   },
-  {
-    href: "/parent/care",
-    label: "Care",
-    icon: Stethoscope,
-  },
-  {
-    href: "/parent/community",
-    label: "Community",
-    icon: Users,
-  },
 ];
 
 
@@ -83,16 +73,6 @@ export const doctorHeaderNav: NavItem[] = [
     href: "/doctor/prescriptions",
     label: "Prescriptions",
     icon: FileText,
-  },
-  {
-    href: "/doctor/care",
-    label: "Care Content",
-    icon: BookHeart,
-  },
-  {
-    href: "/doctor/community",
-    label: "Community",
-    icon: Users,
   },
   {
     href: "/doctor/earnings",
@@ -154,11 +134,6 @@ export const superAdminHeaderNav: NavItem[] = [
     href: "/superadmin/analytics",
     label: "Analytics",
     icon: Activity,
-  },
-    {
-    href: "/superadmin/care",
-    label: "Care Content",
-    icon: BookHeart,
   },
   {
     href: "/superadmin/logs",

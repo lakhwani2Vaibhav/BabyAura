@@ -80,30 +80,6 @@ export const parentData = {
   ],
 };
 
-export const careArticles = [
-  {
-    id: 1,
-    title: "Understanding Your Baby's Sleep Patterns",
-    description: "Learn about newborn sleep cycles and how to establish healthy sleep habits.",
-    imageUrl: "https://placehold.co/600x400.png",
-    author: "BabyAura Health Team",
-  },
-  {
-    id: 2,
-    title: "A Guide to Introducing Solid Foods",
-    description: "Find out when and how to start your baby on solid foods, with tips for success.",
-    imageUrl: "https://placehold.co/600x400.png",
-    author: "BabyAura Health Team",
-  },
-  {
-    id: 3,
-    title: "Milestones: Your Baby's First Year",
-    description: "Track the exciting developmental milestones to watch for in the first 12 months.",
-    imageUrl: "https://placehold.co/600x400.png",
-    author: "BabyAura Health Team",
-  },
-];
-
 export const blogPosts = [
     {
         id: 1,
@@ -138,25 +114,6 @@ Beyond the basics, cries can also signal other needs. A high-pitched, intense cr
 
 You can start tummy time from day one, beginning with very short sessions of just a minute or two, a few times a day. You can lay your baby on your chest or lap to start. As they get stronger, you can move to a play mat on the floor. Make it fun by getting down on their level, talking to them, and using engaging toys. The goal is to gradually work up to about 15-30 minutes of total tummy time per day by the time they are three months old. Remember, every little bit counts!`
     }
-];
-
-export const communityPosts = [
-  {
-    id: 1,
-    author: { name: "Jessica M.", avatarUrl: "https://placehold.co/40x40.png", isDoctor: false },
-    timestamp: "2 hours ago",
-    content: "Any tips for dealing with teething? My little one is having such a tough time! 😢",
-    likes: 15,
-    comments: 8,
-  },
-  {
-    id: 2,
-    author: { name: "David L.", avatarUrl: "https://placehold.co/40x40.png", isDoctor: false },
-    timestamp: "1 day ago",
-    content: "We just had our 4-month check-up and everything is looking great! So proud of this little guy.",
-    likes: 32,
-    comments: 4,
-  },
 ];
 
 export const scrapbookMemories = [
