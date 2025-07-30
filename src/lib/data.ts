@@ -1,4 +1,4 @@
-import { addDays, format, subDays, subMonths } from "date-fns";
+import { addDays, format, subDays, subMonths, subHours, subMinutes } from "date-fns";
 
 export const parentData = {
   babyName: "Aura",
@@ -173,7 +173,19 @@ export const scrapbookMemories = [
 ];
 
 const doctorPatients = [
-  { id: 'p1', name: 'Baby Smith', lastVisit: subDays(new Date(), 10).toISOString(), status: 'Active' as const },
+  { 
+    id: 'p1', 
+    name: 'Baby Smith', 
+    lastVisit: subDays(new Date(), 10).toISOString(), 
+    status: 'Active' as const,
+    chatHistory: [
+      { from: 'parent', message: "Hi Dr. Carter, I have a quick question about the rash on Baby Smith's arm. It seems a bit redder today.", timestamp: subHours(new Date(), 3).toISOString() },
+      { from: 'doctor', message: "Hello, thanks for reaching out. Can you send me a picture? Also, does he seem to be scratching it?", timestamp: subHours(new Date(), 2).toISOString() },
+      { from: 'parent', message: "Yes, he is scratching it a little. Here is a photo.", timestamp: subMinutes(new Date(), 90).toISOString() },
+      { from: 'doctor', message: "Thanks for the photo. It looks like a mild irritation. Please continue with the cream we prescribed. If it gets worse or if he develops a fever, please let me know immediately.", timestamp: subMinutes(new Date(), 30).toISOString() },
+      { from: 'parent', message: "Okay, thank you so much for the quick reply!", timestamp: new Date().toISOString() },
+    ]
+  },
   { id: 'p2', name: 'Baby Jones', lastVisit: subDays(new Date(), 25).toISOString(), status: 'Active' as const },
   { id: 'p3', name: 'Baby Williams', lastVisit: subDays(new Date(), 5).toISOString(), status: 'Active' as const },
   { id: 'p4', name: 'Baby Brown', lastVisit: subDays(new Date(), 90).toISOString(), status: 'Inactive' as const },

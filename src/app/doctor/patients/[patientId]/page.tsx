@@ -3,7 +3,7 @@
 import { parentData } from "@/lib/data";
 import { doctorData } from "@/lib/data";
 import Link from "next/link";
-import { ArrowLeft, BarChart2, Syringe, FileText, User } from "lucide-react";
+import { ArrowLeft, BarChart2, Syringe, FileText, User, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -70,24 +70,33 @@ export default function PatientProfilePage({
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center gap-4">
-        <Button asChild variant="outline" size="icon">
-          <Link href="/doctor/patients">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <Avatar className="h-16 w-16">
-          <AvatarImage
-            src={`https://placehold.co/100x100.png`}
-            data-ai-hint="baby photo"
-          />
-          <AvatarFallback>{getInitials(patient.name)}</AvatarFallback>
-        </Avatar>
-        <div>
-          <h1 className="text-3xl font-bold font-headline">{patient.name}</h1>
-          <p className="text-muted-foreground">Patient ID: {patient.id}</p>
+       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-4">
+            <Button asChild variant="outline" size="icon" className="flex-shrink-0">
+            <Link href="/doctor/patients">
+                <ArrowLeft className="h-4 w-4" />
+            </Link>
+            </Button>
+            <Avatar className="h-16 w-16">
+            <AvatarImage
+                src={`https://placehold.co/100x100.png`}
+                data-ai-hint="baby photo"
+            />
+            <AvatarFallback>{getInitials(patient.name)}</AvatarFallback>
+            </Avatar>
+            <div>
+            <h1 className="text-3xl font-bold font-headline">{patient.name}</h1>
+            <p className="text-muted-foreground">Patient ID: {patient.id}</p>
+            </div>
         </div>
+        <Button asChild className="w-full sm:w-auto">
+            <Link href={`/doctor/patients/${patientId}/chat`}>
+                <MessageSquare className="mr-2 h-4 w-4" />
+                Chat with Parent
+            </Link>
+        </Button>
       </div>
+
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
