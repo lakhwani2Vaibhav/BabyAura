@@ -41,7 +41,11 @@ export default function PatientsPage() {
           <TableBody>
             {doctorData.patients.map((patient) => (
               <TableRow key={patient.id}>
-                <TableCell className="font-medium">{patient.name}</TableCell>
+                <TableCell className="font-medium">
+                  <Link href={`/doctor/patients/${patient.id}`} className="hover:underline">
+                    {patient.name}
+                  </Link>
+                </TableCell>
                 <TableCell>
                   {format(new Date(patient.lastVisit), "MMMM d, yyyy")}
                 </TableCell>

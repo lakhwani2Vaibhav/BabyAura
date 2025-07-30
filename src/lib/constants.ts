@@ -118,7 +118,7 @@ export const adminHeaderNav: NavItem[] = [
     icon: Stethoscope,
   },
   {
-    href: "/admin/patients",
+    href: "/admin/parents",
     label: "Parents",
     icon: Users,
   },
