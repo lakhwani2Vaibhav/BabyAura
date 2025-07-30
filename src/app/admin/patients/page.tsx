@@ -25,7 +25,7 @@ import { format } from "date-fns";
 
 export default function PatientsPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredPatients, setFilteredPatients] = useState(adminData.patients);
+  const [filteredParents, setFilteredParents] = useState(adminData.patients);
 
   useEffect(() => {
     const results = adminData.patients.filter(
@@ -33,7 +33,7 @@ export default function PatientsPage() {
         patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         patient.assignedDoctor.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    setFilteredPatients(results);
+    setFilteredParents(results);
   }, [searchTerm]);
 
   const getInitials = (name: string) => {
@@ -45,14 +45,14 @@ export default function PatientsPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Patients</CardTitle>
+        <CardTitle>Parents</CardTitle>
         <CardDescription>
-          View all patients associated with the hospital.
+          View all parents associated with the hospital.
         </CardDescription>
         <div className="relative pt-4">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
-            placeholder="Search by patient name or doctor..."
+            placeholder="Search by parent name or doctor..."
             className="pl-10"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -63,15 +63,15 @@ export default function PatientsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Patient</TableHead>
+              <TableHead>Parent & Baby</TableHead>
               <TableHead>Assigned Doctor</TableHead>
               <TableHead>Last Visit</TableHead>
               <TableHead className="text-right">Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredPatients.length > 0 ? (
-              filteredPatients.map((patient) => (
+            {filteredParents.length > 0 ? (
+              filteredParents.map((patient) => (
                 <TableRow key={patient.id}>
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-3">
@@ -102,7 +102,7 @@ export default function PatientsPage() {
             ) : (
               <TableRow>
                 <TableCell colSpan={4} className="h-24 text-center">
-                  No patients found.
+                  No parents found.
                 </TableCell>
               </TableRow>
             )}

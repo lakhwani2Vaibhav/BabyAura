@@ -36,7 +36,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function AdminDashboardPage() {
   const router = useRouter();
-  const handleCardClick = () => router.push('/admin/analytics');
   
   const getInitials = (name: string) => {
     const parts = name.split(" ");
@@ -62,14 +61,14 @@ export default function AdminDashboardPage() {
         </Button>
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card onClick={handleCardClick} className="cursor-pointer hover:bg-muted/50 transition-colors">
+        <Card onClick={() => router.push('/admin/doctors')} className="cursor-pointer hover:bg-muted/50 transition-colors">
             <MetricCard
             title="Doctors Onboarded"
             value={adminData.metrics.doctors}
             icon={<Stethoscope className="h-5 w-5 text-muted-foreground" />}
             />
         </Card>
-        <Card onClick={handleCardClick} className="cursor-pointer hover:bg-muted/50 transition-colors">
+        <Card onClick={() => router.push('/admin/patients')} className="cursor-pointer hover:bg-muted/50 transition-colors">
             <MetricCard
             title="Total Parents"
             value={adminData.metrics.parents}
@@ -77,14 +76,14 @@ export default function AdminDashboardPage() {
             description="-2.5% from last month"
             />
         </Card>
-         <Card onClick={handleCardClick} className="cursor-pointer hover:bg-muted/50 transition-colors">
+         <Card onClick={() => router.push('/admin/billing')} className="cursor-pointer hover:bg-muted/50 transition-colors">
             <MetricCard
             title="Active Subscriptions"
             value={adminData.metrics.activeSubscriptions}
             icon={<CheckCircle className="h-5 w-5 text-muted-foreground" />}
             />
         </Card>
-        <Card onClick={handleCardClick} className="cursor-pointer hover:bg-muted/50 transition-colors">
+        <Card onClick={() => router.push('/admin/analytics')} className="cursor-pointer hover:bg-muted/50 transition-colors">
             <MetricCard
             title="Monthly Revenue"
             value={`$${adminData.metrics.monthlyRevenue.toLocaleString()}`}
