@@ -119,7 +119,7 @@ export const adminHeaderNav: NavItem[] = [
   },
   {
     href: "/admin/patients",
-    label: "Patients",
+    label: "Parents",
     icon: Users,
   },
   {
