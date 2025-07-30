@@ -56,9 +56,10 @@ import {
 import { Label } from "@/components/ui/label";
 import { BabyAuraLogo } from "@/components/icons/BabyAuraLogo";
 import { Separator } from "@/components/ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const prescriptionSchema = z.object({
-  patientName: z.string().min(1, "Patient name is required."),
+  patientId: z.string().min(1, "Patient is required."),
   medication: z.string().min(1, "Medication is required."),
   instructions: z.string().min(1, "Instructions are required."),
 });
@@ -79,23 +80,24 @@ export default function PrescriptionsPage() {
   const form = useForm<PrescriptionFormValues>({
     resolver: zodResolver(prescriptionSchema),
     defaultValues: {
-      patientName: "",
+      patientId: "",
       medication: "",
       instructions: "",
     },
   });
 
   const handleCreateNew = () => {
-    form.reset({ patientName: "", medication: "", instructions: "" });
+    form.reset({ patientId: "", medication: "", instructions: "" });
     setIsRenewMode(false);
     setSelectedPrescription(null);
     setOpenCreateRenew(true);
   };
 
   const handleRenewClick = (prescription: Prescription) => {
+    const patient = doctorData.patients.find(p => p.name === prescription.patientName);
     setSelectedPrescription(prescription);
     form.reset({
-      patientName: prescription.patientName,
+      patientId: patient?.id || "",
       medication: prescription.medication,
       instructions: `RENEWED: Original instructions were: Take as directed. Please verify dosage and frequency.`,
     });
@@ -109,9 +111,10 @@ export default function PrescriptionsPage() {
   };
 
   const onSubmit = (data: PrescriptionFormValues) => {
+    const patient = doctorData.patients.find(p => p.id === data.patientId);
     toast({
       title: isRenewMode ? "Prescription Renewed" : "Prescription Created",
-      description: `The prescription for ${data.patientName} has been successfully ${
+      description: `The prescription for ${patient?.name} has been successfully ${
         isRenewMode ? "renewed" : "issued"
       }.`,
     });
@@ -245,13 +248,24 @@ export default function PrescriptionsPage() {
             >
               <FormField
                 control={form.control}
-                name="patientName"
+                name="patientId"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Patient Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Baby Smith" {...field} />
-                    </FormControl>
+                    <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                       <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a patient" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {doctorData.patients.filter(p => p.status === 'Active').map(patient => (
+                          <SelectItem key={patient.id} value={patient.id}>
+                            {patient.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
