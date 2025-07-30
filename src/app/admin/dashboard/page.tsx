@@ -47,6 +47,7 @@ export default function AdminDashboardPage() {
           title="Total Parents"
           value={adminData.metrics.parents}
           icon={<Users className="h-5 w-5 text-muted-foreground" />}
+          description="-2.5% from last month"
         />
         <MetricCard
           title="Active Subscriptions"
