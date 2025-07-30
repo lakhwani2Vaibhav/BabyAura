@@ -13,9 +13,9 @@ import { MetricCard } from "@/components/cards/MetricCard";
 import {
   Stethoscope,
   Users,
-  TrendingDown,
   DollarSign,
   CheckCircle,
+  Activity,
 } from "lucide-react";
 import {
   Table,
@@ -26,40 +26,60 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export default function AdminDashboardPage() {
+  const router = useRouter();
+  const handleCardClick = () => router.push('/admin/analytics');
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold font-headline">Admin Dashboard</h1>
-        <p className="text-muted-foreground">
-          Manage your hospital's operations on BabyAura.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold font-headline">Admin Dashboard</h1>
+          <p className="text-muted-foreground">
+            Manage your hospital's operations on BabyAura.
+          </p>
+        </div>
+        <Button asChild>
+            <Link href="/admin/analytics">
+                <Activity className="mr-2 h-4 w-4" />
+                View Analytics
+            </Link>
+        </Button>
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <MetricCard
-          title="Doctors Onboarded"
-          value={adminData.metrics.doctors}
-          icon={<Stethoscope className="h-5 w-5 text-muted-foreground" />}
-        />
-        <MetricCard
-          title="Total Parents"
-          value={adminData.metrics.parents}
-          icon={<Users className="h-5 w-5 text-muted-foreground" />}
-          description="-2.5% from last month"
-        />
-        <MetricCard
-          title="Active Subscriptions"
-          value={adminData.metrics.activeSubscriptions}
-          icon={<CheckCircle className="h-5 w-5 text-muted-foreground" />}
-        />
-        <MetricCard
-          title="Monthly Revenue"
-          value={`$${adminData.metrics.monthlyRevenue.toLocaleString()}`}
-          icon={<DollarSign className="h-5 w-5 text-muted-foreground" />}
-        />
-        
+        <Card onClick={handleCardClick} className="cursor-pointer hover:bg-muted/50 transition-colors">
+            <MetricCard
+            title="Doctors Onboarded"
+            value={adminData.metrics.doctors}
+            icon={<Stethoscope className="h-5 w-5 text-muted-foreground" />}
+            />
+        </Card>
+        <Card onClick={handleCardClick} className="cursor-pointer hover:bg-muted/50 transition-colors">
+            <MetricCard
+            title="Total Parents"
+            value={adminData.metrics.parents}
+            icon={<Users className="h-5 w-5 text-muted-foreground" />}
+            description="-2.5% from last month"
+            />
+        </Card>
+         <Card onClick={handleCardClick} className="cursor-pointer hover:bg-muted/50 transition-colors">
+            <MetricCard
+            title="Active Subscriptions"
+            value={adminData.metrics.activeSubscriptions}
+            icon={<CheckCircle className="h-5 w-5 text-muted-foreground" />}
+            />
+        </Card>
+        <Card onClick={handleCardClick} className="cursor-pointer hover:bg-muted/50 transition-colors">
+            <MetricCard
+            title="Monthly Revenue"
+            value={`$${adminData.metrics.monthlyRevenue.toLocaleString()}`}
+            icon={<DollarSign className="h-5 w-5 text-muted-foreground" />}
+            />
+        </Card>
       </div>
 
       <Card>

@@ -276,7 +276,26 @@ export const adminData = {
       { id: 'p2', name: 'Baby Jones', assignedDoctor: 'Dr. Emily Carter', lastVisit: subDays(new Date(), 25).toISOString(), status: 'Active' as const, avatarUrl: 'https://placehold.co/40x40.png' },
       { id: 'p3', name: 'Baby Williams', assignedDoctor: 'Dr. Sarah Lee', lastVisit: subDays(new Date(), 5).toISOString(), status: 'Active' as const, avatarUrl: 'https://placehold.co/40x40.png' },
     ],
-    revenueModel: "revenue-share" // or "licensing"
+    revenueModel: "revenue-share", // or "licensing"
+    analytics: {
+        parentGrowthRate: 8,
+        monthlyRevenue: [
+            { month: "Jan", revenue: 8000 },
+            { month: "Feb", revenue: 9000 },
+            { month: "Mar", revenue: 10500 },
+            { month: "Apr", revenue: 10000 },
+            { month: "May", revenue: 11000 },
+            { month: "Jun", revenue: 12000 },
+        ],
+        userGrowth: [
+            { month: "Jan", parents: 180, doctors: 10 },
+            { month: "Feb", parents: 195, doctors: 10 },
+            { month: "Mar", parents: 210, doctors: 11 },
+            { month: "Apr", parents: 220, doctors: 12 },
+            { month: "May", parents: 240, doctors: 12 },
+            { month: "Jun", parents: 256, doctors: 12 },
+        ]
+    },
 };
 
 export const superAdminData = {

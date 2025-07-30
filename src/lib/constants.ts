@@ -123,6 +123,11 @@ export const adminHeaderNav: NavItem[] = [
     icon: Users,
   },
   {
+    href: "/admin/analytics",
+    label: "Analytics",
+    icon: Activity,
+  },
+  {
     href: "/admin/hospital/onboarding",
     label: "Hospital Info",
     icon: Building,
