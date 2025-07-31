@@ -18,7 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, UserCog } from "lucide-react";
+import { Shield, Stethoscope } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
@@ -31,16 +31,18 @@ const loginSchema = z.object({
 
 type LoginValues = z.infer<typeof loginSchema>;
 
-const adminRoles: { value: "Admin" | "Superadmin"; label: string; icon: React.ReactNode }[] =
+type ProfessionalRole = "Admin" | "Doctor";
+
+const professionalRoles: { value: ProfessionalRole; label: string; icon: React.ReactNode }[] =
   [
     { value: "Admin", label: "Hospital Admin", icon: <Shield className="w-4 h-4" /> },
-    { value: "Superadmin", label: "Superadmin", icon: <UserCog className="w-4 h-4" /> },
+    { value: "Doctor", label: "Doctor", icon: <Stethoscope className="w-4 h-4" /> },
   ];
 
 export function UnifiedAdminLoginForm() {
   const { login } = useAuth();
   const [selectedRole, setSelectedRole] =
-    useState<"Admin" | "Superadmin">("Admin");
+    useState<ProfessionalRole>("Admin");
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
@@ -54,7 +56,7 @@ export function UnifiedAdminLoginForm() {
     defaultValues: { email: "admin@babyaura.com", password: "password" },
   });
 
-  const handleRoleChange = (role: "Admin" | "Superadmin") => {
+  const handleRoleChange = (role: ProfessionalRole) => {
     setSelectedRole(role);
     setValue("email", `${role.toLowerCase()}@babyaura.com`);
     setError(null);
@@ -63,10 +65,13 @@ export function UnifiedAdminLoginForm() {
   const onSubmit = async (data: LoginValues) => {
     setError(null);
     try {
+      // Superadmin check for non-public login
+      const roleToSubmit = data.email === 'superadmin@babyaura.com' ? 'Superadmin' : selectedRole;
+      
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, role: selectedRole }),
+        body: JSON.stringify({ ...data, role: roleToSubmit }),
       });
 
       const result = await response.json();
@@ -79,7 +84,7 @@ export function UnifiedAdminLoginForm() {
         title: "Login Successful",
         description: `Welcome back, ${result.name}!`,
       });
-      login(selectedRole);
+      login(roleToSubmit as NonNullable<UserRole>);
 
     } catch (err: any) {
        setError(err.message || 'Failed to login. Please try again.');
@@ -89,19 +94,19 @@ export function UnifiedAdminLoginForm() {
   return (
     <Card className="w-full max-w-md mx-auto shadow-lg">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-headline">Administrator Login</CardTitle>
+        <CardTitle className="text-2xl font-headline">Professional Portal</CardTitle>
         <CardDescription>Select your role and sign in to continue</CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs
           value={selectedRole}
           onValueChange={(value) =>
-            handleRoleChange(value as "Admin" | "Superadmin")
+            handleRoleChange(value as ProfessionalRole)
           }
           className="w-full"
         >
           <TabsList className="grid w-full grid-cols-2">
-            {adminRoles.map((role) => (
+            {professionalRoles.map((role) => (
               <TabsTrigger
                 key={role.value}
                 value={role.value}
@@ -149,13 +154,12 @@ export function UnifiedAdminLoginForm() {
       </CardContent>
       <CardFooter>
         <p className="text-xs text-muted-foreground text-center w-full">
-            Not an administrator? Go to{" "}
+            Not a professional user? Go to{" "}
             <Link href="/auth/login" className="text-primary hover:underline">
-                Parent/Doctor login
+                Parent login
             </Link>
         </p>
       </CardFooter>
     </Card>
   );
 }
-

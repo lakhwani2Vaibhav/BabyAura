@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useAuth, UserRole } from "@/hooks/use-auth";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,8 +17,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Baby, Stethoscope } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
@@ -32,16 +30,8 @@ const loginSchema = z.object({
 
 type LoginValues = z.infer<typeof loginSchema>;
 
-const roles: { value: NonNullable<UserRole>; label: string; icon: React.ReactNode }[] =
-  [
-    { value: "Parent", label: "Parent", icon: <Baby className="w-4 h-4" /> },
-    { value: "Doctor", label: "Doctor", icon: <Stethoscope className="w-4 h-4" /> },
-  ];
-
 export function LoginForm() {
   const { login } = useAuth();
-  const [selectedRole, setSelectedRole] =
-    useState<NonNullable<UserRole>>("Parent");
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
@@ -49,17 +39,10 @@ export function LoginForm() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    setValue,
   } = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: `${"parent"}@babyaura.com`, password: "password" },
+    defaultValues: { email: "parent@babyaura.com", password: "password" },
   });
-
-  const handleRoleChange = (role: NonNullable<UserRole>) => {
-    setSelectedRole(role);
-    setValue("email", `${role.toLowerCase()}@babyaura.com`);
-    setError(null);
-  }
 
   const onSubmit = async (data: LoginValues) => {
     setError(null);
@@ -67,7 +50,7 @@ export function LoginForm() {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, role: selectedRole }),
+        body: JSON.stringify({ ...data, role: 'Parent' }),
       });
 
       const result = await response.json();
@@ -80,7 +63,7 @@ export function LoginForm() {
         title: "Login Successful",
         description: `Welcome back, ${result.name}!`,
       });
-      login(selectedRole);
+      login("Parent");
 
     } catch (err: any) {
        setError(err.message || 'Failed to login. Please try again.');
@@ -90,30 +73,10 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-md mx-auto shadow-lg">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-headline">Welcome Back</CardTitle>
-        <CardDescription>Select your role and sign in to continue</CardDescription>
+        <CardTitle className="text-2xl font-headline">Welcome Back, Parent!</CardTitle>
+        <CardDescription>Sign in to continue your care journey.</CardDescription>
       </CardHeader>
       <CardContent>
-        <Tabs
-          value={selectedRole}
-          onValueChange={(value) =>
-            handleRoleChange(value as NonNullable<UserRole>)
-          }
-          className="w-full"
-        >
-          <TabsList className="grid w-full grid-cols-2">
-            {roles.map((role) => (
-              <TabsTrigger
-                key={role.value}
-                value={role.value as string}
-                className="flex items-center justify-center gap-1 text-xs md:text-sm py-2"
-              >
-                {role.icon} {role.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mt-6">
            {error && (
             <Alert variant="destructive">
@@ -127,7 +90,7 @@ export function LoginForm() {
             <Input
               id="email"
               type="email"
-              placeholder={`${selectedRole.toLowerCase()}@babyaura.com`}
+              placeholder="parent@babyaura.com"
               {...register("email")}
             />
             {errors.email && (
@@ -144,7 +107,7 @@ export function LoginForm() {
             )}
           </div>
           <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? "Signing In..." : `Sign In as ${selectedRole}`}
+            {isSubmitting ? "Signing In..." : "Sign In"}
           </Button>
         </form>
       </CardContent>
@@ -153,17 +116,14 @@ export function LoginForm() {
             <p>
                 Don't have an account?{" "}
                 <Link href="/auth/register" className="text-primary hover:underline">
-                    Sign Up as a Parent
+                    Sign Up
                 </Link>
-            </p>
-            <p>
-                Doctors must be invited by their organization.
             </p>
         </div>
         <Separator />
         <div className="text-center text-xs text-muted-foreground">
             <p>
-                Are you an administrator?{" "}
+                Are you a Doctor or Administrator?{" "}
                 <Link href="/auth/login/admins" className="font-semibold text-primary hover:underline">
                     Login Here
                 </Link>
