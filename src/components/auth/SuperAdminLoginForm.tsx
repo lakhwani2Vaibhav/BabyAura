@@ -15,11 +15,11 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, UserCog } from "lucide-react";
-import Link from 'next/link';
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
