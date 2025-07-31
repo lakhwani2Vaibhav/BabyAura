@@ -68,7 +68,7 @@ export default function AdminDashboardPage() {
             icon={<Stethoscope className="h-5 w-5 text-muted-foreground" />}
             />
         </Card>
-        <Card onClick={() => router.push('/admin/patients')} className="cursor-pointer hover:bg-muted/50 transition-colors">
+        <Card onClick={() => router.push('/admin/parents')} className="cursor-pointer hover:bg-muted/50 transition-colors">
             <MetricCard
             title="Total Parents"
             value={adminData.metrics.parents}
@@ -117,7 +117,7 @@ export default function AdminDashboardPage() {
                         <Users className="h-5 w-5 text-muted-foreground" />
                         <div>
                             <p className="font-semibold">{doctor.patients}</p>
-                            <p className="text-xs text-muted-foreground">Patients</p>
+                            <p className="text-xs text-muted-foreground">Parents</p>
                         </div>
                     </div>
                      <div className="flex items-center gap-2">

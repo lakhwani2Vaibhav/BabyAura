@@ -1,3 +1,4 @@
+
 import { addDays, format, subDays, subMonths, subHours, subMinutes } from "date-fns";
 
 export const parentData = {
@@ -240,7 +241,7 @@ export const adminData = {
         { id: 'd2', name: 'Dr. Ben Adams', specialty: 'Nutrition', patients: 80, status: 'Active' as const, avatarUrl: 'https://placehold.co/40x40.png', consultationsThisMonth: 42, satisfaction: 4.8 },
         { id: 'd3', name: 'Dr. Sarah Lee', specialty: 'Pediatrics', patients: 26, status: 'On Leave' as const, avatarUrl: 'https://placehold.co/40x40.png', consultationsThisMonth: 5, satisfaction: 4.7 },
     ],
-     patients: [
+     parents: [
       { id: 'p1', name: 'Baby Smith', assignedDoctor: 'Dr. Emily Carter', lastVisit: subDays(new Date(), 10).toISOString(), status: 'Active' as const, avatarUrl: 'https://placehold.co/40x40.png' },
       { id: 'p2', name: 'Baby Jones', assignedDoctor: 'Dr. Emily Carter', lastVisit: subDays(new Date(), 25).toISOString(), status: 'Active' as const, avatarUrl: 'https://placehold.co/40x40.png' },
       { id: 'p3', name: 'Baby Williams', assignedDoctor: 'Dr. Sarah Lee', lastVisit: subDays(new Date(), 5).toISOString(), status: 'Active' as const, avatarUrl: 'https://placehold.co/40x40.png' },
