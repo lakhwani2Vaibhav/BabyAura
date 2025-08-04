@@ -22,17 +22,12 @@ import { AlertCircle, ArrowLeft, Hospital, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 
-const hospitalCodeSchema = z.object({
-    hospitalCode: z.string().min(1, { message: "Hospital code is required." }),
-});
-
 const registerSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   email: z.string().email({ message: "Invalid email address" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
 });
 
-type HospitalCodeValues = z.infer<typeof hospitalCodeSchema>;
 type RegisterValues = z.infer<typeof registerSchema>;
 
 const validHospitalCode = "GAH789";
@@ -41,20 +36,12 @@ const hospitalName = "General Hospital";
 type Step = 'enterCode' | 'confirmHospital' | 'enterDetails';
 
 export function RegisterForm() {
-  const { login } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<Step>('enterCode');
   const [hospitalCode, setHospitalCode] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
   const { toast } = useToast();
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<RegisterValues>({
-    resolver: zodResolver(registerSchema),
-  });
+  const { login } = useAuth();
 
   const handleCodeVerification = () => {
     setError(null);
@@ -73,33 +60,91 @@ export function RegisterForm() {
       setIsVerifying(false);
     }, 1000);
   };
+  
+  const FinalStepForm = () => {
+      const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting },
+    } = useForm<RegisterValues>({
+        resolver: zodResolver(registerSchema),
+    });
 
-  const onSubmit = async (data: RegisterValues) => {
-    setError(null);
-    try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, role: "Parent", hospitalCode }),
-      });
+    const onSubmit = async (data: RegisterValues) => {
+        setError(null);
+        try {
+        const response = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...data, role: "Parent", hospitalCode }),
+        });
 
-      const result = await response.json();
+        const result = await response.json();
 
-      if (!response.ok) {
-        throw new Error(result.message || "An error occurred");
-      }
-      
-      toast({
-        title: "Account Created!",
-        description: "Welcome to BabyAura. Let's get started.",
-      });
+        if (!response.ok) {
+            throw new Error(result.message || "An error occurred");
+        }
+        
+        toast({
+            title: "Account Created!",
+            description: "Welcome to BabyAura. Let's get started.",
+        });
 
-      login("Parent");
+        login("Parent");
 
-    } catch (err: any) {
-       setError(err.message || 'Failed to register. Please try again.');
-    }
-  };
+        } catch (err: any) {
+        setError(err.message || 'Failed to register. Please try again.');
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mt-6">
+            {error && (
+                <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Registration Failed</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+                </Alert>
+            )}
+            <div className="space-y-2">
+                <Label htmlFor="name">Full Name</Label>
+                <Input
+                id="name"
+                type="text"
+                placeholder="Your Name"
+                {...register("name")}
+                />
+                {errors.name && (
+                <p className="text-sm text-destructive">{errors.name.message}</p>
+                )}
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                id="email"
+                type="email"
+                placeholder="you@example.com"
+                {...register("email")}
+                />
+                {errors.email && (
+                <p className="text-sm text-destructive">{errors.email.message}</p>
+                )}
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input id="password" type="password" {...register("password")} />
+                {errors.password && (
+                <p className="text-sm text-destructive">
+                    {errors.password.message}
+                </p>
+                )}
+            </div>
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? "Creating Account..." : "Sign Up"}
+            </Button>
+        </form>
+    )
+  }
 
   const renderContent = () => {
     switch(step) {
@@ -170,51 +215,7 @@ export function RegisterForm() {
                     <CardDescription>Final step! Fill in your details below.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mt-6">
-                    {error && (
-                        <Alert variant="destructive">
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertTitle>Registration Failed</AlertTitle>
-                        <AlertDescription>{error}</AlertDescription>
-                        </Alert>
-                    )}
-                    <div className="space-y-2">
-                        <Label htmlFor="name">Full Name</Label>
-                        <Input
-                        id="name"
-                        type="text"
-                        placeholder="Your Name"
-                        {...register("name")}
-                        />
-                        {errors.name && (
-                        <p className="text-sm text-destructive">{errors.name.message}</p>
-                        )}
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                        id="email"
-                        type="email"
-                        placeholder="you@example.com"
-                        {...register("email")}
-                        />
-                        {errors.email && (
-                        <p className="text-sm text-destructive">{errors.email.message}</p>
-                        )}
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="password">Password</Label>
-                        <Input id="password" type="password" {...register("password")} />
-                        {errors.password && (
-                        <p className="text-sm text-destructive">
-                            {errors.password.message}
-                        </p>
-                        )}
-                    </div>
-                    <Button type="submit" className="w-full" disabled={isSubmitting}>
-                        {isSubmitting ? "Creating Account..." : "Sign Up"}
-                    </Button>
-                    </form>
+                    <FinalStepForm />
                 </CardContent>
             </>
         )
