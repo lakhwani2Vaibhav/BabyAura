@@ -37,6 +37,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { cn } from '@/lib/utils';
 
 export default function Home() {
   const [isAnnual, setIsAnnual] = useState(false);
@@ -77,7 +78,7 @@ export default function Home() {
       'Quick Chat/Call Support': true,
       'Dedicated Dietician Support': true,
       'Automated Essentials Delivery': false,
-      'AI Assistance': 'Simple',
+      'AI Assistance': true,
       'Early Access to Beta Updates': false,
     },
     premium: {
@@ -86,10 +87,10 @@ export default function Home() {
       'Growth Trackers & Milestones': true,
       'Immunization Alerts & Support': true,
       'Health Feedback & Prescription Reminders': true,
-      'Quick Chat/Call Support': '5 Credits',
+      'Quick Chat/Call Support': true,
       'Dedicated Dietician Support': true,
       'Automated Essentials Delivery': true,
-      'AI Assistance': 'Advanced',
+      'AI Assistance': true,
       'Early Access to Beta Updates': true,
     }
   };
@@ -393,39 +394,49 @@ export default function Home() {
                                     const value = planFeatures.basic[feature.name as keyof typeof planFeatures.basic];
                                     return (
                                     <li key={feature.name} className="flex items-center gap-3 text-sm">
-                                        {value === true ? <CheckCircle2 className="h-5 w-5 text-green-500" /> : (value === false ? <XCircle className="h-5 w-5 text-red-500" /> : <span className='text-xs font-bold text-primary w-5 text-center'>✓</span>)}
-                                        <span className="flex-1">{typeof value === 'string' ? <><span className='font-bold'>{value}</span> {feature.name.split(' ').slice(1).join(' ')}</> : feature.name}</span>
+                                        {value === true ? <CheckCircle2 className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
+                                        <span className="flex-1">{feature.name}</span>
                                     </li>
                                     );
                                 })}
                             </ul>
                         </CardContent>
+                         <CardFooter>
+                           <Button className="w-full" asChild>
+                                <Link href="/auth/register">Choose Basic</Link>
+                           </Button>
+                        </CardFooter>
                     </Card>
                   </ScrollAnimationWrapper>
 
                   <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-1000 ease-out delay-500" className="lg:order-3 order-2">
                     <Card className="relative flex flex-col h-full border-2 border-primary shadow-lg">
                         <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground">MOST POPULAR</Badge>
-                        <div className="bg-primary/90 text-primary-foreground rounded-t-lg">
-                            <CardHeader>
-                                <CardTitle className="text-2xl text-white">Premium Plan</CardTitle>
-                                <p className="text-3xl font-bold text-white">₹{currentPlan.premium.price.toLocaleString()}<span className="text-sm font-normal text-white/80">{currentPlan.premium.period}</span></p>
-                                <p className="text-sm text-white/80">Complete care for your baby's journey</p>
+                        <div className={cn("rounded-t-lg", "bg-primary/5")}>
+                            <CardHeader className="opacity-60">
+                                <CardTitle className="text-2xl">Premium Plan</CardTitle>
+                                <p className="text-3xl font-bold">₹{currentPlan.premium.price.toLocaleString()}<span className="text-sm font-normal text-muted-foreground">{currentPlan.premium.period}</span></p>
+                                <p className="text-sm text-muted-foreground">Complete care for your baby's journey</p>
                             </CardHeader>
                         </div>
-                        <CardContent className="pt-6 flex-grow">
+                        <CardContent className="pt-6 flex-grow opacity-60">
                            <ul className="space-y-4">
                                 {featuresList.map(feature => {
                                     const value = planFeatures.premium[feature.name as keyof typeof planFeatures.premium];
                                     return (
                                     <li key={feature.name} className="flex items-center gap-3 text-sm">
-                                        {value === true ? <CheckCircle2 className="h-5 w-5 text-green-500" /> : (value === false ? <XCircle className="h-5 w-5 text-red-500" /> : <span className='text-xs font-bold text-primary w-5 text-center'>✓</span>)}
-                                        <span className="flex-1">{typeof value === 'string' ? <><span className='font-bold'>{value}</span> {feature.name.split(' ').slice(1).join(' ')}</> : feature.name}</span>
+                                        {value === true ? <CheckCircle2 className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
+                                       <span className="flex-1">{feature.name}</span>
                                     </li>
                                     );
                                 })}
                             </ul>
                         </CardContent>
+                         <CardFooter>
+                           <Button className="w-full" disabled>
+                                Coming Soon
+                           </Button>
+                        </CardFooter>
                     </Card>
                    </ScrollAnimationWrapper>
                 </div>
