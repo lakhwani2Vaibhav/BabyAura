@@ -4,13 +4,15 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import Link from 'next/link';
-import { MessageSquare, Calendar, Utensils, Brain, Zap, CheckCircle2, ListChecks } from "lucide-react";
+import { MessageSquare, Calendar, Utensils, Brain, Zap, CheckCircle2, ListChecks, BookImage } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { VaccinationCard } from "@/components/cards/VaccinationCard";
 import { ScrollAnimationWrapper } from "@/components/layout/ScrollAnimationWrapper";
-import { parentData } from '@/lib/data';
+import { parentData, scrapbookMemories } from '@/lib/data';
 import { JourneyTimeline } from '@/components/timeline/JourneyTimeline';
 import { Progress } from '@/components/ui/progress';
+import Image from 'next/image';
+import { format, parseISO } from 'date-fns';
 
 const initialJourneyItems = [
     {
@@ -57,6 +59,7 @@ export type JourneyItemData = (typeof initialJourneyItems)[0];
 export default function ParentDashboardPage() {
   const { vaccinationStatus } = parentData;
   const [journeyItems, setJourneyItems] = useState(initialJourneyItems);
+  const latestMemory = scrapbookMemories[0];
 
   const handleToggleItem = (title: string) => {
     setJourneyItems(items => 
@@ -133,6 +136,40 @@ export default function ParentDashboardPage() {
         <div className="space-y-6">
             <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-300">
                 <VaccinationCard nextVaccination={vaccinationStatus.next} />
+            </ScrollAnimationWrapper>
+            <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-400">
+                 <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <BookImage className="h-5 w-5 text-primary" />
+                            Latest Memory
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            <div className="aspect-video bg-muted rounded-lg overflow-hidden">
+                                <Image 
+                                    src={latestMemory.url}
+                                    width={400}
+                                    height={300}
+                                    alt={latestMemory.title}
+                                    className="w-full h-full object-cover"
+                                    data-ai-hint={latestMemory.dataAiHint}
+                                />
+                            </div>
+                            <div className="text-sm">
+                                <p className="font-semibold">{latestMemory.title}</p>
+                                <p className="text-muted-foreground italic">"{latestMemory.caption}"</p>
+                                <p className="text-xs text-muted-foreground/80 text-right mt-1">{format(parseISO(latestMemory.date), "MMMM d, yyyy")}</p>
+                            </div>
+                        </div>
+                    </CardContent>
+                    <CardFooter>
+                        <Button asChild className="w-full">
+                            <Link href="/parent/scrapbook">View Full Scrapbook</Link>
+                        </Button>
+                    </CardFooter>
+                 </Card>
             </ScrollAnimationWrapper>
         </div>
       </div>
