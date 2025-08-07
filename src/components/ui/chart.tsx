@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -316,6 +317,31 @@ const ChartLegendContent = React.forwardRef<
 )
 ChartLegendContent.displayName = "ChartLegend"
 
+const ChartSingleTooltip = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<typeof ChartTooltipContent> & {
+    /**
+     * The value to display in the tooltip.
+     */
+    value: number | string | undefined | null
+  }
+>(({ payload: _, value, ...props }, ref) => {
+  const payload = React.useMemo(() => {
+    if (value === undefined || value === null) return []
+    return [{ value }]
+  }, [value])
+
+  return (
+    <ChartTooltipContent
+      ref={ref}
+      // @ts-expect-error We are using a custom payload.
+      payload={payload}
+      {...props}
+    />
+  )
+})
+ChartSingleTooltip.displayName = "ChartSingleTooltip"
+
 // Helper to extract item config from a payload.
 function getPayloadConfigFromPayload(
   config: ChartConfig,
@@ -362,4 +388,5 @@ export {
   ChartLegend,
   ChartLegendContent,
   ChartStyle,
+  ChartSingleTooltip,
 }

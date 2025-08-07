@@ -1,14 +1,14 @@
 
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Slider } from '@/components/ui/slider';
-import { Brain, HeartHandshake, Stethoscope, Utensils, Zap, DollarSign, BarChart, Handshake } from 'lucide-react';
+import { Brain, HeartHandshake, Stethoscope, Utensils, DollarSign, BarChart, Handshake } from 'lucide-react';
 import { MarketingHeader } from '@/components/layout/MarketingHeader';
 import { Footer } from '@/components/layout/Footer';
 import { ScrollAnimationWrapper } from '@/components/layout/ScrollAnimationWrapper';
+import { CostBreakdown } from '@/components/hospitals/CostBreakdown';
 
 const specialists = [
     {
@@ -53,13 +53,6 @@ const benefits = [
 
 
 export default function BabyAura360Page() {
-  const [patients, setPatients] = useState(100);
-  const [charge, setCharge] = useState(2499);
-
-  const revenue = useMemo(() => {
-    const hospitalShare = 0.4;
-    return (patients * charge * hospitalShare);
-  }, [patients, charge]);
   
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -142,39 +135,12 @@ export default function BabyAura360Page() {
             </div>
         </section>
         
-        {/* Revenue Calculator Section */}
+        {/* Cost Breakdown Section */}
         <section className="w-full py-12 md:py-24 bg-muted/40">
           <div className="container px-4 md:px-6">
-            <div className="mx-auto max-w-4xl">
+            <div className="mx-auto max-w-5xl">
               <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-1000 ease-out">
-                <Card className="shadow-2xl">
-                    <CardHeader className="text-center p-8">
-                        <CardTitle className="text-3xl font-bold font-headline">Estimate Your Annual Revenue</CardTitle>
-                        <CardDescription className="text-lg text-muted-foreground mt-2">Our success is your success. See your potential earnings with our transparent revenue-sharing model.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="p-8 space-y-8">
-                        <div className="space-y-4">
-                            <div className="flex justify-between items-center">
-                                <label className="font-medium">Monthly Outgoing Patients</label>
-                                <span className="font-bold text-lg">{patients}</span>
-                            </div>
-                            <Slider value={[patients]} onValueChange={(val) => setPatients(val[0])} min={50} max={1000} step={10} />
-                        </div>
-                        <div className="space-y-4">
-                            <div className="flex justify-between items-center">
-                                <label className="font-medium">Subscription Price (INR)</label>
-                                <span className="font-bold text-lg">{formatCurrency(charge)}</span>
-                            </div>
-                            <Slider value={[charge]} onValueChange={(val) => setCharge(val[0])} min={1499} max={4999} step={100} />
-                        </div>
-                        <div className="text-center pt-6 border-t border-dashed">
-                            <p className="text-muted-foreground">Your Estimated Annual Revenue Share (40%)</p>
-                            <p className="text-4xl md:text-5xl font-extrabold text-primary tracking-tight mt-2">
-                                {formatCurrency(revenue * 12)}
-                            </p>
-                        </div>
-                    </CardContent>
-                </Card>
+                <CostBreakdown />
               </ScrollAnimationWrapper>
             </div>
           </div>
