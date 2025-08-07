@@ -147,7 +147,7 @@ export function ParentHeader() {
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">{role}</p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    parent@babyaura.com
+                    parent@babyaura.in
                   </p>
                 </div>
               </DropdownMenuLabel>

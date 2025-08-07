@@ -53,12 +53,12 @@ export function UnifiedAdminLoginForm() {
     setValue,
   } = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "admin@babyaura.com", password: "password" },
+    defaultValues: { email: "admin@babyaura.in", password: "password" },
   });
 
   const handleRoleChange = (role: ProfessionalRole) => {
     setSelectedRole(role);
-    setValue("email", `${role.toLowerCase()}@babyaura.com`);
+    setValue("email", `${role.toLowerCase()}@babyaura.in`);
     setError(null);
   }
 
@@ -66,7 +66,7 @@ export function UnifiedAdminLoginForm() {
     setError(null);
     try {
       // Superadmin check for non-public login
-      const roleToSubmit = data.email === 'superadmin@babyaura.com' ? 'Superadmin' : selectedRole;
+      const roleToSubmit = data.email === 'superadmin@babyaura.in' ? 'Superadmin' : selectedRole;
       
       const response = await fetch('/api/auth/login', {
         method: 'POST',
@@ -131,7 +131,7 @@ export function UnifiedAdminLoginForm() {
             <Input
               id="email"
               type="email"
-              placeholder={`${selectedRole.toLowerCase()}@babyaura.com`}
+              placeholder={`${selectedRole.toLowerCase()}@babyaura.in`}
               {...register("email")}
             />
             {errors.email && (

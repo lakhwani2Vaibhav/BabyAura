@@ -39,7 +39,7 @@ export function AdminLoginForm() {
     formState: { errors, isSubmitting },
   } = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "admin@babyaura.com", password: "password" },
+    defaultValues: { email: "admin@babyaura.in", password: "password" },
   });
 
   const onSubmit = async (data: LoginValues) => {
@@ -91,7 +91,7 @@ export function AdminLoginForm() {
             <Input
               id="email"
               type="email"
-              placeholder="admin@babyaura.com"
+              placeholder="admin@babyaura.in"
               {...register("email")}
             />
             {errors.email && (

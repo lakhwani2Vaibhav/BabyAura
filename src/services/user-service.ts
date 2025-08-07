@@ -1,3 +1,4 @@
+
 import clientPromise from "@/lib/mongodb";
 import bcrypt from 'bcrypt';
 import { adminData, parentData, doctorData, superAdminData } from "@/lib/data";
@@ -49,10 +50,10 @@ export const seedUsers = async () => {
   console.log('No users found. Seeding database...');
 
   const usersToSeed = [
-    { email: 'parent@babyaura.com', role: 'Parent', name: "Parent's Name" },
-    { email: 'doctor@babyaura.com', role: 'Doctor', name: "Dr. Emily Carter" },
-    { email: 'admin@babyaura.com', role: 'Admin', name: 'Admin User' },
-    { email: 'superadmin@babyaura.com', role: 'Superadmin', name: 'Super Admin' },
+    { email: 'parent@babyaura.in', role: 'Parent', name: "Parent's Name" },
+    { email: 'doctor@babyaura.in', role: 'Doctor', name: "Dr. Emily Carter" },
+    { email: 'admin@babyaura.in', role: 'Admin', name: 'Admin User' },
+    { email: 'superadmin@babyaura.in', role: 'Superadmin', name: 'Super Admin' },
   ];
 
   const saltRounds = 10;

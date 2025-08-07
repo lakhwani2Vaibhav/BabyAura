@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -29,7 +30,7 @@ export default function SuperAdminProfilePage() {
             </Avatar>
             <div>
               <CardTitle className="text-2xl">Super Admin</CardTitle>
-              <CardDescription>superadmin@babyaura.com</CardDescription>
+              <CardDescription>superadmin@babyaura.in</CardDescription>
             </div>
              <Button variant="outline" size="icon" className="ml-auto">
               <Pencil className="h-4 w-4" />

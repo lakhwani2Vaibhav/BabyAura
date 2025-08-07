@@ -18,7 +18,7 @@ export default function AdminProfilePage() {
             </Avatar>
             <div>
               <CardTitle className="text-2xl">Admin User</CardTitle>
-              <CardDescription>admin@babyaura.com</CardDescription>
+              <CardDescription>admin@babyaura.in</CardDescription>
             </div>
              <Button variant="outline" size="icon" className="ml-auto">
               <Pencil className="h-4 w-4" />

@@ -29,19 +29,19 @@ const paymentHistory = [
   {
     id: "inv-001",
     date: new Date(),
-    amount: "$500.00",
+    amount: "₹500.00",
     status: "Paid",
   },
   {
     id: "inv-002",
     date: new Date(new Date().setMonth(new Date().getMonth() - 1)),
-    amount: "$500.00",
+    amount: "₹500.00",
     status: "Paid",
   },
   {
     id: "inv-003",
     date: new Date(new Date().setMonth(new Date().getMonth() - 2)),
-    amount: "$500.00",
+    amount: "₹500.00",
     status: "Paid",
   },
 ];
@@ -79,7 +79,7 @@ export default function BillingPage() {
                         <h4 className="text-lg font-semibold">{currentPlan.name}</h4>
                         <Badge variant="outline" className="bg-background">Active</Badge>
                     </div>
-                    <p className="text-3xl font-bold mt-2">$0<span className="text-base font-normal text-muted-foreground">/month upfront</span></p>
+                    <p className="text-3xl font-bold mt-2">₹0<span className="text-base font-normal text-muted-foreground">/month upfront</span></p>
                     <p className="text-sm text-muted-foreground">
                         Your revenue share is paid out monthly.
                     </p>

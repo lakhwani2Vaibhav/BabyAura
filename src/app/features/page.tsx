@@ -12,14 +12,11 @@ import {
   Building,
   Heart,
   BookImage,
-  BarChart2,
   Users,
   Video,
   FileText,
-  DollarSign,
   LayoutDashboard,
   LucideIcon,
-  Info,
   Syringe,
   FileHeart,
   Bot,
@@ -29,8 +26,10 @@ import React from 'react';
 import { ScrollAnimationWrapper } from '@/components/layout/ScrollAnimationWrapper';
 import { AnimatedContent } from '@/components/layout/AnimatedContent';
 
+const Rupee = () => <span className="font-sans">₹</span>;
+
 interface Feature {
-  icon: LucideIcon;
+  icon: LucideIcon | (() => JSX.Element);
   title: string;
   description: string;
   details: string;
@@ -97,7 +96,7 @@ const featuresData: { [key: string]: Feature[] } = {
       details: "Reduce paperwork and eliminate errors with our streamlined digital prescription system. It's faster for you and more convenient for the parents you support."
     },
     {
-      icon: DollarSign,
+      icon: Rupee,
       title: "Earnings & Payouts",
       description: "Track your consultation revenue with detailed reports and manage payouts.",
       details: "Get transparent, real-time insights into your earnings. Our platform makes financial tracking simple, so you can monitor your practice's growth effortlessly."
@@ -123,7 +122,7 @@ const featuresData: { [key: string]: Feature[] } = {
       details: "Gain a 360-degree view of your hospital's performance. Track key metrics on doctor activity, patient engagement, and subscription revenue to drive strategic decisions."
     },
     {
-      icon: DollarSign,
+      icon: Rupee,
       title: "Flexible Business Models",
       description: "Choose a revenue model that aligns with your hospital's financial strategy.",
       details: "We offer both a fixed licensing fee for predictable budgeting and a collaborative revenue-sharing model, providing the flexibility to choose a true partnership for growth."

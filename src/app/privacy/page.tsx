@@ -1,3 +1,4 @@
+
 import { Footer } from "@/components/layout/Footer";
 import { MarketingHeader } from "@/components/layout/MarketingHeader";
 
@@ -33,7 +34,7 @@ export default function PrivacyPolicyPage() {
 
             <h2 className="mt-8 text-2xl font-bold">5. Contact Us</h2>
             <p>
-              If you have questions or comments about this Privacy Policy, please contact us at <a href="mailto:babyauraindia@gmail.com" className="text-primary hover:underline">babyauraindia@gmail.com</a>.
+              If you have questions or comments about this Privacy Policy, please contact us at <a href="mailto:contact@babyaura.in" className="text-primary hover:underline">contact@babyaura.in</a>.
             </p>
           </div>
         </div>

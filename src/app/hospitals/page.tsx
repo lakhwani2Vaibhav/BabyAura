@@ -9,11 +9,13 @@ import { MarketingHeader } from '@/components/layout/MarketingHeader';
 import { AnimatedContent } from '@/components/layout/AnimatedContent';
 import { ScrollAnimationWrapper } from '@/components/layout/ScrollAnimationWrapper';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { DollarSign, Heart, Zap, Handshake, Mail } from 'lucide-react';
+import { Heart, Zap, Handshake, Mail } from 'lucide-react';
 import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { HowItWorksSteps } from '@/components/hospitals/HowItWorksSteps';
+
+const Rupee = () => <span className="font-sans">₹</span>;
 
 const hospitalTestimonials = [
     {
@@ -50,10 +52,10 @@ export default function HospitalsPage() {
                     </p>
                     <div className="flex flex-col gap-2 min-[400px]:flex-row">
                       <Button size="lg" asChild>
-                        <a href="mailto:babyauraindia@gmail.com?subject=Partnership Inquiry">Become a Partner</a>
+                        <a href="mailto:contact@babyaura.in?subject=Partnership Inquiry">Become a Partner</a>
                       </Button>
                       <Button size="lg" variant="outline" asChild>
-                        <a href="mailto:babyauraindia@gmail.com?subject=Demo Request">Schedule a Demo</a>
+                        <a href="mailto:contact@babyaura.in?subject=Demo Request">Schedule a Demo</a>
                       </Button>
                     </div>
                   </div>
@@ -84,7 +86,7 @@ export default function HospitalsPage() {
               </ScrollAnimationWrapper>
               <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                 <BenefitCard
-                  icon={<DollarSign className="h-8 w-8 text-primary" />}
+                  icon={<Rupee />}
                   title="Create Recurring Revenue"
                   description="Introduce a new, predictable revenue stream with our subscription model. Start with no upfront cost and grow with our flexible partnership options."
                 />
@@ -179,7 +181,7 @@ export default function HospitalsPage() {
                             </CardHeader>
                             <CardContent className="p-6 md:p-8 flex justify-center">
                                 <Button asChild size="lg">
-                                  <a href="mailto:babyauraindia@gmail.com?subject=Partnership Inquiry">
+                                  <a href="mailto:contact@babyaura.in?subject=Partnership Inquiry">
                                     <Mail className="mr-2 h-5 w-5" />
                                     Contact Partnership Team
                                   </a>

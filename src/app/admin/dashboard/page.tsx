@@ -14,7 +14,6 @@ import { MetricCard } from "@/components/cards/MetricCard";
 import {
   Stethoscope,
   Users,
-  DollarSign,
   CheckCircle,
   Activity,
   UserCheck,
@@ -33,6 +32,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+const Rupee = () => <span className="font-sans">₹</span>;
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -86,8 +87,8 @@ export default function AdminDashboardPage() {
         <Card onClick={() => router.push('/admin/analytics')} className="cursor-pointer hover:bg-muted/50 transition-colors">
             <MetricCard
             title="Monthly Revenue"
-            value={`$${adminData.metrics.monthlyRevenue.toLocaleString()}`}
-            icon={<DollarSign className="h-5 w-5 text-muted-foreground" />}
+            value={`₹${adminData.metrics.monthlyRevenue.toLocaleString()}`}
+            icon={<Rupee />}
             />
         </Card>
       </div>

@@ -28,6 +28,8 @@ import {
 } from "@/components/ui/sheet";
 import { NotificationBell } from "./NotificationBell";
 
+const Rupee = () => <span className="font-sans">₹</span>;
+
 export function DoctorHeader() {
   const pathname = usePathname();
   const router = useRouter();
@@ -56,20 +58,24 @@ export function DoctorHeader() {
             >
               <BabyAuraLogo />
             </Link>
-            {doctorHeaderNav.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "transition-colors hover:text-foreground/80",
-                  isNavItemActive(item.href, item.match)
-                    ? "text-foreground"
-                    : "text-foreground/60"
-                )}
-              >
-                {item.label}
-              </Link>
-            ))}
+            {doctorHeaderNav.map((item) => {
+               const Icon = item.label === 'Earnings' ? Rupee : item.icon;
+               return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "transition-colors hover:text-foreground/80 flex items-center gap-1",
+                      isNavItemActive(item.href, item.match)
+                        ? "text-foreground"
+                        : "text-foreground/60"
+                    )}
+                  >
+                    {item.label !== 'Earnings' && <Icon className="h-4 w-4" />}
+                    {item.label}
+                  </Link>
+               )
+            })}
           </nav>
 
           <div className="flex items-center gap-4 md:hidden">
@@ -140,7 +146,7 @@ export function DoctorHeader() {
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">{role}</p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    doctor@babyaura.com
+                    doctor@babyaura.in
                   </p>
                 </div>
               </DropdownMenuLabel>

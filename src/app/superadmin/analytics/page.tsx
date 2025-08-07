@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -16,7 +17,9 @@ import {
 import { Bar, BarChart, Line, LineChart, CartesianGrid, XAxis, YAxis, Legend } from "recharts";
 import { superAdminData } from "@/lib/data";
 import { MetricCard } from "@/components/cards/MetricCard";
-import { DollarSign, Hospital, Users, TrendingUp } from "lucide-react";
+import { Hospital, Users, TrendingUp } from "lucide-react";
+
+const Rupee = () => <span className="font-sans">₹</span>;
 
 const monthlyRevenueConfig = {
   revenue: {
@@ -53,8 +56,8 @@ export default function AnalyticsPage() {
         />
         <MetricCard
           title="Platform MRR"
-          value={`$${analytics.platformMRR.toLocaleString()}`}
-          icon={<DollarSign className="h-5 w-5 text-muted-foreground" />}
+          value={`₹${analytics.platformMRR.toLocaleString()}`}
+          icon={<Rupee />}
         />
         <MetricCard
           title="Growth Rate"
@@ -76,7 +79,7 @@ export default function AnalyticsPage() {
               <BarChart accessibilityLayer data={analytics.monthlyRevenue}>
                 <CartesianGrid vertical={false} />
                 <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
-                <YAxis tickFormatter={(value) => `$${value / 1000}k`} />
+                <YAxis tickFormatter={(value) => `₹${value / 1000}k`} />
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <Bar dataKey="revenue" fill="var(--color-revenue)" radius={4} />
               </BarChart>

@@ -4,11 +4,13 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Brain, HeartHandshake, Stethoscope, Utensils, DollarSign, BarChart, Handshake, Aperture } from 'lucide-react';
+import { Brain, HeartHandshake, Stethoscope, Utensils, BarChart, Handshake, Aperture } from 'lucide-react';
 import { MarketingHeader } from '@/components/layout/MarketingHeader';
 import { Footer } from '@/components/layout/Footer';
 import { ScrollAnimationWrapper } from '@/components/layout/ScrollAnimationWrapper';
 import { CostBreakdown } from '@/components/hospitals/CostBreakdown';
+
+const Rupee = () => <span className="font-sans">₹</span>;
 
 const specialists = [
     {
@@ -35,7 +37,7 @@ const specialists = [
 
 const benefits = [
     {
-        icon: DollarSign,
+        icon: Rupee,
         title: 'Zero Upfront Investment',
         description: 'Launch a premium, revenue-generating service for your parents from day one without adding any fixed costs or licensing fees to your budget.'
     },
@@ -156,7 +158,7 @@ export default function BabyAura360Page() {
                     </p>
                     <div className="mt-8">
                         <Button size="lg" asChild>
-                           <a href="mailto:babyauraindia@gmail.com?subject=Demo Request">Schedule a Demo</a>
+                           <a href="mailto:contact@babyaura.in?subject=Demo Request">Schedule a Demo</a>
                         </Button>
                     </div>
                 </ScrollAnimationWrapper>

@@ -1,11 +1,9 @@
 
 import {
   LayoutDashboard,
-  Phone,
   Stethoscope,
   Users,
   FileText,
-  DollarSign,
   Building,
   Briefcase,
   Brain,
@@ -14,9 +12,7 @@ import {
   Hospital,
   Video,
   BarChart2,
-  CalendarCheck,
   BookImage,
-  BookHeart,
   Settings,
   type LucideIcon,
   ListChecks,
@@ -84,7 +80,7 @@ export const doctorHeaderNav: NavItem[] = [
   {
     href: "/doctor/earnings",
     label: "Earnings",
-    icon: DollarSign,
+    icon: Stethoscope, // Placeholder, will be replaced by custom component
   },
   {
     href: "/doctor/settings",

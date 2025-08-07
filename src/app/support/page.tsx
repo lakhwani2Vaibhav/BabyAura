@@ -22,7 +22,7 @@ export default function SupportPage() {
                     </CardHeader>
                     <CardContent className="flex justify-center">
                        <Button asChild size="lg">
-                           <a href="mailto:babyauraindia@gmail.com?subject=Support Request">
+                           <a href="mailto:contact@babyaura.in?subject=Support Request">
                                <Mail className="mr-2 h-5 w-5" />
                                Contact Support
                            </a>

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -11,7 +12,6 @@ import {
 } from "@/components/ui/card";
 import { MetricCard } from "@/components/cards/MetricCard";
 import {
-  DollarSign,
   Activity,
   TrendingDown,
   Hospital,
@@ -47,6 +47,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+
+const Rupee = () => <span className="font-sans">₹</span>;
 
 export default function SuperAdminDashboardPage() {
   const [addHospitalOpen, setAddHospitalOpen] = useState(false);
@@ -86,8 +88,8 @@ export default function SuperAdminDashboardPage() {
         />
         <MetricCard
           title="Total MRR"
-          value={`$${superAdminData.metrics.totalMRR.toLocaleString()}`}
-          icon={<DollarSign className="h-5 w-5 text-muted-foreground" />}
+          value={`₹${superAdminData.metrics.totalMRR.toLocaleString()}`}
+          icon={<Rupee />}
         />
         <MetricCard
           title="Churn Rate"

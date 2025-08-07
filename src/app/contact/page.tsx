@@ -22,7 +22,7 @@ export default function ContactPage() {
                     </CardHeader>
                     <CardContent className="flex justify-center">
                         <Button asChild size="lg">
-                            <a href="mailto:babyauraindia@gmail.com">
+                            <a href="mailto:contact@babyaura.in">
                                 <Mail className="mr-2 h-5 w-5" />
                                 Send us an Email
                             </a>

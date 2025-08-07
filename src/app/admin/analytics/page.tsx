@@ -17,7 +17,11 @@ import {
 import { Bar, BarChart, Line, LineChart, CartesianGrid, XAxis, YAxis, Legend } from "recharts";
 import { adminData } from "@/lib/data";
 import { MetricCard } from "@/components/cards/MetricCard";
-import { DollarSign, Stethoscope, Users, TrendingUp } from "lucide-react";
+import { Stethoscope, Users, TrendingUp } from "lucide-react";
+
+// Using a custom Rupee icon component might be better if you have one
+const Rupee = () => <span className="font-sans">₹</span>;
+
 
 const monthlyRevenueConfig = {
   revenue: {
@@ -60,8 +64,8 @@ export default function AnalyticsPage() {
         />
         <MetricCard
           title="Monthly Revenue"
-          value={`$${metrics.monthlyRevenue.toLocaleString()}`}
-          icon={<DollarSign className="h-5 w-5 text-muted-foreground" />}
+          value={`₹${metrics.monthlyRevenue.toLocaleString()}`}
+          icon={<Rupee />}
         />
         <MetricCard
           title="Parent Growth Rate"
@@ -83,7 +87,7 @@ export default function AnalyticsPage() {
               <BarChart accessibilityLayer data={analytics.monthlyRevenue}>
                 <CartesianGrid vertical={false} />
                 <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
-                <YAxis tickFormatter={(value) => `$${value / 1000}k`} />
+                <YAxis tickFormatter={(value) => `₹${value / 1000}k`} />
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <Bar dataKey="revenue" fill="var(--color-revenue)" radius={4} />
               </BarChart>
