@@ -1,3 +1,4 @@
+
 import {
   LayoutDashboard,
   Phone,
@@ -19,6 +20,7 @@ import {
   Settings,
   type LucideIcon,
   ListChecks,
+  MessageSquare,
 } from "lucide-react";
 
 export interface NavItem {
@@ -41,8 +43,13 @@ export const parentHeaderNav: NavItem[] = [
   },
   {
     href: "/parent/consultations",
-    label: "Consultations",
+    label: "Appointments",
     icon: Video,
+  },
+    {
+    href: "/parent/contact",
+    label: "Ask a Doubt",
+    icon: MessageSquare,
   },
   {
     href: "/parent/scrapbook",

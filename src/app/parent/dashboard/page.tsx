@@ -84,7 +84,7 @@ export default function ParentDashboardPage() {
                 </CardDescription>
             </div>
             <Button size="lg" className="w-full sm:w-auto mt-4 sm:mt-0" asChild>
-                <Link href="/parent/consultations">
+                <Link href="/parent/contact">
                 <MessageSquare className="mr-2 h-4 w-4" />
                 Ask a Doubt?
                 </Link>
