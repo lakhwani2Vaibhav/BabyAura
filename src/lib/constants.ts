@@ -48,7 +48,7 @@ export const parentHeaderNav: NavItem[] = [
   },
     {
     href: "/parent/contact",
-    label: "Ask a Doubt",
+    label: "Messages",
     icon: MessageSquare,
   },
   {
