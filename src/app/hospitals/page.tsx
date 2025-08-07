@@ -114,6 +114,25 @@ export default function HospitalsPage() {
             </div>
           </section>
           
+          {/* BabyAura 360 CTA */}
+          <section id="babyaura-360" className="w-full py-12 md:py-24 bg-primary/5">
+            <div className="container px-4 md:px-6">
+              <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-1000 ease-out">
+                <div className="max-w-4xl mx-auto text-center">
+                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl font-headline text-primary">Explore BabyAura 360°</h2>
+                  <p className="max-w-3xl mx-auto mt-4 text-muted-foreground md:text-xl">
+                    Discover our premium, all-inclusive care model. A first-of-its-kind partnership that extends your trusted care with our in-house team of specialists, creating a new revenue stream for your hospital.
+                  </p>
+                  <div className="mt-8">
+                    <Button size="lg" asChild>
+                      <Link href="/hospitals/babyaura-360">Learn More About BabyAura 360°</Link>
+                    </Button>
+                  </div>
+                </div>
+              </ScrollAnimationWrapper>
+            </div>
+          </section>
+
           {/* Testimonials */}
           <section id="testimonials" className="w-full py-12 md:py-24 bg-background">
             <div className="container px-4 md:px-6">
