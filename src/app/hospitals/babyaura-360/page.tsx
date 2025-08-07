@@ -5,7 +5,7 @@ import React, { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
-import { Brain, HeartHand, Stethoscope, Utensils, Zap, DollarSign, BarChart, Handshake } from 'lucide-react';
+import { Brain, HeartHandshake, Stethoscope, Utensils, Zap, DollarSign, BarChart, Handshake } from 'lucide-react';
 import { MarketingHeader } from '@/components/layout/MarketingHeader';
 import { Footer } from '@/components/layout/Footer';
 import { ScrollAnimationWrapper } from '@/components/layout/ScrollAnimationWrapper';
@@ -27,7 +27,7 @@ const specialists = [
         description: "A dedicated, always-available line for urgent medical issues, providing parents with immediate peace of mind and reducing unnecessary ER visits for your hospital."
     },
     {
-        icon: HeartHand,
+        icon: HeartHandshake,
         title: 'Dedicated Nurse Concierge',
         description: "A single point of contact for all non-medical, non-emergency parenting doubts. From sleep patterns to product questions, our nurses provide trusted answers."
     }
