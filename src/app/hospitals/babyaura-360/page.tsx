@@ -4,7 +4,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Brain, HeartHandshake, Stethoscope, Utensils, DollarSign, BarChart, Handshake } from 'lucide-react';
+import { Brain, HeartHandshake, Stethoscope, Utensils, DollarSign, BarChart, Handshake, Aperture } from 'lucide-react';
 import { MarketingHeader } from '@/components/layout/MarketingHeader';
 import { Footer } from '@/components/layout/Footer';
 import { ScrollAnimationWrapper } from '@/components/layout/ScrollAnimationWrapper';

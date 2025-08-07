@@ -5,9 +5,10 @@ import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Brain, Utensils, Stethoscope, HeartHandshake, Hospital } from 'lucide-react';
+import { Brain, Utensils, Stethoscope, HeartHandshake, Hospital, Aperture, BadgeCheck } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const subscriptionTiers = [
     { value: 1499, label: '₹1,499 / month' },
@@ -25,7 +26,42 @@ const specialistCosts = {
 
 type SpecialistKey = keyof typeof specialistCosts;
 
+const platformFeeCost = {
+    name: 'Platform Fee',
+    percentage: 0.10,
+    color: '#71717a',
+    icon: Aperture
+};
+
 const formatCurrency = (value: number) => `₹${Math.round(value).toLocaleString('en-IN')}`;
+
+const PlatformFeeCard = ({ isWaived }: { isWaived: boolean }) => (
+    <AnimatePresence>
+        <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.3 }}
+            className={`flex items-center justify-between p-3 rounded-lg ${isWaived ? 'bg-green-500/10' : 'bg-yellow-500/10'}`}
+        >
+            <div className="flex items-center gap-3">
+                {isWaived ? 
+                    <BadgeCheck className="h-6 w-6 text-green-600" /> :
+                    <Aperture className="h-6 w-6 text-yellow-600" />
+                }
+                <div className="flex-col">
+                    <span className={`font-semibold ${isWaived ? 'text-green-700' : 'text-yellow-700'}`}>
+                        {isWaived ? "Platform Fee Waived!" : "10% Platform Fee"}
+                    </span>
+                     <p className={`text-xs ${isWaived ? 'text-green-600' : 'text-yellow-600'}`}>
+                       {isWaived ? "You've selected 2 or more services." : "Select 2+ services to waive this fee."}
+                    </p>
+                </div>
+            </div>
+        </motion.div>
+    </AnimatePresence>
+);
+
 
 export function CostBreakdown() {
     const [selectedTier, setSelectedTier] = useState(subscriptionTiers[2].value);
@@ -43,6 +79,19 @@ export function CostBreakdown() {
     const breakdownData = useMemo(() => {
         let remaining = selectedTier;
         const calculatedCosts = [];
+        const enabledServicesCount = Object.values(enabledServices).filter(Boolean).length;
+        let platformFee = 0;
+
+        if (enabledServicesCount <= 1) {
+            platformFee = selectedTier * platformFeeCost.percentage;
+            remaining -= platformFee;
+            calculatedCosts.push({
+                name: platformFeeCost.name,
+                value: platformFee,
+                color: platformFeeCost.color,
+                icon: platformFeeCost.icon,
+            });
+        }
 
         for (const key in specialistCosts) {
             const specialistKey = key as SpecialistKey;
@@ -68,6 +117,9 @@ export function CostBreakdown() {
 
         return calculatedCosts;
     }, [selectedTier, enabledServices]);
+
+    const enabledServicesCount = Object.values(enabledServices).filter(Boolean).length;
+    const isPlatformFeeWaived = enabledServicesCount > 1;
 
     const CustomTooltip = ({ active, payload }: any) => {
         if (active && payload && payload.length) {
@@ -168,6 +220,7 @@ export function CostBreakdown() {
                                 </p>
                             </div>
                         </div>
+                         <PlatformFeeCard isWaived={isPlatformFeeWaived} />
                     </div>
                 </div>
             </CardContent>
