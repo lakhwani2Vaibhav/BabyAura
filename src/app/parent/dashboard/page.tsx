@@ -1,49 +1,70 @@
 
 "use client";
 
-import React from 'react';
-import { parentData } from "@/lib/data";
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import Link from 'next/link';
-import { MessageSquare, Calendar, Utensils, Brain, Zap } from "lucide-react";
+import { MessageSquare, Calendar, Utensils, Brain, Zap, CheckCircle2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { VaccinationCard } from "@/components/cards/VaccinationCard";
 import { ScrollAnimationWrapper } from "@/components/layout/ScrollAnimationWrapper";
-import { Separator } from '@/components/ui/separator';
+import { parentData } from '@/lib/data';
+import { JourneyTimeline } from '@/components/timeline/JourneyTimeline';
+import { Progress } from '@/components/ui/progress';
 
-const journeyItems = [
+const initialJourneyItems = [
     {
         day: "Monday",
         title: "Week 24 Check-in",
         description: "Routine video call with Dr. Carter.",
         icon: Calendar,
-        time: "11:00 AM"
+        time: "11:00 AM",
+        completed: true,
     },
     {
         day: "Wednesday",
         title: "Diet Chart Check-in",
         description: "Review feeding schedule with your nutritionist.",
         icon: Utensils,
-        time: "02:00 PM"
+        time: "02:00 PM",
+        completed: false,
     },
      {
         day: "Friday",
         title: "Mind Therapist Session",
         description: "A session to support your postpartum wellness journey.",
         icon: Brain,
-        time: "04:30 PM"
+        time: "04:30 PM",
+        completed: false,
     },
     {
         day: "Anytime",
         title: "24/7 Emergency Line",
         description: "Immediate support for any urgent medical concerns.",
         icon: Zap,
-        time: "Always available"
+        time: "Always available",
+        completed: false,
     }
-]
+];
+
+export type JourneyItemData = (typeof initialJourneyItems)[0];
+
 
 export default function ParentDashboardPage() {
   const { vaccinationStatus } = parentData;
+  const [journeyItems, setJourneyItems] = useState(initialJourneyItems);
+
+  const handleToggleItem = (title: string) => {
+    setJourneyItems(items => 
+        items.map(item => 
+            item.title === title ? { ...item, completed: !item.completed } : item
+        )
+    );
+  };
+  
+  const completedCount = journeyItems.filter(item => item.completed).length;
+  const totalCount = journeyItems.length;
+  const progressPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
   return (
     <div className="space-y-6">
@@ -73,33 +94,26 @@ export default function ParentDashboardPage() {
           <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-200">
             <Card>
                 <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <Calendar className="h-5 w-5 text-primary" />
-                    This Week's Journey
-                </CardTitle>
-                <CardDescription>
-                    Your structured care plan for the week ahead.
-                </CardDescription>
+                    <CardTitle className="flex items-center gap-2">
+                        <Calendar className="h-5 w-5 text-primary" />
+                        This Week's Journey
+                    </CardTitle>
+                    <CardDescription>
+                        Your structured care plan for the week ahead. You're doing great!
+                    </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-2">
-                    {journeyItems.map((item, index) => (
-                        <React.Fragment key={item.title}>
-                             <div className="flex items-start gap-4 p-4 rounded-lg">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 flex-shrink-0">
-                                    <item.icon className="h-6 w-6 text-primary" />
-                                </div>
-                                <div className="flex-grow">
-                                    <p className="font-bold">{item.title}</p>
-                                    <p className="text-sm text-muted-foreground">{item.description}</p>
-                                </div>
-                                <div className="text-right flex-shrink-0">
-                                     <p className="text-sm font-semibold">{item.day}</p>
-                                     <p className="text-xs text-muted-foreground">{item.time}</p>
-                                </div>
-                            </div>
-                            {index < journeyItems.length - 1 && <Separator />}
-                        </React.Fragment>
-                    ))}
+                <CardContent className="space-y-4">
+                    <div>
+                        <div className="flex justify-between items-center mb-1">
+                            <p className="text-sm font-medium flex items-center gap-2">
+                                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                                Weekly Progress
+                            </p>
+                             <p className="text-sm font-semibold">{completedCount} / {totalCount} done</p>
+                        </div>
+                        <Progress value={progressPercentage} className="h-2" />
+                    </div>
+                    <JourneyTimeline items={journeyItems} onToggle={handleToggleItem} />
                 </CardContent>
             </Card>
           </ScrollAnimationWrapper>
