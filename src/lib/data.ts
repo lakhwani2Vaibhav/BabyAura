@@ -20,6 +20,14 @@ export const parentData = {
       time: "02:30 PM",
       status: "Upcoming" as const,
     },
+    {
+      id: 4,
+      doctor: "Dr. Maya Rao",
+      specialty: "Mind Therapist",
+      date: addDays(new Date(), 5).toISOString(),
+      time: "04:00 PM",
+      status: "Upcoming" as const,
+    }
   ],
   pastConsultations: [
     {
