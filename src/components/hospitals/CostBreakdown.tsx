@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Brain, Utensils, Stethoscope, HeartHandshake, Hospital } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 const subscriptionTiers = [
     { value: 1499, label: '₹1,499 / month' },
@@ -21,25 +23,42 @@ const specialistCosts = {
     concierge: { name: 'Nurse Concierge', percentage: 0.20, max: 349, color: '#f97316', icon: HeartHandshake },
 };
 
+type SpecialistKey = keyof typeof specialistCosts;
+
 const formatCurrency = (value: number) => `₹${Math.round(value).toLocaleString('en-IN')}`;
 
 export function CostBreakdown() {
     const [selectedTier, setSelectedTier] = useState(subscriptionTiers[2].value);
+    const [enabledServices, setEnabledServices] = useState<Record<SpecialistKey, boolean>>({
+        nutritionist: true,
+        therapist: true,
+        emergency: true,
+        concierge: true,
+    });
+
+    const handleToggleService = (service: SpecialistKey) => {
+        setEnabledServices(prev => ({ ...prev, [service]: !prev[service] }));
+    };
 
     const breakdownData = useMemo(() => {
         let remaining = selectedTier;
+        const calculatedCosts = [];
 
-        const calculatedCosts = Object.entries(specialistCosts).map(([key, cost]) => {
-            const calculatedValue = Math.min(selectedTier * cost.percentage, cost.max);
-            remaining -= calculatedValue;
-            return {
-                name: cost.name,
-                value: calculatedValue,
-                color: cost.color,
-                icon: cost.icon,
-            };
-        });
-
+        for (const key in specialistCosts) {
+            const specialistKey = key as SpecialistKey;
+            if (enabledServices[specialistKey]) {
+                const cost = specialistCosts[specialistKey];
+                const calculatedValue = Math.min(selectedTier * cost.percentage, cost.max);
+                remaining -= calculatedValue;
+                calculatedCosts.push({
+                    name: cost.name,
+                    value: calculatedValue,
+                    color: cost.color,
+                    icon: cost.icon,
+                });
+            }
+        }
+        
         calculatedCosts.push({
             name: "Hospital's Share",
             value: Math.max(0, remaining),
@@ -48,7 +67,7 @@ export function CostBreakdown() {
         });
 
         return calculatedCosts;
-    }, [selectedTier]);
+    }, [selectedTier, enabledServices]);
 
     const CustomTooltip = ({ active, payload }: any) => {
         if (active && payload && payload.length) {
@@ -66,7 +85,7 @@ export function CostBreakdown() {
             <CardHeader className="text-center p-8">
                 <CardTitle className="text-3xl font-bold font-headline">Explore the Partnership: A Transparent Cost Breakdown</CardTitle>
                 <CardDescription className="text-lg text-muted-foreground mt-2">
-                    Select a subscription plan to see how the revenue is allocated. We invest in the specialist team on your behalf.
+                    Select a subscription plan and toggle services to build a personalized package for your parents.
                 </CardDescription>
             </CardHeader>
             <CardContent className="p-8 space-y-8">
@@ -108,20 +127,47 @@ export function CostBreakdown() {
                     </div>
 
                     <div className="space-y-4">
-                        {breakdownData.map((item, index) => (
-                             <div key={index} className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: `${item.color}1A` }}>
-                                <div className="flex items-center gap-3">
-                                    <item.icon className="h-6 w-6" style={{ color: item.color }} />
-                                    <span className="font-semibold" style={{ color: item.color }}>{item.name}</span>
+                        {(Object.keys(specialistCosts) as SpecialistKey[]).map((key) => {
+                            const item = specialistCosts[key];
+                            const isEnabled = enabledServices[key];
+                            const calculatedValue = isEnabled ? Math.min(selectedTier * item.percentage, item.max) : 0;
+                            
+                            return (
+                                <div key={key} className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: `${item.color}1A`, opacity: isEnabled ? 1 : 0.6 }}>
+                                    <div className="flex items-center gap-3">
+                                        <item.icon className="h-6 w-6" style={{ color: item.color }} />
+                                        <span className="font-semibold" style={{ color: item.color }}>{item.name}</span>
+                                    </div>
+                                    <div className="flex items-center gap-4">
+                                        <div className="text-right">
+                                            <span className="font-bold" style={{ color: item.color }}>{formatCurrency(calculatedValue)}</span>
+                                            {isEnabled && (
+                                                <p className="text-xs" style={{ color: `${item.color}B3` }}>
+                                                    ({((calculatedValue / selectedTier) * 100).toFixed(0)}%)
+                                                </p>
+                                            )}
+                                        </div>
+                                        <Switch
+                                            id={`switch-${key}`}
+                                            checked={isEnabled}
+                                            onCheckedChange={() => handleToggleService(key)}
+                                        />
+                                    </div>
                                 </div>
-                                <div className="text-right">
-                                    <span className="font-bold" style={{ color: item.color }}>{formatCurrency(item.value)}</span>
-                                    <p className="text-xs" style={{ color: `${item.color}B3` }}>
-                                        ({((item.value / selectedTier) * 100).toFixed(0)}%)
-                                    </p>
-                                </div>
+                            )
+                        })}
+                         <div className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: `#10b9811A` }}>
+                            <div className="flex items-center gap-3">
+                                <Hospital className="h-6 w-6" style={{ color: '#10b981' }} />
+                                <span className="font-semibold" style={{ color: '#10b981' }}>Hospital's Share</span>
                             </div>
-                        ))}
+                            <div className="text-right">
+                                <span className="font-bold" style={{ color: '#10b981' }}>{formatCurrency(breakdownData.find(d => d.name === "Hospital's Share")?.value || 0)}</span>
+                                <p className="text-xs" style={{ color: `#10b981B3` }}>
+                                    ({(((breakdownData.find(d => d.name === "Hospital's Share")?.value || 0) / selectedTier) * 100).toFixed(0)}%)
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </CardContent>
