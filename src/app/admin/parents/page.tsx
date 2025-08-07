@@ -25,18 +25,30 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import Link from "next/link";
 
+// Simulating the type that would come from a database fetch
+type Parent = (typeof adminData.parents)[0];
+
 export default function ParentsPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredParents, setFilteredParents] = useState(adminData.parents);
+  const [allParents, setAllParents] = useState<Parent[]>([]);
+  const [filteredParents, setFilteredParents] = useState<Parent[]>([]);
 
   useEffect(() => {
-    const results = adminData.parents.filter(
+    // In a real app, this would be a fetch call to an API endpoint
+    // e.g., fetch('/api/admin/parents').then(res => res.json()).then(data => setAllParents(data));
+    setAllParents(adminData.parents);
+    setFilteredParents(adminData.parents);
+  }, []);
+
+
+  useEffect(() => {
+    const results = allParents.filter(
       (parent) =>
         parent.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         parent.assignedDoctor.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredParents(results);
-  }, [searchTerm]);
+  }, [searchTerm, allParents]);
 
   const getInitials = (name: string) => {
     const parts = name.split(" ");

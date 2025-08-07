@@ -1,17 +1,17 @@
 // This approach is taken from https://github.com/vercel/next.js/tree/canary/examples/with-mongodb
 import { MongoClient } from "mongodb"
 
+if (!process.env.MONGODB_URI) {
+  throw new Error('Invalid/Missing environment variable: "MONGODB_URI"')
+}
+
 const uri = process.env.MONGODB_URI
 const options = {}
 
 let client: MongoClient
 let clientPromise: Promise<MongoClient>
 
-if (!uri) {
-  console.log('MONGODB_URI is not defined. Using a mock client for build purposes.')
-  // Use a mock promise for build time if URI is not set
-  clientPromise = Promise.resolve(new MongoClient('mongodb://mock:27017')) as Promise<MongoClient>;
-} else if (process.env.NODE_ENV === "development") {
+if (process.env.NODE_ENV === "development") {
   // In development mode, use a global variable so that the value
   // is preserved across module reloads caused by HMR (Hot Module Replacement).
   let globalWithMongo = global as typeof globalThis & {
