@@ -3,9 +3,8 @@
 
 import { JourneyItemData } from "@/app/parent/dashboard/page";
 import { Button } from "../ui/button";
-import { Checkbox } from "../ui/checkbox";
 import { cn } from "@/lib/utils";
-import { Check, CheckCircle2 } from "lucide-react";
+import { Check, CheckCircle2, RotateCcw, Video } from "lucide-react";
 
 interface JourneyTimelineItemProps {
     item: JourneyItemData;
@@ -49,17 +48,29 @@ export const JourneyTimelineItem = ({ item, isLast, onToggle }: JourneyTimelineI
                         <p className="text-xs text-muted-foreground">{item.time}</p>
                     </div>
                 </div>
-                {!item.completed && item.day !== "Anytime" && (
-                     <div className="mt-3">
+                
+                {item.action !== 'none' && (
+                    <div className="mt-3 flex gap-2">
+                        {item.action === 'join' && !item.completed && (
+                            <Button size="sm">
+                                <Video className="h-4 w-4 mr-2" /> Join Call
+                            </Button>
+                        )}
                         <Button 
                             variant="outline" 
                             size="sm"
                             onClick={() => onToggle(item.title)}
                         >
-                           <Check className="h-4 w-4 mr-2" /> Mark as Done
+                           {item.completed ? (
+                                <RotateCcw className="h-4 w-4 mr-2" />
+                           ) : (
+                                <Check className="h-4 w-4 mr-2" />
+                           )}
+                           {item.completed ? 'Undo' : 'Mark as Done'}
                         </Button>
                      </div>
                 )}
+
             </div>
         </div>
     );
