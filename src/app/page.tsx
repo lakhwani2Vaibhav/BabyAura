@@ -109,9 +109,9 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen landing-page-gradient-bg">
+    <div className="flex flex-col min-h-screen">
       <MarketingHeader />
-      <main className="flex-1">
+      <main className="flex-1 landing-page-gradient-bg">
         <AnimatedContent>
           <section className="w-full pt-8 pb-12 md:pt-10 lg:pt-14 lg:pb-32 xl:pt-20 xl:pb-48">
             <div className="container px-4 md:px-6">
@@ -125,7 +125,7 @@ export default function Home() {
                     </ScrollAnimationWrapper>
                     <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-top-2 duration-1000 ease-out delay-200">
                       <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                        A plug-and-play e-care system for hospitals to extend their trusted care from hospital to home, fostering lasting patient relationships.
+                        A true care partner for your hospital. We provide an in-house team of specialists—nutritionists, therapists, and more—to deliver continuous, structured care to your parents.
                       </p>
                     </ScrollAnimationWrapper>
                   </div>

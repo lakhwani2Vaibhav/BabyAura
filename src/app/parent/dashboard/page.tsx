@@ -1,23 +1,49 @@
+
+"use client";
+
+import React from 'react';
 import { parentData } from "@/lib/data";
 import { Button } from "@/components/ui/button";
-import Image from 'next/image';
 import Link from 'next/link';
-import { format } from "date-fns";
-import { Calendar, Star, BookImage, ArrowRight, Video, MessageSquare } from "lucide-react";
+import { MessageSquare, Calendar, Utensils, Brain, Zap } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { VaccinationCard } from "@/components/cards/VaccinationCard";
 import { ScrollAnimationWrapper } from "@/components/layout/ScrollAnimationWrapper";
+import { Separator } from '@/components/ui/separator';
+
+const journeyItems = [
+    {
+        day: "Monday",
+        title: "Week 24 Check-in",
+        description: "Routine video call with Dr. Carter.",
+        icon: Calendar,
+        time: "11:00 AM"
+    },
+    {
+        day: "Wednesday",
+        title: "Diet Chart Check-in",
+        description: "Review feeding schedule with your nutritionist.",
+        icon: Utensils,
+        time: "02:00 PM"
+    },
+     {
+        day: "Friday",
+        title: "Mind Therapist Session",
+        description: "A session to support your postpartum wellness journey.",
+        icon: Brain,
+        time: "04:30 PM"
+    },
+    {
+        day: "Anytime",
+        title: "24/7 Emergency Line",
+        description: "Immediate support for any urgent medical concerns.",
+        icon: Zap,
+        time: "Always available"
+    }
+]
 
 export default function ParentDashboardPage() {
-  const { babyName, upcomingConsultations, vaccinationStatus } = parentData;
-
-  const getInitials = (name: string) => {
-    const parts = name.split(" ");
-    return parts.length > 1
-      ? `${parts[0][0]}${parts[parts.length - 1][0]}`
-      : name.substring(0, 2);
-  };
+  const { vaccinationStatus } = parentData;
 
   return (
     <div className="space-y-6">
@@ -49,76 +75,31 @@ export default function ParentDashboardPage() {
                 <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                     <Calendar className="h-5 w-5 text-primary" />
-                    Upcoming Consultations
+                    This Week's Journey
                 </CardTitle>
                 <CardDescription>
-                    Your upcoming scheduled appointments.
+                    Your structured care plan for the week ahead.
                 </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                {upcomingConsultations.map((consultation) => (
-                    <Card key={consultation.id} className="p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                    <div className="flex items-center gap-4 w-full">
-                        <Avatar className="h-12 w-12 flex-shrink-0">
-                            <AvatarImage src={`https://placehold.co/100x100.png`} data-ai-hint="doctor portrait" />
-                            <AvatarFallback>{getInitials(consultation.doctor)}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-grow">
-                            <div className="flex justify-between items-center">
-                                <p className="font-bold">{consultation.doctor}</p>
-                                <div className="flex sm:hidden items-center gap-1 text-yellow-500">
-                                    <Star className="w-4 h-4 fill-current" />
-                                    <span className="font-bold text-sm">4.8</span>
+                <CardContent className="space-y-2">
+                    {journeyItems.map((item, index) => (
+                        <React.Fragment key={item.title}>
+                             <div className="flex items-start gap-4 p-4 rounded-lg">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 flex-shrink-0">
+                                    <item.icon className="h-6 w-6 text-primary" />
+                                </div>
+                                <div className="flex-grow">
+                                    <p className="font-bold">{item.title}</p>
+                                    <p className="text-sm text-muted-foreground">{item.description}</p>
+                                </div>
+                                <div className="text-right flex-shrink-0">
+                                     <p className="text-sm font-semibold">{item.day}</p>
+                                     <p className="text-xs text-muted-foreground">{item.time}</p>
                                 </div>
                             </div>
-                            <p className="text-sm text-muted-foreground">{consultation.specialty}</p>
-                            <p className="text-sm text-primary font-medium mt-1">
-                            {format(new Date(consultation.date), "yyyy-MM-dd 'at' hh:mm a")}
-                            </p>
-                        </div>
-                        </div>
-                        <div className="hidden sm:flex items-center gap-1 text-yellow-500">
-                            <Star className="w-4 h-4 fill-current" />
-                            <span className="font-bold">4.8</span>
-                        </div>
-                        <Button className="w-full sm:w-auto flex-shrink-0">
-                            <Video className="mr-2 h-4 w-4" />
-                            Join Call
-                        </Button>
-                    </Card>
-                ))}
-                </CardContent>
-            </Card>
-          </ScrollAnimationWrapper>
-
-           <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out delay-400">
-            <Card>
-                <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <BookImage className="h-5 w-5 text-primary" />
-                    AI Scrapbook
-                </CardTitle>
-                <CardDescription>
-                    Create beautiful captions for your baby's memories.
-                </CardDescription>
-                </CardHeader>
-                <CardContent className="flex flex-col items-center text-center">
-                <Image
-                    src="https://placehold.co/600x400.png"
-                    data-ai-hint="scrapbook baby"
-                    alt="AI Scrapbook"
-                    width={600}
-                    height={400}
-                    className="rounded-lg object-cover w-full aspect-video mb-4"
-                />
-                <p className="text-muted-foreground mb-4">
-                    Turn your precious moments into lasting memories with AI-generated captions.
-                </p>
-                <Button asChild>
-                    <Link href="/parent/scrapbook">
-                    Go to Scrapbook <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                </Button>
+                            {index < journeyItems.length - 1 && <Separator />}
+                        </React.Fragment>
+                    ))}
                 </CardContent>
             </Card>
           </ScrollAnimationWrapper>

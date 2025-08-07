@@ -47,23 +47,22 @@ const paymentHistory = [
 ];
 
 const currentPlan = {
-  name: "Licensing Plan",
-  price: 500,
-  doctorLimit: 20,
+  name: "Revenue Share",
+  price: 0,
+  doctorLimit: "Unlimited",
   patientLimit: "Unlimited",
 };
 
 export default function BillingPage() {
   const doctorUsage = adminData.metrics.doctors;
-  const doctorProgress = (doctorUsage / currentPlan.doctorLimit) * 100;
 
   return (
     <div className="space-y-6">
        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold font-headline">Billing & Subscription</h1>
+          <h1 className="text-3xl font-bold font-headline">Billing & Partnership Model</h1>
           <p className="text-muted-foreground">
-            Manage your plan, payment methods, and view your invoice history.
+            Manage your partnership, payment methods, and view your invoice history.
           </p>
         </div>
       </div>
@@ -72,7 +71,7 @@ export default function BillingPage() {
           <div className="lg:col-span-2 space-y-6">
             <Card>
                 <CardHeader>
-                  <CardTitle>Current Plan</CardTitle>
+                  <CardTitle>Current Partnership Model</CardTitle>
                 </CardHeader>
                 <CardContent className="grid gap-6 md:grid-cols-2">
                   <div className="p-6 bg-primary/5 rounded-lg border border-primary/20">
@@ -80,14 +79,14 @@ export default function BillingPage() {
                         <h4 className="text-lg font-semibold">{currentPlan.name}</h4>
                         <Badge variant="outline" className="bg-background">Active</Badge>
                     </div>
-                    <p className="text-3xl font-bold mt-2">${currentPlan.price}<span className="text-base font-normal text-muted-foreground">/month</span></p>
+                    <p className="text-3xl font-bold mt-2">$0<span className="text-base font-normal text-muted-foreground">/month upfront</span></p>
                     <p className="text-sm text-muted-foreground">
-                        Your plan renews on {format(new Date(new Date().setDate(new Date().getDate() + 15)), "MMMM d, yyyy")}.
+                        Your revenue share is paid out monthly.
                     </p>
                      <ul className="mt-4 space-y-2 text-sm">
                         <li className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-primary" />
-                        <span>Up to {currentPlan.doctorLimit} doctors</span>
+                        <span>{currentPlan.doctorLimit} doctors</span>
                         </li>
                         <li className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-primary" />
@@ -95,7 +94,7 @@ export default function BillingPage() {
                         </li>
                         <li className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-primary" />
-                        <span>Premium support</span>
+                        <span>In-house specialist team included</span>
                         </li>
                     </ul>
                   </div>
@@ -103,16 +102,16 @@ export default function BillingPage() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-lg">
                             <Zap className="h-5 w-5" />
-                            Upgrade Plan
+                            Change Model
                         </CardTitle>
                         <CardDescription>
-                            Need more capacity? Move to our enterprise solution.
+                            Switch to a fixed licensing fee for your hospital.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <p className="font-semibold">Enterprise Plan</p>
+                        <p className="font-semibold">Licensing Plan</p>
                         <p className="text-sm text-muted-foreground">
-                            For large-scale hospital networks with custom needs.
+                           Predictable monthly costs for large-scale operations.
                         </p>
                         <Button className="mt-4 w-full">Contact Sales</Button>
                     </CardContent>
@@ -122,7 +121,7 @@ export default function BillingPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Payment History</CardTitle>
-                    <CardDescription>A record of your past payments to BabyAura.</CardDescription>
+                    <CardDescription>A record of your past payments and revenue share payouts.</CardDescription>
                 </CardHeader>
                  <CardContent>
                     <Table>
@@ -155,7 +154,7 @@ export default function BillingPage() {
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2"><CreditCard className="h-5 w-5" /> Payment Method</CardTitle>
+                <CardTitle className="flex items-center gap-2"><CreditCard className="h-5 w-5" /> Payout Method</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-4 p-4 border rounded-lg bg-muted/50">
@@ -163,15 +162,15 @@ export default function BillingPage() {
                        <CreditCard className="h-8 w-8 text-muted-foreground" />
                    </div>
                    <div className="flex-grow">
-                        <p className="font-semibold">Visa ending in 1234</p>
-                        <p className="text-sm text-muted-foreground">Expires 12/2026</p>
+                        <p className="font-semibold">Bank Account ending in 1234</p>
+                        <p className="text-sm text-muted-foreground">General Hospital Inc.</p>
                    </div>
                 </div>
               </CardContent>
                <CardFooter>
                  <Button variant="outline" asChild className="w-full">
                     <Link href="/admin/billing/manage">
-                        Manage Payment Methods <ArrowRight className="h-4 w-4 ml-2" />
+                        Manage Payout Method <ArrowRight className="h-4 w-4 ml-2" />
                     </Link>
                 </Button>
               </CardFooter>
@@ -187,7 +186,7 @@ export default function BillingPage() {
                             <p className="text-sm font-medium flex items-center gap-2"><Stethoscope className="h-4 w-4"/> Doctors</p>
                             <p className="text-sm">{doctorUsage} / {currentPlan.doctorLimit}</p>
                         </div>
-                        <Progress value={doctorProgress} />
+                        <Progress value={100} />
                     </div>
                      <div>
                         <div className="flex justify-between items-center mb-1">
