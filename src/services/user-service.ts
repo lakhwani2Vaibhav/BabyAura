@@ -3,6 +3,9 @@ import bcrypt from 'bcrypt';
 import { Db } from "mongodb";
 
 const getDb = async (): Promise<Db> => {
+    if (!process.env.MONGODB_URI) {
+        throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
+    }
     const client = await clientPromise;
     return client.db();
 };
@@ -41,13 +44,16 @@ export const createUser = async ({ name, email, password, role }: any) => {
 
 export const seedUsers = async () => {
     const usersCollection = await getUsersCollection();
-    const userCount = await usersCollection.countDocuments();
-
-    if (userCount > 0) {
-        return; // Users already seeded
+    // In a mock environment, countDocuments might not exist or work as expected
+    if (process.env.NODE_ENV !== 'development' && process.env.NODE_ENV !== 'test') {
+        const userCount = await usersCollection.countDocuments();
+        if (userCount > 0) {
+            return;
+        }
     }
 
-    console.log('No users found. Seeding database...');
+
+    console.log('Checking for existing users or seeding database...');
 
     const usersToSeed = [
         { email: 'parent@babyaura.in', role: 'Parent', name: "Parent's Name" },
@@ -60,12 +66,18 @@ export const seedUsers = async () => {
     const password = 'password';
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    const userDocuments = usersToSeed.map(user => ({
-        ...user,
-        password: hashedPassword,
-        createdAt: new Date(),
-    }));
+    for (const user of usersToSeed) {
+        const existingUser = await usersCollection.findOne({ email: user.email });
+        if (!existingUser) {
+            const userDocument = {
+                ...user,
+                password: hashedPassword,
+                createdAt: new Date(),
+            };
+            await usersCollection.insertOne(userDocument);
+            console.log(`Seeded user: ${user.email}`);
+        }
+    }
 
-    await usersCollection.insertMany(userDocuments);
-    console.log('Database seeded with initial users.');
+    console.log('Database seeding check complete.');
 };
