@@ -1,16 +1,16 @@
-
-import clientPromise, { getDb } from "@/lib/mongodb";
+import clientPromise from "@/lib/mongodb";
 import bcrypt from 'bcrypt';
+import { Db } from "mongodb";
+
+const getDb = async (): Promise<Db> => {
+    const client = await clientPromise;
+    return client.db();
+};
+
 
 const getUsersCollection = async () => {
-    try {
-        const db = await getDb();
-        return db.collection("users");
-    } catch (error) {
-        console.warn("Could not get users collection, likely due to missing DB connection for build. This is expected.");
-        // Return a mock collection with no methods to prevent crashes during build
-        return { findOne: async () => null, insertOne: async () => ({ insertedId: '' }), countDocuments: async () => 0, insertMany: async () => {} };
-    }
+    const db = await getDb();
+    return db.collection("users");
 };
 
 export const findUserByEmail = async (email: string) => {
@@ -41,7 +41,6 @@ export const createUser = async ({ name, email, password, role }: any) => {
 
 export const seedUsers = async () => {
     const usersCollection = await getUsersCollection();
-    // The mock collection will return 0, so this check works for both cases.
     const userCount = await usersCollection.countDocuments();
 
     if (userCount > 0) {
