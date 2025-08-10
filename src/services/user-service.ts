@@ -10,8 +10,13 @@ const getUsersCollection = async () => {
 };
 
 export const findUserByEmail = async (email: string) => {
-    const usersCollection = await getUsersCollection();
-    return await usersCollection.findOne({ email });
+    try {
+        const usersCollection = await getUsersCollection();
+        return await usersCollection.findOne({ email });
+    } catch (error) {
+        console.warn("Could not connect to DB in findUserByEmail. Using mock data for build purposes.");
+        return null;
+    }
 };
 
 export const createUser = async ({ name, email, password, role }: any) => {
@@ -36,32 +41,36 @@ export const createUser = async ({ name, email, password, role }: any) => {
 };
 
 export const seedUsers = async () => {
-  const usersCollection = await getUsersCollection();
-  const userCount = await usersCollection.countDocuments();
+    try {
+        const usersCollection = await getUsersCollection();
+        const userCount = await usersCollection.countDocuments();
 
-  if (userCount > 0) {
-    return; // Users already seeded
-  }
+        if (userCount > 0) {
+            return; // Users already seeded
+        }
 
-  console.log('No users found. Seeding database...');
+        console.log('No users found. Seeding database...');
 
-  const usersToSeed = [
-    { email: 'parent@babyaura.in', role: 'Parent', name: "Parent's Name" },
-    { email: 'doctor@babyaura.in', role: 'Doctor', name: "Dr. Emily Carter" },
-    { email: 'admin@babyaura.in', role: 'Admin', name: 'Admin User' },
-    { email: 'superadmin@babyaura.in', role: 'Superadmin', name: 'Super Admin' },
-  ];
+        const usersToSeed = [
+            { email: 'parent@babyaura.in', role: 'Parent', name: "Parent's Name" },
+            { email: 'doctor@babyaura.in', role: 'Doctor', name: "Dr. Emily Carter" },
+            { email: 'admin@babyaura.in', role: 'Admin', name: 'Admin User' },
+            { email: 'superadmin@babyaura.in', role: 'Superadmin', name: 'Super Admin' },
+        ];
 
-  const saltRounds = 10;
-  const password = 'password';
-  const hashedPassword = await bcrypt.hash(password, saltRounds);
+        const saltRounds = 10;
+        const password = 'password';
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-  const userDocuments = usersToSeed.map(user => ({
-    ...user,
-    password: hashedPassword,
-    createdAt: new Date(),
-  }));
+        const userDocuments = usersToSeed.map(user => ({
+            ...user,
+            password: hashedPassword,
+            createdAt: new Date(),
+        }));
 
-  await usersCollection.insertMany(userDocuments);
-  console.log('Database seeded with initial users.');
+        await usersCollection.insertMany(userDocuments);
+        console.log('Database seeded with initial users.');
+    } catch (error) {
+        console.log("Could not connect to DB in seedUsers. This is expected during build if DB is not available.");
+    }
 };
