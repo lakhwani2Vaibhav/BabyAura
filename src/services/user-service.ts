@@ -1,12 +1,8 @@
 
-import clientPromise from "@/lib/mongodb";
+import clientPromise, { getDb } from "@/lib/mongodb";
 import bcrypt from 'bcrypt';
 import { adminData, parentData, doctorData, superAdminData } from "@/lib/data";
 
-const getDb = async () => {
-    const client = await clientPromise;
-    return client.db();
-};
 
 const getUsersCollection = async () => {
     const db = await getDb();
