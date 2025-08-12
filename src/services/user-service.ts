@@ -84,8 +84,9 @@ export const createUser = async (userData: any) => {
   switch(role) {
     case 'Parent':
         collection = parentsCollection;
-        // If the parent is affiliated (via code or direct ID), link them.
         let finalHospitalId = hospitalId;
+
+        // Handle parent registration by hospital code
         if (!finalHospitalId && hospitalCode) {
             const hospital = await hospitalsCollection.findOne({ hospitalCode });
             if(hospital) {
@@ -98,11 +99,14 @@ export const createUser = async (userData: any) => {
         if (finalHospitalId) {
             userDocument.hospitalId = finalHospitalId;
         } 
-        // For independent parents, certain fields are required
-        else {
-           if(!userDocument.phone || !userDocument.address) {
-                throw new Error("Phone and address are required for independent parents.");
-           }
+        // Handle independent parent registration
+        else if (restOfUser.phone && restOfUser.address) {
+            // This is an independent parent, no hospitalId needed initially
+        }
+        // Handle registration by admin/doctor where hospitalId should already be set
+        else if (!finalHospitalId) {
+            // If not independent and no hospital link, something is wrong
+            throw new Error("Could not determine hospital affiliation for this parent.");
         }
         break;
     case 'Doctor':
@@ -175,7 +179,8 @@ export const seedUsers = async () => {
         await hospitalsCollection.insertOne({
             _id: hospitalId,
             email: hospitalAdminEmail,
-            name: 'General Hospital',
+            name: 'Admin User', // Changed from "General Hospital" to a user name
+            hospitalName: 'General Hospital',
             password: hashedPassword,
             role: 'Admin',
             hospitalCode: hospitalCodeForParent,
@@ -274,12 +279,9 @@ export const findHospitalById = async (hospitalId: string) => {
 
 export const getParentsByHospital = async (hospitalId: string) => {
     if(!db) await init();
-
     const parents = await parentsCollection.find({ hospitalId: hospitalId }).toArray();
     
-    // For each parent, we need to find their assigned doctor.
-    // This is a simplification. A real app might have a more direct link.
-    // For now, we'll assign a placeholder or the first doctor of the hospital.
+    // For each parent, we need to find their assigned doctor. This is a simplification.
     const doctors = await doctorsCollection.find({ hospitalId }).toArray();
     const firstDoctorName = doctors.length > 0 ? doctors[0].name : "N/A";
 
@@ -293,3 +295,17 @@ export const deleteParent = async (parentId: string) => {
     if(!db) await init();
     return parentsCollection.deleteOne({ _id: parentId });
 }
+
+// Admin Profile Service
+export const updateAdminProfile = async (adminId: string, updates: { name: string, password?: string }) => {
+    if (!db) await init();
+
+    const updateData: { [key: string]: any } = { name: updates.name };
+
+    if (updates.password) {
+        const saltRounds = 10;
+        updateData.password = await bcrypt.hash(updates.password, saltRounds);
+    }
+    
+    return hospitalsCollection.updateOne({ _id: adminId }, { $set: updateData });
+};
