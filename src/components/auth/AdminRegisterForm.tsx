@@ -23,10 +23,10 @@ import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 
 const registerSchema = z.object({
-  name: z.string().min(1, { message: "Name is required" }),
+  name: z.string().min(1, { message: "Your full name is required" }),
   email: z.string().email({ message: "Invalid email address" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
-  hospitalId: z.string().min(1, { message: "Hospital ID is required" }),
+  hospitalName: z.string().min(3, { message: "Hospital name is required" }),
 });
 
 type RegisterValues = z.infer<typeof registerSchema>;
@@ -94,6 +94,11 @@ export function AdminRegisterForm() {
             <Input id="name" type="text" placeholder="Your Name" {...register("name")} />
             {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
           </div>
+           <div className="space-y-2">
+            <Label htmlFor="hospitalName">Hospital Name</Label>
+            <Input id="hospitalName" type="text" placeholder="e.g., City General Hospital" {...register("hospitalName")} />
+            {errors.hospitalName && <p className="text-sm text-destructive">{errors.hospitalName.message}</p>}
+          </div>
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input id="email" type="email" placeholder="admin@yourhospital.com" {...register("email")} />
@@ -103,11 +108,6 @@ export function AdminRegisterForm() {
             <Label htmlFor="password">Password</Label>
             <Input id="password" type="password" {...register("password")} />
             {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="hospitalId">Hospital ID</Label>
-            <Input id="hospitalId" type="text" placeholder="Provided by BabyAura" {...register("hospitalId")} />
-            {errors.hospitalId && <p className="text-sm text-destructive">{errors.hospitalId.message}</p>}
           </div>
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? "Creating Account..." : "Create Account"}
