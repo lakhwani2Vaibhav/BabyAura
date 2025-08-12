@@ -57,6 +57,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import Link from "next/link";
 
 // This will be the shape of data fetched from the API
 type Doctor = {
@@ -115,7 +116,8 @@ export default function ManageDoctorsPage() {
   useEffect(() => {
     const results = doctors.filter(doctor =>
         doctor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        doctor.specialty.toLowerCase().includes(searchTerm.toLowerCase())
+        doctor.specialty.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        doctor._id.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredDoctors(results);
   }, [searchTerm, doctors]);
@@ -279,7 +281,7 @@ export default function ManageDoctorsPage() {
           <div className="relative pt-4">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
-              placeholder="Search by name or specialty..."
+              placeholder="Search by name, specialty, or ID..."
               className="pl-10"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -329,7 +331,9 @@ export default function ManageDoctorsPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onSelect={() => toast({ title: "Feature Coming Soon", description: "The doctor profile page is under construction." })}>View Profile</DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                           <Link href={`/admin/doctors/${doctor._id}`}>View Profile</Link>
+                        </DropdownMenuItem>
                         <DropdownMenuItem onSelect={() => { setSelectedDoctor(doctor); setEditScheduleOpen(true); }}>Edit Schedule</DropdownMenuItem>
                         <DropdownMenuItem onSelect={() => { setSelectedDoctor(doctor); setDeactivateAlertOpen(true); }}>
                           {doctor.status === "Active" ? "Set to 'On Leave'" : "Set to 'Active'"}

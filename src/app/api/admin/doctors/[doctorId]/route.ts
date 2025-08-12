@@ -1,12 +1,30 @@
 
 import { NextRequest, NextResponse } from "next/server";
-import { updateDoctor, deleteDoctor } from "@/services/user-service";
+import { findDoctorById, updateDoctor, deleteDoctor } from "@/services/user-service";
 
 type RouteParams = {
     params: {
         doctorId: string
     }
 }
+
+export async function GET(req: NextRequest, { params }: RouteParams) {
+    try {
+        const { doctorId } = params;
+        const doctor = await findDoctorById(doctorId);
+
+        if (!doctor) {
+            return NextResponse.json({ message: "Doctor not found." }, { status: 404 });
+        }
+
+        return NextResponse.json(doctor);
+
+    } catch (error) {
+        console.error("Failed to fetch doctor:", error);
+        return NextResponse.json({ message: "An unexpected error occurred." }, { status: 500 });
+    }
+}
+
 
 export async function PUT(req: NextRequest, { params }: RouteParams) {
     try {

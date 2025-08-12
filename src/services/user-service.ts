@@ -238,6 +238,11 @@ export const getDoctorsByHospital = async (hospitalId: string) => {
     return doctorsCollection.find({ hospitalId: hospitalId }).toArray();
 };
 
+export const findDoctorById = async (doctorId: string) => {
+    if (!db) await init();
+    return doctorsCollection.findOne({ _id: doctorId });
+}
+
 export const updateDoctor = async (doctorId: string, updates: Partial<{ name: string; specialty: string; status: 'Active' | 'On Leave' }>) => {
     if (!db) await init();
     return doctorsCollection.updateOne({ _id: doctorId }, { $set: updates });
