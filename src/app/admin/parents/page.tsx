@@ -64,6 +64,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 // This will be the shape of data fetched from the API
 type Parent = {
@@ -82,6 +83,8 @@ const addParentSchema = z.object({
   babyName: z.string().min(1, "Baby's name is required"),
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  phone: z.string().optional(),
+  address: z.string().optional(),
 });
 
 type AddParentFormValues = z.infer<typeof addParentSchema>;
@@ -97,7 +100,7 @@ export default function ParentsPage() {
   
   const form = useForm<AddParentFormValues>({
     resolver: zodResolver(addParentSchema),
-    defaultValues: { name: "", babyName: "", email: "", password: "" },
+    defaultValues: { name: "", babyName: "", email: "", password: "", phone: "", address: "" },
   });
 
   const fetchParents = async () => {
@@ -243,6 +246,20 @@ export default function ParentsPage() {
                         <FormItem>
                           <Label>Temporary Password</Label>
                           <FormControl><Input type="password" placeholder="••••••••" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                    <FormField control={form.control} name="phone" render={({ field }) => (
+                        <FormItem>
+                          <Label>Phone Number (Optional)</Label>
+                          <FormControl><Input type="tel" placeholder="e.g., 9876543210" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                    <FormField control={form.control} name="address" render={({ field }) => (
+                        <FormItem>
+                          <Label>Address (Optional)</Label>
+                          <FormControl><Textarea placeholder="e.g., 123 Main St, Anytown" {...field} /></FormControl>
                           <FormMessage />
                         </FormItem>
                       )} />
