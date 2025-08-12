@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { updateParentTimeline } from "@/ai/flows/update-parent-timeline";
 import { ScrollAnimationWrapper } from "@/components/layout/ScrollAnimationWrapper";
+import { Skeleton } from "@/components/ui/skeleton";
 
 
 const initialDailyTasks = [
@@ -53,25 +54,70 @@ const longTermSchedule = [
   },
 ];
 
+type Task = { id: number; text: string; completed: boolean };
+
 export default function TimelinePage() {
-  const [tasks, setTasks] = useState(initialDailyTasks);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [prompt, setPrompt] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
+  useEffect(() => {
+    const fetchTasks = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch('/api/parent/timeline');
+        if (!response.ok) {
+          // If no tasks are found, use initial tasks. This is for first-time users.
+          if (response.status === 404) {
+            setTasks(initialDailyTasks);
+          } else {
+            throw new Error("Failed to fetch timeline");
+          }
+        } else {
+          const data = await response.json();
+          setTasks(data.tasks);
+        }
+      } catch (error) {
+        toast({ variant: "destructive", title: "Error", description: "Could not load your timeline. Using default." });
+        setTasks(initialDailyTasks);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchTasks();
+  }, [toast]);
 
-  const toggleTask = (taskId: number) => {
-    setTasks(
-      tasks.map((task) =>
+  const saveTasks = async (newTasks: Task[]) => {
+      try {
+          const response = await fetch('/api/parent/timeline', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ tasks: newTasks })
+          });
+          if (!response.ok) throw new Error("Failed to save timeline");
+          return true;
+      } catch (error) {
+          toast({ variant: "destructive", title: "Save Error", description: "Could not save your changes." });
+          return false;
+      }
+  };
+
+
+  const toggleTask = async (taskId: number) => {
+    const newTasks = tasks.map((task) =>
         task.id === taskId ? { ...task, completed: !task.completed } : task
-      )
     );
+    setTasks(newTasks);
+    await saveTasks(newTasks);
   };
 
   const handlePromptSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim()) return;
 
+    const originalTasks = [...tasks];
     setIsUpdating(true);
     try {
       const result = await updateParentTimeline({
@@ -80,10 +126,16 @@ export default function TimelinePage() {
       });
       if (result.updatedTasks) {
         setTasks(result.updatedTasks);
-        toast({
-          title: "Timeline Updated!",
-          description: "Your AI assistant has updated your checklist.",
-        });
+        const success = await saveTasks(result.updatedTasks);
+        if (success) {
+            toast({
+              title: "Timeline Updated!",
+              description: "Your AI assistant has updated your checklist.",
+            });
+        } else {
+            // Revert on save failure
+            setTasks(originalTasks);
+        }
       } else {
          toast({
           variant: "destructive",
@@ -98,6 +150,7 @@ export default function TimelinePage() {
         description: "Something went wrong while updating your timeline.",
       });
       console.error(error);
+      setTasks(originalTasks);
     } finally {
       setPrompt("");
       setIsUpdating(false);
@@ -130,25 +183,35 @@ export default function TimelinePage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-1">
-                  <div className="flex justify-between items-center mb-2">
-                      <p className="text-sm font-medium text-muted-foreground">Daily Progress</p>
-                      <p className="text-sm font-semibold">{completedTasks} / {totalTasks} tasks done</p>
-                  </div>
-                  <Progress value={progressPercentage} className="w-full h-2" />
-                </div>
+                {isLoading ? (
+                    <div className="space-y-2 pt-4">
+                        <Skeleton className="h-12 w-full" />
+                        <Skeleton className="h-12 w-full" />
+                        <Skeleton className="h-12 w-full" />
+                    </div>
+                ) : (
+                    <>
+                        <div className="space-y-1">
+                          <div className="flex justify-between items-center mb-2">
+                              <p className="text-sm font-medium text-muted-foreground">Daily Progress</p>
+                              <p className="text-sm font-semibold">{completedTasks} / {totalTasks} tasks done</p>
+                          </div>
+                          <Progress value={progressPercentage} className="w-full h-2" />
+                        </div>
 
-                <div className="space-y-2 pt-4">
-                  {tasks.map((task) => (
-                    <ChecklistItem
-                      key={task.id}
-                      id={task.id}
-                      text={task.text}
-                      completed={task.completed}
-                      onToggle={toggleTask}
-                    />
-                  ))}
-                </div>
+                        <div className="space-y-2 pt-4">
+                          {tasks.map((task) => (
+                            <ChecklistItem
+                              key={task.id}
+                              id={task.id}
+                              text={task.text}
+                              completed={task.completed}
+                              onToggle={toggleTask}
+                            />
+                          ))}
+                        </div>
+                    </>
+                )}
               </CardContent>
                <CardFooter>
                 <form onSubmit={handlePromptSubmit} className="w-full flex items-center gap-2">
@@ -159,7 +222,7 @@ export default function TimelinePage() {
                       onChange={(e) => setPrompt(e.target.value)}
                       disabled={isUpdating}
                   />
-                  <Button type="submit" disabled={isUpdating}>
+                  <Button type="submit" disabled={isUpdating || isLoading}>
                     {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : "Update"}
                   </Button>
                 </form>

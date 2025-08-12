@@ -10,7 +10,7 @@ let parentsCollection: Collection;
 let doctorsCollection: Collection;
 let hospitalsCollection: Collection;
 let superadminsCollection: Collection;
-let parentHospitalLinksCollection: Collection;
+let timelinesCollection: Collection;
 
 
 async function init() {
@@ -22,7 +22,7 @@ async function init() {
     doctorsCollection = db.collection('doctors');
     hospitalsCollection = db.collection('hospitals');
     superadminsCollection = db.collection('superadmins');
-    parentHospitalLinksCollection = db.collection('parentHospitalLinks');
+    timelinesCollection = db.collection('timelines');
 
   } catch (error) {
     throw new Error('Failed to connect to the database.');
@@ -308,4 +308,47 @@ export const updateAdminProfile = async (adminId: string, updates: { name: strin
     }
     
     return hospitalsCollection.updateOne({ _id: adminId }, { $set: updateData });
+};
+
+
+// Parent Profile Services
+export const findParentById = async (parentId: string) => {
+    if (!db) await init();
+    const parent = await parentsCollection.findOne({ _id: parentId });
+    if (!parent) return null;
+
+    if (parent.hospitalId) {
+        const hospital = await hospitalsCollection.findOne({ _id: parent.hospitalId });
+        parent.hospitalName = hospital ? hospital.hospitalName : 'Unknown Hospital';
+    }
+
+    return parent;
+}
+
+export const updateParentProfile = async (parentId: string, updates: any) => {
+    if (!db) await init();
+    const { password, ...restUpdates } = updates;
+    const updateData: any = { ...restUpdates };
+    
+    if (password) {
+        const saltRounds = 10;
+        updateData.password = await bcrypt.hash(password, saltRounds);
+    }
+    
+    return parentsCollection.updateOne({ _id: parentId }, { $set: updateData });
+}
+
+// Parent Timeline Services
+export const getTimelineTasks = async (parentId: string) => {
+    if (!db) await init();
+    return timelinesCollection.findOne({ parentId });
+};
+
+export const updateTimelineTasks = async (parentId: string, tasks: any[]) => {
+    if (!db) await init();
+    return timelinesCollection.updateOne(
+        { parentId },
+        { $set: { parentId, tasks, updatedAt: new Date() } },
+        { upsert: true }
+    );
 };
