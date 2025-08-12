@@ -59,7 +59,12 @@ export const findUserByEmail = async (email: string) => {
 
 export const createUser = async (userData: any) => {
   if (!db) await init();
-  const { password, role, hospitalCode, ...restOfUser } = userData;
+  const { password, role, hospitalCode, hospitalId, hospitalName, ...restOfUser } = userData;
+  
+  if(!password) {
+      throw new Error("Password is required for user creation.");
+  }
+
   const saltRounds = 10;
   const hashedPassword = await bcrypt.hash(password, saltRounds);
 
@@ -77,7 +82,6 @@ export const createUser = async (userData: any) => {
   switch(role) {
     case 'Parent':
         collection = parentsCollection;
-        // If a hospital code is provided, link the parent to the hospital
         if (hospitalCode) {
             const hospital = await hospitalsCollection.findOne({ hospitalCode });
             if(hospital) {
@@ -88,17 +92,24 @@ export const createUser = async (userData: any) => {
                 });
                  userDocument.hospitalCode = hospitalCode;
             } else {
-                // This case should ideally be handled by frontend validation, but as a safeguard:
                 throw new Error("Invalid hospital code provided for parent registration.");
             }
         }
-        // Independent parents will not have a hospitalCode field or a link entry
         break;
     case 'Doctor':
         collection = doctorsCollection;
+        if (!hospitalId) {
+            throw new Error("Hospital ID is required for doctor registration.");
+        }
+        const hospital = await hospitalsCollection.findOne({ _id: hospitalId });
+        if (!hospital) {
+            throw new Error("Invalid hospital ID provided for doctor registration.");
+        }
+        userDocument.hospitalId = hospitalId;
         break;
     case 'Admin':
-        collection = hospitalsCollection; // Admin user represents the hospital
+        collection = hospitalsCollection;
+        userDocument.hospitalName = hospitalName;
         userDocument.hospitalCode = `HOSP-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
         break;
     case 'Superadmin':
@@ -110,7 +121,6 @@ export const createUser = async (userData: any) => {
 
   await collection.insertOne(userDocument);
   
-  // Return the newly created user without the password
   const { password: _, ...userWithoutPassword } = userDocument;
   return userWithoutPassword;
 };
@@ -151,7 +161,7 @@ export const seedUsers = async () => {
     let hospitalCodeForParent;
 
     if(!existingHospital) {
-        hospitalCodeForParent = `HOSP-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
+        hospitalCodeForParent = `GAH789`; // Make it deterministic for demo purposes
         hospitalId = generateId('hospital');
         const hashedPassword = await bcrypt.hash('password', saltRounds);
         await hospitalsCollection.insertOne({

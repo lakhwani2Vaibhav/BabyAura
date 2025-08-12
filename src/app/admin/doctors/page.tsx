@@ -1,8 +1,11 @@
 
 "use client";
 
-import { useState } from "react";
-import { adminData } from "@/lib/data";
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { adminData } from "@/lib/data"; // Keep for initial structure, will be replaced by API data
 import {
   Card,
   CardContent,
@@ -54,11 +57,24 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { useAuth } from "@/hooks/use-auth";
+
 
 type Doctor = (typeof adminData.doctors)[0];
 
+const addDoctorSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  specialty: z.string().min(1, "Specialty is required"),
+});
+
+type AddDoctorFormValues = z.infer<typeof addDoctorSchema>;
+
+
 export default function ManageDoctorsPage() {
-  const [doctors, setDoctors] = useState(adminData.doctors);
+  const [doctors, setDoctors] = useState<Doctor[]>(adminData.doctors); // Initially populated with dummy data
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
 
   const [addDoctorOpen, setAddDoctorOpen] = useState(false);
@@ -66,13 +82,68 @@ export default function ManageDoctorsPage() {
   const [deactivateAlertOpen, setDeactivateAlertOpen] = useState(false);
 
   const { toast } = useToast();
+  const { role } = useAuth(); // Assuming useAuth can provide admin's hospitalId
 
-  const handleAddDoctor = () => {
-    toast({
-      title: "Doctor Added",
-      description: "The new doctor has been successfully added to the system.",
+  const form = useForm<AddDoctorFormValues>({
+    resolver: zodResolver(addDoctorSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      specialty: "Pediatrics",
+    },
+  });
+
+  // Fetch doctors in a real app
+  // useEffect(() => {
+  //   fetch('/api/admin/doctors')
+  //     .then(res => res.json())
+  //     .then(data => setDoctors(data));
+  // }, []);
+
+
+  const handleAddDoctorSubmit = async (values: AddDoctorFormValues) => {
+    // In a real app, you'd get the admin's hospitalId from their session/context
+    const hospitalId = "HOSP-ID-FROM-ADMIN-SESSION"; // Placeholder
+
+    const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            ...values,
+            role: 'Doctor',
+            hospitalId: hospitalId
+        })
     });
-    setAddDoctorOpen(false);
+    
+    if (response.ok) {
+        const newDoctor = await response.json();
+        // Add to local state for now. In a real app, you'd refetch or update state smartly.
+        setDoctors(prev => [...prev, {
+             id: newDoctor.id, 
+             name: newDoctor.name, 
+             specialty: newDoctor.specialty, 
+             patients: 0, 
+             status: 'Active', 
+             avatarUrl: '', 
+             consultationsThisMonth: 0, 
+             satisfaction: 0
+        }]);
+
+        toast({
+            title: "Doctor Added",
+            description: `${values.name} has been successfully added to the system.`,
+        });
+        setAddDoctorOpen(false);
+        form.reset();
+    } else {
+        const errorData = await response.json();
+        toast({
+            variant: "destructive",
+            title: "Failed to Add Doctor",
+            description: errorData.message || "An unexpected error occurred.",
+        });
+    }
   };
 
   const handleEditScheduleSave = () => {
@@ -85,6 +156,8 @@ export default function ManageDoctorsPage() {
 
   const handleDeactivateConfirm = () => {
     if (selectedDoctor) {
+      // API call to update status would go here
+      // For now, we simulate it locally
       setDoctors(
         doctors.map((doc) =>
           doc.id === selectedDoctor.id
@@ -132,60 +205,72 @@ export default function ManageDoctorsPage() {
                   Enter the details for the new doctor to onboard them.
                 </DialogDescription>
               </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="name" className="text-right">
-                    Name
-                  </Label>
-                  <Input
-                    id="name"
-                    defaultValue="Dr. John Doe"
-                    className="col-span-3"
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(handleAddDoctorSubmit)} className="space-y-4 py-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label>Name</Label>
+                        <FormControl>
+                          <Input placeholder="Dr. John Doe" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="email" className="text-right">
-                    Email
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="doctor@example.com"
-                    className="col-span-3"
+                   <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label>Email</Label>
+                        <FormControl>
+                           <Input type="email" placeholder="doctor@example.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
-                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="password" className="text-right">
-                    Password
-                  </Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Temporary password"
-                    className="col-span-3"
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label>Temporary Password</Label>
+                        <FormControl>
+                          <Input type="password" placeholder="••••••••" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="specialty" className="text-right">
-                    Specialty
-                  </Label>
-                  <Input
-                    id="specialty"
-                    defaultValue="Pediatrics"
-                    className="col-span-3"
+                  <FormField
+                    control={form.control}
+                    name="specialty"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label>Specialty</Label>
+                        <FormControl>
+                          <Input placeholder="Pediatrics" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
-              </div>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button type="button" variant="secondary">
-                    Cancel
-                  </Button>
-                </DialogClose>
-                <Button type="button" onClick={handleAddDoctor}>
-                  Add Doctor
-                </Button>
-              </DialogFooter>
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <Button type="button" variant="secondary">
+                        Cancel
+                      </Button>
+                    </DialogClose>
+                    <Button type="submit" disabled={form.formState.isSubmitting}>
+                        {form.formState.isSubmitting ? "Adding..." : "Add Doctor"}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </Form>
             </DialogContent>
           </Dialog>
         </CardHeader>

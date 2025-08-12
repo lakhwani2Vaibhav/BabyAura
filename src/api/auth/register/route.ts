@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { findUserByEmail, createUser } from "@/services/user-service";
+import { getSession } from 'next-auth/react'; // This is a placeholder for server-side session logic
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { name, email, password, role, ...rest } = body;
+    let { name, email, password, role, ...rest } = body;
 
     if (!name || !email || !password || !role) {
       return NextResponse.json(
@@ -12,6 +13,20 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    
+    // If an admin is creating a doctor, they won't pass their own hospitalId.
+    // In a real app with proper session management, you'd get the admin's hospitalId from their session.
+    // For now, we'll simulate this.
+    // if (role === 'Doctor' && !rest.hospitalId) {
+    //   // This is a placeholder. A real implementation would involve getting the logged-in admin's session.
+    //   // const session = await getSession({ req });
+    //   // if (session?.user?.role === 'Admin' && session.user.hospitalId) {
+    //   //    rest.hospitalId = session.user.hospitalId;
+    //   // } else {
+    //   //    return NextResponse.json({ message: "Admin not authenticated or missing hospital ID." }, { status: 403 });
+    //   // }
+    // }
+
 
     // For independent parents, certain fields are also required
     if (role === 'Parent' && !rest.hospitalCode) {
@@ -39,8 +54,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(userWithoutPassword, { status: 201 });
   } catch (error) {
     console.error("Registration error:", error);
+    const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred.";
     return NextResponse.json(
-      { message: "An unexpected error occurred." },
+      { message: errorMessage },
       { status: 500 }
     );
   }
