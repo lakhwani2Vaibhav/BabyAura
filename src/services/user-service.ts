@@ -90,6 +90,9 @@ export const createUser = async (userData: any) => {
         collection = hospitalsCollection; // Admin user is the hospital entity
         userDocument.hospitalCode = generateId('hospital'); // a unique code for parents to join
         break;
+    case 'Superadmin':
+        collection = superadminsCollection;
+        break;
     default:
         throw new Error("Invalid user role for creation.");
   }
@@ -111,15 +114,22 @@ export const seedUsers = async () => {
     
     // Seed Superadmins
     const superadminsToSeed = [
-        { _id: generateId('superadmin'), email: 'babyauraindia@gmail.com', role: 'Superadmin', name: 'BabyAura Superadmin', password: 'BabyAura@123' },
-        { _id: generateId('superadmin'), email: 'shubham12342019@gmail.com', role: 'Superadmin', name: 'Shubham Superadmin', password: '$Shubh@912513' },
+        { email: 'babyauraindia@gmail.com', name: 'BabyAura Superadmin', password: 'BabyAura@123' },
+        { email: 'shubham12342019@gmail.com', name: 'Shubham Superadmin', password: '$Shubh@912513' },
     ];
+
     for (const user of superadminsToSeed) {
         const existingUser = await superadminsCollection.findOne({ email: user.email });
         if (!existingUser) {
             const {password, ...rest} = user;
             const hashedPassword = await bcrypt.hash(password, saltRounds);
-            await superadminsCollection.insertOne({ ...rest, password: hashedPassword, createdAt: new Date() });
+            await superadminsCollection.insertOne({ 
+                _id: generateId('superadmin'),
+                ...rest,
+                role: 'Superadmin',
+                password: hashedPassword,
+                createdAt: new Date()
+            });
             console.log(`Seeded superadmin: ${user.email}`);
         }
     }
