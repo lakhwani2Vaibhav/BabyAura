@@ -60,7 +60,7 @@ export const findUserByEmail = async (email: string) => {
 
 export const createUser = async (userData: any) => {
   if (!db) await init();
-  const { password, role, hospitalCode, hospitalId, hospitalName, ...restOfUser } = userData;
+  const { password, role, hospitalCode, hospitalId, hospitalName, registeredBy, ...restOfUser } = userData;
   
   if(!password) {
       throw new Error("Password is required for user creation.");
@@ -84,18 +84,32 @@ export const createUser = async (userData: any) => {
   switch(role) {
     case 'Parent':
         collection = parentsCollection;
-        if (hospitalCode) {
-            const hospital = await hospitalsCollection.findOne({ hospitalCode });
-            if(hospital) {
-                await parentHospitalLinksCollection.insertOne({
+        // For independent parents
+        if (!hospitalCode && !hospitalId) {
+           if(!userDocument.phone || !userDocument.address) {
+                throw new Error("Phone and address are required for independent parents.");
+           }
+        }
+        // For parents registered with a code or by an admin/doctor
+        else {
+             let foundHospital;
+             if (hospitalId) {
+                foundHospital = await hospitalsCollection.findOne({ _id: hospitalId });
+             } else if (hospitalCode) {
+                foundHospital = await hospitalsCollection.findOne({ hospitalCode });
+             }
+
+             if (foundHospital) {
+                 userDocument.hospitalId = foundHospital._id;
+                 userDocument.hospitalCode = foundHospital.hospitalCode;
+                 await parentHospitalLinksCollection.insertOne({
                     parentId: customId,
-                    hospitalId: hospital._id,
+                    hospitalId: foundHospital._id,
                     createdAt: new Date()
                 });
-                 userDocument.hospitalCode = hospitalCode;
-            } else {
-                throw new Error("Invalid hospital code provided for parent registration.");
-            }
+             } else {
+                 throw new Error("Invalid hospital code or ID provided.");
+             }
         }
         break;
     case 'Doctor':
@@ -215,6 +229,7 @@ export const seedUsers = async () => {
                 role: 'Parent',
                 babyName: 'Aura', 
                 babyDob: '2023-12-05',
+                hospitalId: hospitalId,
                 hospitalCode: hospitalCodeForParent,
                 createdAt: new Date(),
                 status: 'Active'
@@ -273,14 +288,11 @@ export const findHospitalById = async (hospitalId: string) => {
 
 export const getParentsByHospital = async (hospitalId: string) => {
     if(!db) await init();
-    // 1. Find all parent-hospital links for the given hospital
-    const links = await parentHospitalLinksCollection.find({ hospitalId }).toArray();
-    const parentIds = links.map(link => link.parentId);
-    
-    // 2. Find all parents with those IDs
-    const parents = await parentsCollection.find({ _id: { $in: parentIds } }).toArray();
 
-    // 3. For each parent, we need to find their assigned doctor.
+    // Corrected logic: Query parents collection directly by hospitalId
+    const parents = await parentsCollection.find({ hospitalId: hospitalId }).toArray();
+    
+    // For each parent, we need to find their assigned doctor.
     // This is a simplification. A real app might have a more direct link.
     // For now, we'll assign a placeholder or the first doctor of the hospital.
     const doctors = await doctorsCollection.find({ hospitalId }).toArray();
