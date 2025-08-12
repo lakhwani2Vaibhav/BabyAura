@@ -59,7 +59,7 @@ export const findUserByEmail = async (email: string) => {
 
 export const createUser = async (userData: any) => {
   if (!db) await init();
-  const { password, role, ...restOfUser } = userData;
+  const { password, role, hospitalCode, ...restOfUser } = userData;
   const saltRounds = 10;
   const hashedPassword = await bcrypt.hash(password, saltRounds);
 
@@ -77,17 +77,22 @@ export const createUser = async (userData: any) => {
   switch(role) {
     case 'Parent':
         collection = parentsCollection;
-        // This assumes hospitalCode is provided and valid
-        const hospital = await hospitalsCollection.findOne({ hospitalCode: userData.hospitalCode });
-        if(hospital) {
-            await parentHospitalLinksCollection.insertOne({
-                parentId: customId,
-                hospitalId: hospital._id,
-                createdAt: new Date()
-            });
-        } else {
-            throw new Error("Invalid hospital code provided for parent registration.");
+        // If a hospital code is provided, link the parent to the hospital
+        if (hospitalCode) {
+            const hospital = await hospitalsCollection.findOne({ hospitalCode });
+            if(hospital) {
+                await parentHospitalLinksCollection.insertOne({
+                    parentId: customId,
+                    hospitalId: hospital._id,
+                    createdAt: new Date()
+                });
+                 userDocument.hospitalCode = hospitalCode;
+            } else {
+                // This case should ideally be handled by frontend validation, but as a safeguard:
+                throw new Error("Invalid hospital code provided for parent registration.");
+            }
         }
+        // Independent parents will not have a hospitalCode field or a link entry
         break;
     case 'Doctor':
         collection = doctorsCollection;
