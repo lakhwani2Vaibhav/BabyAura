@@ -65,6 +65,7 @@ import {
 } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // This will be the shape of data fetched from the API
 type Parent = {
@@ -219,58 +220,60 @@ export default function ParentsPage() {
                     Enter the details for the new parent and their baby.
                   </DialogDescription>
                 </DialogHeader>
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(handleAddParentSubmit)} className="space-y-4 py-4">
-                     <FormField control={form.control} name="name" render={({ field }) => (
-                        <FormItem>
-                          <Label>Parent's Name</Label>
-                          <FormControl><Input placeholder="e.g., Jane Doe" {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )} />
-                    <FormField control={form.control} name="babyName" render={({ field }) => (
-                        <FormItem>
-                          <Label>Baby's Name</Label>
-                          <FormControl><Input placeholder="e.g., Sam Doe" {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )} />
-                    <FormField control={form.control} name="email" render={({ field }) => (
-                        <FormItem>
-                          <Label>Parent's Email</Label>
-                          <FormControl><Input type="email" placeholder="parent@example.com" {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )} />
-                    <FormField control={form.control} name="password" render={({ field }) => (
-                        <FormItem>
-                          <Label>Temporary Password</Label>
-                          <FormControl><Input type="password" placeholder="••••••••" {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )} />
-                    <FormField control={form.control} name="phone" render={({ field }) => (
-                        <FormItem>
-                          <Label>Phone Number (Optional)</Label>
-                          <FormControl><Input type="tel" placeholder="e.g., 9876543210" {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )} />
-                    <FormField control={form.control} name="address" render={({ field }) => (
-                        <FormItem>
-                          <Label>Address (Optional)</Label>
-                          <FormControl><Textarea placeholder="e.g., 123 Main St, Anytown" {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )} />
-                    <DialogFooter>
-                      <DialogClose asChild><Button type="button" variant="secondary">Cancel</Button></DialogClose>
-                      <Button type="submit" disabled={form.formState.isSubmitting}>
-                          {form.formState.isSubmitting ? "Adding..." : "Add Parent"}
-                      </Button>
-                    </DialogFooter>
-                  </form>
-                </Form>
+                 <ScrollArea className="max-h-[60vh] -mx-6 px-6">
+                    <Form {...form}>
+                      <form onSubmit={form.handleSubmit(handleAddParentSubmit)} className="space-y-4 py-4">
+                         <FormField control={form.control} name="name" render={({ field }) => (
+                            <FormItem>
+                              <Label>Parent's Name</Label>
+                              <FormControl><Input placeholder="e.g., Jane Doe" {...field} /></FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )} />
+                        <FormField control={form.control} name="babyName" render={({ field }) => (
+                            <FormItem>
+                              <Label>Baby's Name</Label>
+                              <FormControl><Input placeholder="e.g., Sam Doe" {...field} /></FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )} />
+                        <FormField control={form.control} name="email" render={({ field }) => (
+                            <FormItem>
+                              <Label>Parent's Email</Label>
+                              <FormControl><Input type="email" placeholder="parent@example.com" {...field} /></FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )} />
+                        <FormField control={form.control} name="password" render={({ field }) => (
+                            <FormItem>
+                              <Label>Temporary Password</Label>
+                              <FormControl><Input type="password" placeholder="••••••••" {...field} /></FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )} />
+                        <FormField control={form.control} name="phone" render={({ field }) => (
+                            <FormItem>
+                              <Label>Phone Number (Optional)</Label>
+                              <FormControl><Input type="tel" placeholder="e.g., 9876543210" {...field} /></FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )} />
+                        <FormField control={form.control} name="address" render={({ field }) => (
+                            <FormItem>
+                              <Label>Address (Optional)</Label>
+                              <FormControl><Textarea placeholder="e.g., 123 Main St, Anytown" {...field} /></FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )} />
+                        <DialogFooter className="pt-4">
+                          <DialogClose asChild><Button type="button" variant="secondary">Cancel</Button></DialogClose>
+                          <Button type="submit" disabled={form.formState.isSubmitting}>
+                              {form.formState.isSubmitting ? "Adding..." : "Add Parent"}
+                          </Button>
+                        </DialogFooter>
+                      </form>
+                    </Form>
+                 </ScrollArea>
               </DialogContent>
             </Dialog>
           </div>
