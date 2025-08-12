@@ -110,7 +110,7 @@ export default function ManageDoctorsPage() {
 
   useEffect(() => {
     fetchDoctors();
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     const results = doctors.filter(doctor =>
