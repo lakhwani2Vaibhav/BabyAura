@@ -7,11 +7,11 @@ export async function POST(req: NextRequest) {
     // Seed initial users if they don't exist, for demo purposes.
     await seedUsers();
 
-    const { email, password, role } = await req.json();
+    const { email, password } = await req.json();
 
-    if (!email || !password || !role) {
+    if (!email || !password) {
       return NextResponse.json(
-        { message: "Email, password, and role are required." },
+        { message: "Email and password are required." },
         { status: 400 }
       );
     }
@@ -24,6 +24,14 @@ export async function POST(req: NextRequest) {
         { status: 401 }
       );
     }
+    
+    // Check if user has a password. Some documents (e.g. hospitals) might not be users.
+    if (!user.password) {
+        return NextResponse.json(
+        { message: "Invalid email or password." },
+        { status: 401 }
+      );
+    }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
@@ -32,13 +40,6 @@ export async function POST(req: NextRequest) {
         { message: "Invalid email or password." },
         { status: 401 }
       );
-    }
-
-    if (user.role !== role) {
-        return NextResponse.json(
-            { message: `You are not authorized to log in as a ${role}. Please select the correct role.` },
-            { status: 403 }
-        );
     }
 
     // Return user info (excluding password) upon successful login
