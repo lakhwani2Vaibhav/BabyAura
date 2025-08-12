@@ -3,7 +3,8 @@ import { findUserByEmail, createUser } from "@/services/user-service";
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, password, role } = await req.json();
+    const body = await req.json();
+    const { name, email, password, role, ...rest } = body;
 
     if (!name || !email || !password || !role) {
       return NextResponse.json(
@@ -20,7 +21,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const newUser = await createUser({ name, email, password, role });
+    const newUser = await createUser({ name, email, password, role, ...rest });
 
     // Return user info (excluding password) upon successful registration
     const { password: _, ...userWithoutPassword } = newUser;

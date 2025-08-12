@@ -2,35 +2,40 @@ import clientPromise from "@/lib/mongodb";
 import bcrypt from 'bcrypt';
 import { Db } from "mongodb";
 
-const getDb = async (): Promise<Db> => {
-    if (!process.env.MONGODB_URI) {
-        throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
-    }
-    const client = await clientPromise;
-    return client.db();
-};
+let client;
+let db: Db;
+let usersCollection: any;
 
+async function init() {
+  if (db) return;
+  try {
+    client = await clientPromise;
+    db = client.db();
+    usersCollection = db.collection('users');
+  } catch (error) {
+    throw new Error('Failed to connect to the database.');
+  }
+}
 
-const getUsersCollection = async () => {
-    const db = await getDb();
-    return db.collection("users");
-};
+(async () => {
+  await init();
+})();
+
 
 export const findUserByEmail = async (email: string) => {
-    const usersCollection = await getUsersCollection();
+    if (!usersCollection) await init();
     return await usersCollection.findOne({ email });
 };
 
-export const createUser = async ({ name, email, password, role }: any) => {
-  const usersCollection = await getUsersCollection();
+export const createUser = async (userData: any) => {
+  if (!usersCollection) await init();
+  const { password, ...restOfUser } = userData;
   const saltRounds = 10;
   const hashedPassword = await bcrypt.hash(password, saltRounds);
 
   const userDocument = {
-    name,
-    email,
+    ...restOfUser,
     password: hashedPassword,
-    role,
     createdAt: new Date(),
   };
 
@@ -43,34 +48,29 @@ export const createUser = async ({ name, email, password, role }: any) => {
 };
 
 export const seedUsers = async () => {
-    const usersCollection = await getUsersCollection();
-    // In a mock environment, countDocuments might not exist or work as expected
-    if (process.env.NODE_ENV !== 'development' && process.env.NODE_ENV !== 'test') {
-        const userCount = await usersCollection.countDocuments();
-        if (userCount > 0) {
-            return;
-        }
-    }
-
+    if (!usersCollection) await init();
 
     console.log('Checking for existing users or seeding database...');
 
     const usersToSeed = [
-        { email: 'parent@babyaura.in', role: 'Parent', name: "Parent's Name" },
-        { email: 'doctor@babyaura.in', role: 'Doctor', name: "Dr. Emily Carter" },
-        { email: 'admin@babyaura.in', role: 'Admin', name: 'Admin User' },
-        { email: 'superadmin@babyaura.in', role: 'Superadmin', name: 'Super Admin' },
+        { email: 'parent@babyaura.in', role: 'Parent', name: "Parent's Name", password: 'password' },
+        { email: 'doctor@babyaura.in', role: 'Doctor', name: "Dr. Emily Carter", password: 'password' },
+        { email: 'admin@babyaura.in', role: 'Admin', name: 'Admin User', password: 'password' },
+        // Hardcoded Superadmins
+        { email: 'babyauraindia@gmail.com', role: 'Superadmin', name: 'BabyAura Superadmin', password: 'BabyAura@123' },
+        { email: 'shubham12342019@gmail.com', role: 'Superadmin', name: 'Shubham Superadmin', password: '$Shubh@912513' },
     ];
 
     const saltRounds = 10;
-    const password = 'password';
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     for (const user of usersToSeed) {
         const existingUser = await usersCollection.findOne({ email: user.email });
         if (!existingUser) {
+            const hashedPassword = await bcrypt.hash(user.password, saltRounds);
             const userDocument = {
-                ...user,
+                name: user.name,
+                email: user.email,
+                role: user.role,
                 password: hashedPassword,
                 createdAt: new Date(),
             };
