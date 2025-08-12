@@ -32,7 +32,7 @@ async function init() {
   await init();
 })();
 
-const generateId = (type: 'parent' | 'doctor' | 'hospital' | 'superadmin') => {
+const generateId = (type: string) => {
     const timestamp = Date.now();
     const random = Math.random().toString(36).substring(2, 8);
     return `${type}-${timestamp}-${random}`;
@@ -46,8 +46,8 @@ export const findUserByEmail = async (email: string) => {
         const user = await collection.findOne({ email });
         if (user) {
             // Add role based on collection name for consistent auth flow
-            const role = collection.collectionName.replace(/s$/, ''); // parents -> parent
-            return { ...user, role: role.charAt(0).toUpperCase() + role.slice(1) };
+            const roleName = collection.collectionName.replace(/s$/, ''); // parents -> parent
+            return { ...user, role: roleName.charAt(0).toUpperCase() + roleName.slice(1) };
         }
     }
     return null;
@@ -73,6 +73,8 @@ export const createUser = async (userData: any) => {
   switch(role) {
     case 'Parent':
         collection = parentsCollection;
+        userDocument.babyName = userData.babyName;
+        userDocument.babyDob = userData.babyDob;
         // Link parent to hospital
         const hospital = await hospitalsCollection.findOne({ hospitalCode: userData.hospitalCode });
         if(hospital) {
@@ -85,9 +87,12 @@ export const createUser = async (userData: any) => {
         break;
     case 'Doctor':
         collection = doctorsCollection;
+        userDocument.specialty = userData.specialty;
+        userDocument.hospitalId = userData.hospitalId;
         break;
     case 'Admin':
         collection = hospitalsCollection; // Admin user is the hospital entity
+        userDocument.hospitalName = userData.hospitalName;
         userDocument.hospitalCode = generateId('hospital'); // a unique code for parents to join
         break;
     case 'Superadmin':
@@ -138,8 +143,10 @@ export const seedUsers = async () => {
     const hospitalAdminEmail = 'admin@babyaura.in';
     const existingHospital = await hospitalsCollection.findOne({email: hospitalAdminEmail});
     let hospitalId;
+    let hospitalCodeForParent;
+
     if(!existingHospital) {
-        const hospitalCode = generateId('hospital');
+        hospitalCodeForParent = generateId('hospital-code');
         hospitalId = generateId('hospital');
         const hashedPassword = await bcrypt.hash('password', saltRounds);
         await hospitalsCollection.insertOne({
@@ -148,12 +155,13 @@ export const seedUsers = async () => {
             name: 'General Hospital',
             password: hashedPassword,
             role: 'Admin',
-            hospitalCode: hospitalCode,
+            hospitalCode: hospitalCodeForParent,
             createdAt: new Date(),
         })
         console.log(`Seeded hospital: ${hospitalAdminEmail}`);
     } else {
         hospitalId = existingHospital._id;
+        hospitalCodeForParent = existingHospital.hospitalCode;
     }
     
     // Seed an initial doctor linked to the hospital
@@ -178,8 +186,7 @@ export const seedUsers = async () => {
     const parentEmail = 'parent@babyaura.in';
     const existingParent = await parentsCollection.findOne({email: parentEmail});
     if(!existingParent) {
-        const hospitalForParent = await hospitalsCollection.findOne({name: 'General Hospital'});
-        if(hospitalForParent) {
+        if(hospitalCodeForParent) {
             const parentId = generateId('parent');
             const hashedPassword = await bcrypt.hash('password', saltRounds);
             await parentsCollection.insertOne({
@@ -197,10 +204,10 @@ export const seedUsers = async () => {
             // Create the link
             await parentHospitalLinksCollection.insertOne({
                 parentId: parentId,
-                hospitalId: hospitalForParent._id,
+                hospitalId: hospitalId,
                 createdAt: new Date()
             });
-            console.log(`Linked parent ${parentEmail} to hospital ${hospitalForParent.name}`);
+            console.log(`Linked parent ${parentEmail} to hospital 'General Hospital'`);
         }
     }
     
