@@ -23,6 +23,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import Link from 'next/link';
+import { Separator } from "../ui/separator";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -152,13 +153,24 @@ export function UnifiedAdminLoginForm() {
           </Button>
         </form>
       </CardContent>
-      <CardFooter>
-        <p className="text-xs text-muted-foreground text-center w-full">
-            Not a professional user? Go to{" "}
-            <Link href="/auth/login" className="text-primary hover:underline">
-                Parent login
-            </Link>
-        </p>
+      <CardFooter className="flex-col gap-4">
+        <div className="text-center text-xs text-muted-foreground w-full space-y-1">
+            <p>
+                Don't have an account?{" "}
+                <Link href={selectedRole === 'Admin' ? '/auth/register/admin' : '/auth/register/doctor'} className="text-primary hover:underline">
+                    Create one
+                </Link>
+            </p>
+        </div>
+        <Separator />
+        <div className="text-center text-xs text-muted-foreground">
+            <p>
+                Not a professional user? Go to{" "}
+                <Link href="/auth/login" className="font-semibold text-primary hover:underline">
+                    Parent Login
+                </Link>
+            </p>
+        </div>
       </CardFooter>
     </Card>
   );
