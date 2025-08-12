@@ -21,6 +21,9 @@ import {
   FileHeart,
   Bot,
   Box,
+  ShieldAlert,
+  MessageSquare,
+  Activity,
 } from 'lucide-react';
 import React from 'react';
 import { ScrollAnimationWrapper } from '@/components/layout/ScrollAnimationWrapper';
@@ -40,8 +43,8 @@ const featuresData: { [key: string]: Feature[] } = {
   parent: [
     {
       icon: Video,
-      title: "Tele-Consultations",
-      description: "Connect with trusted doctors via secure video call from the comfort of your home.",
+      title: "Unlimited Tele-Consultations",
+      description: "Connect with trusted doctors via secure video call from the comfort of your home, as often as you need.",
       details: "No more stressful clinic visits. Our seamless tele-consultation feature ensures you get expert medical advice when you need it, saving you time and providing peace of mind."
     },
     {
@@ -62,19 +65,18 @@ const featuresData: { [key: string]: Feature[] } = {
       description: "Capture and cherish every milestone with AI-generated heartfelt captions.",
       details: "Simply upload a photo, and our unique AI assistant helps you write the perfect, loving caption, creating a beautiful digital story of your baby's journey that's easy to share."
     },
-     {
-      icon: Bot,
-      title: "AI-Powered Nutritionist",
-      description: "Receive personalized nutrition plans and advice from our advanced AI.",
-      details: "Get customized meal plans and feeding schedules based on your baby's age, weight, and dietary needs. Our AI helps you create a healthy nutrition chart for optimal growth."
+    {
+      icon: ShieldAlert,
+      title: "24/7 Emergency Support",
+      description: "Gain immediate access to emergency contacts and guidelines for critical situations.",
+      details: "Our dedicated emergency line provides urgent support, giving you peace of mind when it matters most and connecting you to the right care quickly."
     },
     {
-      icon: Box,
-      title: "Automated Essentials Delivery",
-      description: "Get baby essentials delivered to your doorstep automatically each month.",
-      details: "Our upcoming subscription service ensures you never run out of diapers, wipes, and other essentials. Automated billing makes it effortless. (Coming Soon!)",
-      badge: "Coming Soon"
-    },
+        icon: Activity,
+        title: "Continuous Monitoring & Support",
+        description: "Your care team is always with you, providing proactive support and monitoring through the app.",
+        details: "From your AI-powered timeline to direct messaging with specialists, we provide a continuous loop of care that doesn't stop when you leave the hospital."
+    }
   ],
   doctor: [
     {
@@ -96,10 +98,16 @@ const featuresData: { [key: string]: Feature[] } = {
       details: "Reduce paperwork and eliminate errors with our streamlined digital prescription system. It's faster for you and more convenient for the parents you support."
     },
     {
-      icon: Rupee,
-      title: "Earnings & Payouts",
-      description: "Track your consultation revenue with detailed reports and manage payouts.",
-      details: "Get transparent, real-time insights into your earnings. Our platform makes financial tracking simple, so you can monitor your practice's growth effortlessly."
+      icon: ShieldAlert,
+      title: "Emergency Patient Support",
+      description: "Receive clear, timely escalations for your patients' urgent needs through a dedicated channel.",
+      details: "Our system filters non-critical queries, ensuring that when a parent has an emergency, you are alerted promptly with the necessary information to act."
+    },
+    {
+      icon: MessageSquare,
+      title: "Streamlined Query Handling",
+      description: "Our platform's Nurse Concierge handles basic queries, freeing you to focus on complex medical issues.",
+      details: "Reduce interruptions from routine questions. Our trained nursing staff provides first-line support, escalating only the cases that require your direct expertise."
     },
   ],
   hospital: [
@@ -120,13 +128,7 @@ const featuresData: { [key: string]: Feature[] } = {
       title: "Admin Dashboard",
       description: "Oversee hospital-wide operations with a powerful, data-rich dashboard.",
       details: "Gain a 360-degree view of your hospital's performance. Track key metrics on doctor activity, patient engagement, and subscription revenue to drive strategic decisions."
-    },
-    {
-      icon: Rupee,
-      title: "Flexible Business Models",
-      description: "Choose a revenue model that aligns with your hospital's financial strategy.",
-      details: "We offer both a fixed licensing fee for predictable budgeting and a collaborative revenue-sharing model, providing the flexibility to choose a true partnership for growth."
-    },
+    }
   ]
 };
 
