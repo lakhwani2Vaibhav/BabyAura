@@ -252,3 +252,13 @@ export const deleteDoctor = async (doctorId: string) => {
     if (!db) await init();
     return doctorsCollection.deleteOne({ _id: doctorId });
 };
+
+// Parent Management Services for Doctor
+export const getHospitalByDoctorId = async (doctorId: string) => {
+    if (!db) await init();
+    const doctor = await doctorsCollection.findOne({ _id: doctorId });
+    if (doctor && doctor.hospitalId) {
+        return hospitalsCollection.findOne({ _id: doctor.hospitalId });
+    }
+    return null;
+}
