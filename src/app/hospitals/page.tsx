@@ -15,7 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { HowItWorksSteps } from '@/components/hospitals/HowItWorksSteps';
 
-const Rupee = () => <span className="font-sans">₹</span>;
+const Rupee = () => <span className="font-sans h-8 w-8 text-primary flex items-center justify-center text-3xl font-bold">₹</span>;
 
 export default function HospitalsPage() {
   return (
