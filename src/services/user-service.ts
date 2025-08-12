@@ -41,13 +41,17 @@ const generateId = (type: string) => {
 export const findUserByEmail = async (email: string) => {
     if (!db) await init();
     
-    const collections = [parentsCollection, doctorsCollection, hospitalsCollection, superadminsCollection];
-    for (const collection of collections) {
+    const collections = [
+        { collection: parentsCollection, role: 'Parent' },
+        { collection: doctorsCollection, role: 'Doctor' },
+        { collection: hospitalsCollection, role: 'Admin' },
+        { collection: superadminsCollection, role: 'Superadmin' }
+    ];
+
+    for (const { collection, role } of collections) {
         const user = await collection.findOne({ email });
         if (user) {
-            // Add role based on collection name for consistent auth flow
-            const roleName = collection.collectionName.replace(/s$/, ''); // parents -> parent
-            return { ...user, role: roleName.charAt(0).toUpperCase() + roleName.slice(1) };
+            return { ...user, role };
         }
     }
     return null;
@@ -66,16 +70,14 @@ export const createUser = async (userData: any) => {
   };
 
   let collection;
-  let result;
   const customId = generateId(role.toLowerCase());
   userDocument._id = customId;
+  userDocument.role = role;
 
   switch(role) {
     case 'Parent':
         collection = parentsCollection;
-        userDocument.babyName = userData.babyName;
-        userDocument.babyDob = userData.babyDob;
-        // Link parent to hospital
+        // This assumes hospitalCode is provided and valid
         const hospital = await hospitalsCollection.findOne({ hospitalCode: userData.hospitalCode });
         if(hospital) {
             await parentHospitalLinksCollection.insertOne({
@@ -83,17 +85,16 @@ export const createUser = async (userData: any) => {
                 hospitalId: hospital._id,
                 createdAt: new Date()
             });
+        } else {
+            throw new Error("Invalid hospital code provided for parent registration.");
         }
         break;
     case 'Doctor':
         collection = doctorsCollection;
-        userDocument.specialty = userData.specialty;
-        userDocument.hospitalId = userData.hospitalId;
         break;
     case 'Admin':
-        collection = hospitalsCollection; // Admin user is the hospital entity
-        userDocument.hospitalName = userData.hospitalName;
-        userDocument.hospitalCode = generateId('hospital'); // a unique code for parents to join
+        collection = hospitalsCollection; // Admin user represents the hospital
+        userDocument.hospitalCode = `HOSP-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
         break;
     case 'Superadmin':
         collection = superadminsCollection;
@@ -102,22 +103,21 @@ export const createUser = async (userData: any) => {
         throw new Error("Invalid user role for creation.");
   }
 
-  result = await collection.insertOne(userDocument);
+  await collection.insertOne(userDocument);
   
-  return {
-    ...userDocument,
-    // No need to return result.insertedId since we set our own _id
-  };
+  // Return the newly created user without the password
+  const { password: _, ...userWithoutPassword } = userDocument;
+  return userWithoutPassword;
 };
 
 export const seedUsers = async () => {
     if (!db) await init();
 
-    console.log('Checking for existing users or seeding database...');
+    console.log('Checking for existing users and seeding database if necessary...');
 
     const saltRounds = 10;
     
-    // Seed Superadmins
+    // Seed Superadmins - This is the definitive implementation
     const superadminsToSeed = [
         { email: 'babyauraindia@gmail.com', name: 'BabyAura Superadmin', password: 'BabyAura@123' },
         { email: 'shubham12342019@gmail.com', name: 'Shubham Superadmin', password: '$Shubh@912513' },
@@ -146,7 +146,7 @@ export const seedUsers = async () => {
     let hospitalCodeForParent;
 
     if(!existingHospital) {
-        hospitalCodeForParent = generateId('hospital-code');
+        hospitalCodeForParent = `HOSP-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
         hospitalId = generateId('hospital');
         const hashedPassword = await bcrypt.hash('password', saltRounds);
         await hospitalsCollection.insertOne({
@@ -197,6 +197,7 @@ export const seedUsers = async () => {
                 role: 'Parent',
                 babyName: 'Aura', 
                 babyDob: '2023-12-05',
+                hospitalCode: hospitalCodeForParent,
                 createdAt: new Date()
             });
             console.log(`Seeded parent: ${parentEmail}`);
