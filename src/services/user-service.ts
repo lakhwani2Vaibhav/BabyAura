@@ -245,12 +245,12 @@ export const findDoctorById = async (doctorId: string) => {
 
 export const updateDoctor = async (doctorId: string, updates: Partial<{ name: string; specialty: string; status: 'Active' | 'On Leave' }>) => {
     if (!db) await init();
-    return doctorsCollection.updateOne({ _id: doctorId }, { $set: updates });
+    return doctorsCollection.updateOne({ _id: new ObjectId(doctorId) }, { $set: updates });
 };
 
 export const deleteDoctor = async (doctorId: string) => {
     if (!db) await init();
-    return doctorsCollection.deleteOne({ _id: doctorId });
+    return doctorsCollection.deleteOne({ _id: new ObjectId(doctorId) });
 };
 
 // Parent Management Services for Doctor

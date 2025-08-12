@@ -1,3 +1,4 @@
+
 import { NextRequest, NextResponse } from "next/server";
 import { findUserByEmail, createUser, getHospitalByDoctorId } from "@/services/user-service";
 import { getSession } from 'next-auth/react'; // This is a placeholder for server-side session logic

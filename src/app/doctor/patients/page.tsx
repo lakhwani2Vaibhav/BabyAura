@@ -100,7 +100,7 @@ export default function PatientsPage() {
             babyName: values.babyName,
             babyDob: values.babyDob,
             role: 'Parent',
-            registeredBy: role // This indicates a doctor is registering the parent
+            registeredBy: 'Doctor' // This indicates a doctor is registering the parent
         })
     });
     
