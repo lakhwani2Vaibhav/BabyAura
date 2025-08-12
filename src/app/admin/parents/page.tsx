@@ -135,15 +135,13 @@ export default function ParentsPage() {
   }, [searchTerm, allParents]);
 
   const handleAddParentSubmit = async (values: AddParentFormValues) => {
-    const hospitalId = "HOSP-ID-FROM-ADMIN-SESSION"; // Placeholder
-    
+    // The backend will determine the hospitalId from the admin's session
     const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
             ...values, 
             role: 'Parent',
-            hospitalId: hospitalId, // Pass hospitalId to link parent
             registeredBy: 'Admin'
         })
     });

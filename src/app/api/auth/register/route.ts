@@ -2,10 +2,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { findUserByEmail, createUser, getHospitalByDoctorId, findHospitalById } from "@/services/user-service";
 
+// This is a placeholder for a secure session check.
+// In a real app, this would involve decoding a JWT or similar.
+const getAuthenticatedDoctorId = async (req: NextRequest) => {
+    // For demo purposes, we'll return a static ID.
+    // In a real app, you would get this from the user's session.
+    // This is NOT secure for production.
+    return 'd1';
+}
+
+const getAuthenticatedAdminHospitalId = async (req: NextRequest) => {
+    // Placeholder logic for getting admin's hospitalId
+    // In a real app, this would come from a secure session/token
+    return "HOSP-ID-FROM-ADMIN-SESSION";
+}
+
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    let { name, email, password, role, registeredBy, hospitalId, ...rest } = body;
+    let { name, email, password, role, registeredBy, ...rest } = body;
 
     if (!name || !email || !password || !role) {
       return NextResponse.json(
@@ -14,13 +30,14 @@ export async function POST(req: NextRequest) {
       );
     }
     
+    let hospitalId;
+
     // If a doctor is registering a parent
     if (role === 'Parent' && registeredBy === 'Doctor') {
-        const doctorId = 'd1'; // Placeholder for the logged-in doctor's ID
+        const doctorId = await getAuthenticatedDoctorId(req);
         const hospital = await getHospitalByDoctorId(doctorId);
         if (hospital) {
-            // Pass the hospital's ID for linking, not the code
-            rest.hospitalId = hospital._id;
+            hospitalId = hospital._id;
         } else {
              return NextResponse.json(
                 { message: "Could not find the hospital associated with the doctor." },
@@ -31,20 +48,23 @@ export async function POST(req: NextRequest) {
 
     // If an Admin is registering a parent
     if (role === 'Parent' && registeredBy === 'Admin') {
-        if (!hospitalId) {
-             return NextResponse.json({ message: "Admin must provide a hospital ID." }, { status: 400 });
-        }
-        const hospital = await findHospitalById(hospitalId);
+        const adminHospitalId = await getAuthenticatedAdminHospitalId(req);
+        const hospital = await findHospitalById(adminHospitalId);
         if (hospital) {
-            // Pass the hospital's ID for linking
-            rest.hospitalId = hospital._id;
+            hospitalId = hospital._id;
         } else {
-             return NextResponse.json({ message: "Could not find the hospital." }, { status: 400 });
+             return NextResponse.json({ message: "Could not find the hospital for this administrator." }, { status: 400 });
         }
     }
+    
+    // If an Admin is registering a Doctor
+    if (role === 'Doctor' && registeredBy === 'Admin') {
+        hospitalId = await getAuthenticatedAdminHospitalId(req);
+    }
+
 
     // For independent parents, certain fields are also required
-    if (role === 'Parent' && !rest.hospitalCode && !rest.hospitalId) {
+    if (role === 'Parent' && !rest.hospitalCode && !hospitalId) {
         if(!rest.phone || !rest.address) {
              return NextResponse.json(
                 { message: "Phone number and address are required for independent registration." },
@@ -61,9 +81,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Pass all relevant data to createUser
-    const newUser = await createUser({ name, email, password, role, registeredBy, hospitalId, ...rest });
-
+    // Pass all relevant data to createUser, including the determined hospitalId
+    const newUser = await createUser({ name, email, password, role, hospitalId, ...rest });
 
     // Return user info (excluding password) upon successful registration
     const { password: _, ...userWithoutPassword } = newUser;

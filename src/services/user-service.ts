@@ -60,7 +60,7 @@ export const findUserByEmail = async (email: string) => {
 
 export const createUser = async (userData: any) => {
   if (!db) await init();
-  const { password, role, hospitalCode, hospitalId, hospitalName, registeredBy, ...restOfUser } = userData;
+  const { password, role, hospitalCode, hospitalId, hospitalName, ...restOfUser } = userData;
   
   if(!password) {
       throw new Error("Password is required for user creation.");
@@ -84,32 +84,25 @@ export const createUser = async (userData: any) => {
   switch(role) {
     case 'Parent':
         collection = parentsCollection;
-        // For independent parents
-        if (!hospitalCode && !hospitalId) {
+        // If the parent is affiliated (via code or direct ID), link them.
+        let finalHospitalId = hospitalId;
+        if (!finalHospitalId && hospitalCode) {
+            const hospital = await hospitalsCollection.findOne({ hospitalCode });
+            if(hospital) {
+                finalHospitalId = hospital._id;
+            } else {
+                 throw new Error("Invalid hospital code provided.");
+            }
+        }
+        
+        if (finalHospitalId) {
+            userDocument.hospitalId = finalHospitalId;
+        } 
+        // For independent parents, certain fields are required
+        else {
            if(!userDocument.phone || !userDocument.address) {
                 throw new Error("Phone and address are required for independent parents.");
            }
-        }
-        // For parents registered with a code or by an admin/doctor
-        else {
-             let foundHospital;
-             if (hospitalId) {
-                foundHospital = await hospitalsCollection.findOne({ _id: hospitalId });
-             } else if (hospitalCode) {
-                foundHospital = await hospitalsCollection.findOne({ hospitalCode });
-             }
-
-             if (foundHospital) {
-                 userDocument.hospitalId = foundHospital._id;
-                 userDocument.hospitalCode = foundHospital.hospitalCode;
-                 await parentHospitalLinksCollection.insertOne({
-                    parentId: customId,
-                    hospitalId: foundHospital._id,
-                    createdAt: new Date()
-                });
-             } else {
-                 throw new Error("Invalid hospital code or ID provided.");
-             }
         }
         break;
     case 'Doctor':
@@ -121,6 +114,7 @@ export const createUser = async (userData: any) => {
         break;
     case 'Admin':
         collection = hospitalsCollection;
+        userDocument._id = generateId('hospital'); // Use specific ID for clarity
         userDocument.hospitalName = hospitalName;
         userDocument.hospitalCode = `HOSP-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
         break;
@@ -147,6 +141,7 @@ export const seedUsers = async () => {
     
     // Seed Superadmins - This is the definitive implementation
     const superadminsToSeed = [
+        { email: 'superadmin@babyaura.in', name: 'BabyAura Superadmin', password: 'password' },
         { email: 'babyauraindia@gmail.com', name: 'BabyAura Superadmin', password: 'BabyAura@123' },
         { email: 'shubham12342019@gmail.com', name: 'Shubham Superadmin', password: '$Shubh@912513' },
     ];
@@ -218,7 +213,7 @@ export const seedUsers = async () => {
     const parentEmail = 'parent@babyaura.in';
     const existingParent = await parentsCollection.findOne({email: parentEmail});
     if(!existingParent) {
-        if(hospitalCodeForParent) {
+        if(hospitalId) {
             const parentId = generateId('parent');
             const hashedPassword = await bcrypt.hash('password', saltRounds);
             await parentsCollection.insertOne({
@@ -230,19 +225,10 @@ export const seedUsers = async () => {
                 babyName: 'Aura', 
                 babyDob: '2023-12-05',
                 hospitalId: hospitalId,
-                hospitalCode: hospitalCodeForParent,
                 createdAt: new Date(),
                 status: 'Active'
             });
             console.log(`Seeded parent: ${parentEmail}`);
-
-            // Create the link
-            await parentHospitalLinksCollection.insertOne({
-                parentId: parentId,
-                hospitalId: hospitalId,
-                createdAt: new Date()
-            });
-            console.log(`Linked parent ${parentEmail} to hospital 'General Hospital'`);
         }
     }
     
@@ -289,7 +275,6 @@ export const findHospitalById = async (hospitalId: string) => {
 export const getParentsByHospital = async (hospitalId: string) => {
     if(!db) await init();
 
-    // Corrected logic: Query parents collection directly by hospitalId
     const parents = await parentsCollection.find({ hospitalId: hospitalId }).toArray();
     
     // For each parent, we need to find their assigned doctor.
@@ -306,7 +291,5 @@ export const getParentsByHospital = async (hospitalId: string) => {
 
 export const deleteParent = async (parentId: string) => {
     if(!db) await init();
-    // Also delete the link in parentHospitalLinks
-    await parentHospitalLinksCollection.deleteOne({ parentId: parentId });
     return parentsCollection.deleteOne({ _id: parentId });
 }

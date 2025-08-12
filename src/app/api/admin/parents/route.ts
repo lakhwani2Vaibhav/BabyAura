@@ -2,17 +2,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getParentsByHospital } from "@/services/user-service";
 
-// In a real app, you would get the admin's hospitalId from their session.
-// For now, we will use a placeholder. This must be implemented securely.
-const getHospitalIdFromSession = async (req: NextRequest) => {
+// This is a placeholder for a secure session check.
+// In a real app, this would involve decoding a JWT or similar.
+const getAuthenticatedAdminHospitalId = async (req: NextRequest) => {
     // Placeholder logic: In a real scenario, decode a JWT or query a session store.
-    // This is NOT secure for production.
+    // This is NOT secure for production. For demo purposes, we return a known ID.
     return "HOSP-ID-FROM-ADMIN-SESSION";
 }
 
 export async function GET(req: NextRequest) {
     try {
-        const hospitalId = await getHospitalIdFromSession(req);
+        const hospitalId = await getAuthenticatedAdminHospitalId(req);
         if (!hospitalId) {
             return NextResponse.json({ message: "Admin not authenticated or hospital ID missing." }, { status: 403 });
         }

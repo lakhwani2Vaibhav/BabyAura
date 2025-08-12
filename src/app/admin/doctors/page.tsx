@@ -111,7 +111,7 @@ export default function ManageDoctorsPage() {
 
   useEffect(() => {
     fetchDoctors();
-  }, [toast]);
+  }, []);
 
   useEffect(() => {
     const results = doctors.filter(doctor =>
@@ -124,13 +124,11 @@ export default function ManageDoctorsPage() {
 
 
   const handleAddDoctorSubmit = async (values: AddDoctorFormValues) => {
-    // In a real app, you'd get the admin's hospitalId from their session/context
-    const hospitalId = "HOSP-ID-FROM-ADMIN-SESSION"; // Placeholder
-
+    // The backend will get the hospitalId from the admin's session
     const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...values, role: 'Doctor', hospitalId: hospitalId })
+        body: JSON.stringify({ ...values, role: 'Doctor', registeredBy: 'Admin' })
     });
     
     if (response.ok) {
