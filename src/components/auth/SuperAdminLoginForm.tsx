@@ -39,7 +39,6 @@ export function SuperAdminLoginForm() {
     formState: { errors, isSubmitting },
   } = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "superadmin@babyaura.in", password: "password" },
   });
 
   const onSubmit = async (data: LoginValues) => {
@@ -100,7 +99,7 @@ export function SuperAdminLoginForm() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" {...register("password")} defaultValue="password" />
+            <Input id="password" type="password" {...register("password")} />
             {errors.password && (
               <p className="text-sm text-destructive">
                 {errors.password.message}
