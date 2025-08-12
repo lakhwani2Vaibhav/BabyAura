@@ -157,7 +157,7 @@ export function UnifiedAdminLoginForm() {
         <div className="text-center text-xs text-muted-foreground w-full space-y-1">
             <p>
                 Don't have an account?{" "}
-                <Link href={selectedRole === 'Admin' ? '/auth/register/admin' : '/auth/register/doctor'} className="text-primary hover:underline">
+                <Link href={selectedRole === 'Admin' ? '/auth/register/admin' : '/auth/register/doctor'} className="text-primary hover:underline font-semibold">
                     Create one
                 </Link>
             </p>

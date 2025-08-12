@@ -115,7 +115,7 @@ export function LoginForm() {
         <div className="text-center text-xs text-muted-foreground w-full space-y-1">
             <p>
                 Don't have an account?{" "}
-                <Link href="/auth/register" className="text-primary hover:underline">
+                <Link href="/auth/register" className="text-primary hover:underline font-semibold">
                     Sign Up
                 </Link>
             </p>
