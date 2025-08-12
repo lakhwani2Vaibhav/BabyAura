@@ -2,6 +2,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import {
   Card,
   CardContent,
@@ -20,10 +23,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, MoreHorizontal } from "lucide-react";
+import { Search, MoreHorizontal, UserPlus } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
-import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
@@ -43,6 +45,25 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
 
 // This will be the shape of data fetched from the API
 type Parent = {
@@ -56,14 +77,29 @@ type Parent = {
   avatarUrl?: string;
 };
 
+const addParentSchema = z.object({
+  name: z.string().min(1, "Parent's name is required"),
+  babyName: z.string().min(1, "Baby's name is required"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+type AddParentFormValues = z.infer<typeof addParentSchema>;
+
 export default function ParentsPage() {
   const [allParents, setAllParents] = useState<Parent[]>([]);
   const [filteredParents, setFilteredParents] = useState<Parent[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
+  const [addParentOpen, setAddParentOpen] = useState(false);
   const [selectedParent, setSelectedParent] = useState<Parent | null>(null);
   const { toast } = useToast();
   
+  const form = useForm<AddParentFormValues>({
+    resolver: zodResolver(addParentSchema),
+    defaultValues: { name: "", babyName: "", email: "", password: "" },
+  });
+
   const fetchParents = async () => {
       try {
         const response = await fetch('/api/admin/parents');
@@ -81,7 +117,7 @@ export default function ParentsPage() {
 
   useEffect(() => {
     fetchParents();
-  }, [toast]);
+  }, []);
 
 
   useEffect(() => {
@@ -93,6 +129,39 @@ export default function ParentsPage() {
     );
     setFilteredParents(results);
   }, [searchTerm, allParents]);
+
+  const handleAddParentSubmit = async (values: AddParentFormValues) => {
+    const hospitalId = "HOSP-ID-FROM-ADMIN-SESSION"; // Placeholder
+    
+    const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            ...values, 
+            role: 'Parent',
+            hospitalId: hospitalId, // Pass hospitalId to link parent
+            registeredBy: 'Admin'
+        })
+    });
+    
+    if (response.ok) {
+        await fetchParents(); // Refetch the list
+        toast({
+            title: "Parent Added",
+            description: `${values.name} has been successfully added to the system.`,
+        });
+        setAddParentOpen(false);
+        form.reset();
+    } else {
+        const errorData = await response.json();
+        toast({
+            variant: "destructive",
+            title: "Failed to Add Parent",
+            description: errorData.message || "An unexpected error occurred.",
+        });
+    }
+  };
+
 
   const handleDeleteParent = async (parentId: string) => {
       if (!parentId) return;
@@ -127,10 +196,67 @@ export default function ParentsPage() {
     <>
     <Card>
       <CardHeader>
-        <CardTitle>Parents</CardTitle>
-        <CardDescription>
-          View all parents associated with the hospital.
-        </CardDescription>
+         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <CardTitle>Parents</CardTitle>
+              <CardDescription>
+                View and manage all parents associated with the hospital.
+              </CardDescription>
+            </div>
+            <Dialog open={addParentOpen} onOpenChange={setAddParentOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <UserPlus className="mr-2 h-4 w-4" /> Add Parent
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Add New Parent</DialogTitle>
+                  <DialogDescription>
+                    Enter the details for the new parent and their baby.
+                  </DialogDescription>
+                </DialogHeader>
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(handleAddParentSubmit)} className="space-y-4 py-4">
+                     <FormField control={form.control} name="name" render={({ field }) => (
+                        <FormItem>
+                          <Label>Parent's Name</Label>
+                          <FormControl><Input placeholder="e.g., Jane Doe" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                    <FormField control={form.control} name="babyName" render={({ field }) => (
+                        <FormItem>
+                          <Label>Baby's Name</Label>
+                          <FormControl><Input placeholder="e.g., Sam Doe" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                    <FormField control={form.control} name="email" render={({ field }) => (
+                        <FormItem>
+                          <Label>Parent's Email</Label>
+                          <FormControl><Input type="email" placeholder="parent@example.com" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                    <FormField control={form.control} name="password" render={({ field }) => (
+                        <FormItem>
+                          <Label>Temporary Password</Label>
+                          <FormControl><Input type="password" placeholder="••••••••" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                    <DialogFooter>
+                      <DialogClose asChild><Button type="button" variant="secondary">Cancel</Button></DialogClose>
+                      <Button type="submit" disabled={form.formState.isSubmitting}>
+                          {form.formState.isSubmitting ? "Adding..." : "Add Parent"}
+                      </Button>
+                    </DialogFooter>
+                  </form>
+                </Form>
+              </DialogContent>
+            </Dialog>
+          </div>
         <div className="relative pt-4">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input

@@ -1,4 +1,5 @@
 
+
 import clientPromise from "@/lib/mongodb";
 import bcrypt from 'bcrypt';
 import { Db, Collection, ObjectId } from "mongodb";
@@ -102,8 +103,6 @@ export const createUser = async (userData: any) => {
         if (!hospitalId) {
             throw new Error("Hospital ID is required for doctor registration.");
         }
-        // In a real app, we'd verify the hospitalId exists.
-        // For now, we trust the admin provides it.
         userDocument.hospitalId = hospitalId;
         break;
     case 'Admin':
@@ -265,6 +264,11 @@ export const getHospitalByDoctorId = async (doctorId: string) => {
         return hospitalsCollection.findOne({ _id: doctor.hospitalId });
     }
     return null;
+}
+
+export const findHospitalById = async (hospitalId: string) => {
+    if(!db) await init();
+    return hospitalsCollection.findOne({ _id: hospitalId });
 }
 
 export const getParentsByHospital = async (hospitalId: string) => {
