@@ -19,7 +19,8 @@ export async function POST(req: NextRequest) {
         const doctorId = 'd1'; // Placeholder for the logged-in doctor's ID
         const hospital = await getHospitalByDoctorId(doctorId);
         if (hospital) {
-            rest.hospitalCode = hospital.hospitalCode;
+            // Pass the hospital's ID for linking, not the code
+            rest.hospitalId = hospital._id;
         } else {
              return NextResponse.json(
                 { message: "Could not find the hospital associated with the doctor." },
@@ -35,15 +36,15 @@ export async function POST(req: NextRequest) {
         }
         const hospital = await findHospitalById(hospitalId);
         if (hospital) {
-            rest.hospitalCode = hospital.hospitalCode;
+            // The hospitalId from the request is correct, ensure it's passed on
+             rest.hospitalId = hospitalId;
         } else {
              return NextResponse.json({ message: "Could not find the hospital." }, { status: 400 });
         }
     }
 
-
     // For independent parents, certain fields are also required
-    if (role === 'Parent' && !rest.hospitalCode) {
+    if (role === 'Parent' && !rest.hospitalCode && !rest.hospitalId) {
         if(!rest.phone || !rest.address) {
              return NextResponse.json(
                 { message: "Phone number and address are required for independent registration." },
@@ -60,7 +61,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const newUser = await createUser({ name, email, password, role, hospitalId, ...rest });
+    // Pass all relevant data to createUser
+    const newUser = await createUser({ name, email, password, role, registeredBy, hospitalId: rest.hospitalId, ...rest });
+
 
     // Return user info (excluding password) upon successful registration
     const { password: _, ...userWithoutPassword } = newUser;
@@ -75,3 +78,4 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
