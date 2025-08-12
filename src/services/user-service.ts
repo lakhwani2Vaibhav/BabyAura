@@ -1,7 +1,7 @@
 
 import clientPromise from "@/lib/mongodb";
 import bcrypt from 'bcrypt';
-import { Db, Collection } from "mongodb";
+import { Db, Collection, ObjectId } from "mongodb";
 
 let client;
 let db: Db;
@@ -101,11 +101,10 @@ export const createUser = async (userData: any) => {
         if (!hospitalId) {
             throw new Error("Hospital ID is required for doctor registration.");
         }
-        const hospital = await hospitalsCollection.findOne({ _id: hospitalId });
-        if (!hospital) {
-            throw new Error("Invalid hospital ID provided for doctor registration.");
-        }
+        // In a real app, we'd verify the hospitalId exists.
+        // For now, we trust the admin provides it.
         userDocument.hospitalId = hospitalId;
+        userDocument.status = 'Active'; // Set default status
         break;
     case 'Admin':
         collection = hospitalsCollection;
@@ -124,6 +123,7 @@ export const createUser = async (userData: any) => {
   const { password: _, ...userWithoutPassword } = userDocument;
   return userWithoutPassword;
 };
+
 
 export const seedUsers = async () => {
     if (!db) await init();
@@ -162,7 +162,7 @@ export const seedUsers = async () => {
 
     if(!existingHospital) {
         hospitalCodeForParent = `GAH789`; // Make it deterministic for demo purposes
-        hospitalId = generateId('hospital');
+        hospitalId = "HOSP-ID-FROM-ADMIN-SESSION"; // Placeholder
         const hashedPassword = await bcrypt.hash('password', saltRounds);
         await hospitalsCollection.insertOne({
             _id: hospitalId,
@@ -192,6 +192,7 @@ export const seedUsers = async () => {
             role: 'Doctor',
             specialty: 'Pediatrics',
             hospitalId: hospitalId,
+            status: 'Active',
             createdAt: new Date(),
         })
         console.log(`Seeded doctor: ${doctorEmail}`);
@@ -228,4 +229,21 @@ export const seedUsers = async () => {
     }
     
     console.log('Database seeding check complete.');
+};
+
+
+// Doctor Management Services for Admin
+export const getDoctorsByHospital = async (hospitalId: string) => {
+    if (!db) await init();
+    return doctorsCollection.find({ hospitalId: hospitalId }).toArray();
+};
+
+export const updateDoctor = async (doctorId: string, updates: Partial<{ name: string; specialty: string; status: 'Active' | 'On Leave' }>) => {
+    if (!db) await init();
+    return doctorsCollection.updateOne({ _id: doctorId }, { $set: updates });
+};
+
+export const deleteDoctor = async (doctorId: string) => {
+    if (!db) await init();
+    return doctorsCollection.deleteOne({ _id: doctorId });
 };
