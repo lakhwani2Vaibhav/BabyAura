@@ -102,16 +102,20 @@ export default function BillingPage() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-lg">
                             <Zap className="h-5 w-5" />
-                            Change Model
+                            Explore Other Models
                         </CardTitle>
                         <CardDescription>
-                            Switch to a fixed licensing fee for your hospital.
+                            Consider a fixed licensing fee or our all-inclusive BabyAura 360° partnership.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         <p className="font-semibold">Licensing Plan</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-muted-foreground mb-4">
                            Predictable monthly costs for large-scale operations.
+                        </p>
+                         <p className="font-semibold">BabyAura 360°</p>
+                        <p className="text-sm text-muted-foreground mb-4">
+                           Our premium revenue-share model with a dedicated specialist team.
                         </p>
                         <Button className="mt-4 w-full">Contact Sales</Button>
                     </CardContent>

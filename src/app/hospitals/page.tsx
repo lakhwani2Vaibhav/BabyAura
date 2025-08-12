@@ -121,13 +121,15 @@ export default function HospitalsPage() {
             <div className="container px-4 md:px-6">
               <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-1000 ease-out">
                 <div className="max-w-4xl mx-auto text-center">
-                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl font-headline text-primary">Explore BabyAura 360°</h2>
+                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl font-headline text-primary">Explore Our All-Inclusive Partnership Models</h2>
                   <p className="max-w-3xl mx-auto mt-4 text-muted-foreground md:text-xl">
-                    Discover our premium, all-inclusive care model. A first-of-its-kind partnership that extends your trusted care with our in-house team of specialists, creating a new revenue stream for your hospital.
+                    From licensing fees to our premium BabyAura 360° revenue-share model with an in-house specialist team, we have a partnership that fits your hospital's needs.
                   </p>
                   <div className="mt-8">
                     <Button size="lg" asChild>
-                      <Link href="/hospitals/babyaura-360">Learn More About BabyAura 360°</Link>
+                      <a href="mailto:contact@babyaura.in?subject=Partnership Models Inquiry">
+                        Talk to our Partnership Team
+                      </a>
                     </Button>
                   </div>
                 </div>
