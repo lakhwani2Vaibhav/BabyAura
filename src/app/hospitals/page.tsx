@@ -127,7 +127,7 @@ export default function HospitalsPage() {
                   </p>
                   <div className="mt-8">
                     <Button size="lg" asChild>
-                      <a href="mailto:contact@babyaura.in?subject=Partnership Models Inquiry">
+                      <a href="mailto:babyauraindia@gmail.com?subject=Partnership Models Inquiry">
                         Talk to our Partnership Team
                       </a>
                     </Button>
