@@ -9,28 +9,13 @@ import { MarketingHeader } from '@/components/layout/MarketingHeader';
 import { AnimatedContent } from '@/components/layout/AnimatedContent';
 import { ScrollAnimationWrapper } from '@/components/layout/ScrollAnimationWrapper';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Heart, Zap, Handshake, Mail } from 'lucide-react';
+import { Heart, Zap, Handshake, Mail, Rocket } from 'lucide-react';
 import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { HowItWorksSteps } from '@/components/hospitals/HowItWorksSteps';
 
 const Rupee = () => <span className="font-sans">₹</span>;
-
-const hospitalTestimonials = [
-    {
-        quote: "Partnering with BabyAura transformed our postnatal care program. Our patient satisfaction scores have never been higher, and our doctors appreciate the streamlined communication.",
-        name: "Dr. Alisha Chen",
-        title: "Chief Medical Officer, General Hospital",
-        avatar: "https://placehold.co/100x100.png"
-    },
-    {
-        quote: "The recurring revenue model has opened up a new, predictable income stream for us. The no-upfront-cost option made the decision to join incredibly easy.",
-        name: "Mark Johnson",
-        title: "CEO, Lakeside Children's",
-        avatar: "https://placehold.co/100x100.png"
-    }
-];
 
 export default function HospitalsPage() {
   return (
@@ -137,36 +122,23 @@ export default function HospitalsPage() {
             </div>
           </section>
 
-          {/* Testimonials */}
-          <section id="testimonials" className="w-full py-12 md:py-24 bg-background">
+          {/* Upcoming Partnership Section */}
+          <section id="partnership-announcement" className="w-full py-12 md:py-24 bg-background">
             <div className="container px-4 md:px-6">
-               <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
-                <div className="text-center space-y-4 mb-12">
-                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl font-headline">Trusted by Leading Hospitals</h2>
-                  <p className="max-w-3xl mx-auto text-muted-foreground md:text-xl">Hear from administrators who have transformed their care with BabyAura.</p>
+              <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-1000 ease-out">
+                <div className="max-w-3xl mx-auto bg-muted/50 rounded-xl p-8 md:p-12 text-center">
+                  <Badge variant="secondary" className="mb-4">Coming Soon</Badge>
+                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl font-headline">
+                    A New Era of Care is on the Horizon
+                  </h2>
+                  <p className="mt-4 text-muted-foreground md:text-xl">
+                    BabyAura is proud to announce our upcoming partnership with <span className="font-semibold text-primary">DR DUDE</span>, a network of over 1500 Tier 2/3 hospitals across India.
+                  </p>
+                  <p className="mt-2 text-muted-foreground">
+                    This collaboration will bring our digital care ecosystem to thousands of new families, revolutionizing post-discharge care nationwide.
+                  </p>
                 </div>
               </ScrollAnimationWrapper>
-              <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto">
-                {hospitalTestimonials.map(testimonial => (
-                <ScrollAnimationWrapper key={testimonial.name} animationClasses="animate-in fade-in zoom-in-95 duration-1000 ease-out">
-                    <Card className="h-full">
-                    <CardContent className="p-6">
-                        <p className="text-muted-foreground italic mb-6">"{testimonial.quote}"</p>
-                        <div className="flex items-center gap-4">
-                            <Avatar className="h-12 w-12">
-                                <AvatarImage src={testimonial.avatar} data-ai-hint="person portrait" />
-                                <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                                <p className="font-semibold">{testimonial.name}</p>
-                                <p className="text-sm text-muted-foreground">{testimonial.title}</p>
-                            </div>
-                        </div>
-                    </CardContent>
-                    </Card>
-                </ScrollAnimationWrapper>
-                ))}
-              </div>
             </div>
           </section>
 
