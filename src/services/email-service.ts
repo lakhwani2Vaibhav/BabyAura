@@ -1,10 +1,9 @@
-
 'use server';
 
 import * as brevo from '@getbrevo/brevo';
 import { WelcomeEmail } from '@/components/emails/WelcomeEmail';
 import { OnboardingEmail } from '@/components/emails/OnboardingEmail';
-import { render } from 'react-dom/server';
+import { renderToStaticMarkup } from 'react-dom/server';
 
 const apiInstance = new brevo.TransactionalEmailsApi();
 
@@ -27,7 +26,7 @@ export const sendWelcomeEmail = async ({
   recipientName,
   role,
 }: WelcomeEmailProps) => {
-  const emailHtml = render(WelcomeEmail({
+  const emailHtml = renderToStaticMarkup(WelcomeEmail({
       name: recipientName,
       role,
   }));
@@ -64,7 +63,7 @@ export const sendOnboardingEmail = async ({
     hospitalName,
     temporaryPassword
 }: OnboardingEmailProps) => {
-    const emailHtml = render(OnboardingEmail({
+    const emailHtml = renderToStaticMarkup(OnboardingEmail({
         name: recipientName,
         role,
         hospitalName,
