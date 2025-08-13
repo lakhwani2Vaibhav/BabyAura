@@ -524,3 +524,43 @@ export const getAdminDashboardData = async (hospitalId: string) => {
         doctors: doctorSnapshots,
     };
 };
+
+// Admin Analytics Service
+export const getAdminAnalytics = async (hospitalId: string) => {
+    if (!db) await init();
+
+    const doctorCount = await doctorsCollection.countDocuments({ hospitalId });
+    const parentCount = await parentsCollection.countDocuments({ hospitalId });
+    const monthlyRevenue = parentCount * 50; // Placeholder calculation
+
+    // Placeholder data for charts
+    const monthlyRevenueData = [
+        { month: "Jan", revenue: 8000 },
+        { month: "Feb", revenue: 9000 },
+        { month: "Mar", revenue: 10500 },
+        { month: "Apr", revenue: 10000 },
+        { month: "May", revenue: 11000 },
+        { month: "Jun", revenue: 12000 },
+    ];
+    const userGrowthData = [
+        { month: "Jan", parents: 180, doctors: 10 },
+        { month: "Feb", parents: 195, doctors: 10 },
+        { month: "Mar", parents: 210, doctors: 11 },
+        { month: "Apr", parents: 220, doctors: 12 },
+        { month: "May", parents: 240, doctors: 12 },
+        { month: "Jun", parents: parentCount, doctors: doctorCount },
+    ];
+
+    return {
+        metrics: {
+            doctors: doctorCount,
+            parents: parentCount,
+            monthlyRevenue,
+        },
+        analytics: {
+            parentGrowthRate: 8, // Placeholder
+            monthlyRevenue: monthlyRevenueData,
+            userGrowth: userGrowthData,
+        }
+    };
+};
