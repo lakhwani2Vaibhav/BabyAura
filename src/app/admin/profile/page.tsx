@@ -59,8 +59,11 @@ export default function AdminProfilePage() {
         if (!user?.email) return;
         setLoading(true);
         try {
+            const token = localStorage.getItem('babyaura_token');
             const response = await fetch('/api/admin/profile', {
-                headers: { 'X-User-Email': user.email }
+                headers: { 
+                    'Authorization': `Bearer ${token}`
+                }
             });
             if (!response.ok) throw new Error("Failed to fetch profile");
             const profileData = await response.json();
@@ -86,9 +89,10 @@ export default function AdminProfilePage() {
   const onProfileSubmit = async (data: ProfileFormValues) => {
     if (!user?.email) return;
     try {
+        const token = localStorage.getItem('babyaura_token');
         const response = await fetch('/api/admin/profile', {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'X-User-Email': user.email },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify({ name: data.name }),
         });
 
@@ -105,9 +109,10 @@ export default function AdminProfilePage() {
   const onPasswordSubmit = async (data: PasswordFormValues) => {
       if (!user?.email) return;
       try {
+        const token = localStorage.getItem('babyaura_token');
         const response = await fetch('/api/admin/change-password', {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'X-User-Email': user.email },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify(data),
         });
 
@@ -209,3 +214,5 @@ export default function AdminProfilePage() {
     </div>
   );
 }
+
+    

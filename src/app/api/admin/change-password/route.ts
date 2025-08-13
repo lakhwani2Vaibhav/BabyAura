@@ -1,12 +1,28 @@
 
 import { NextRequest, NextResponse } from "next/server";
-import { findUserByEmail, changeAdminPassword } from "@/services/user-service";
+import { findUserByEmail, changeAdminPassword, findHospitalById } from "@/services/user-service";
+import { jwtDecode } from "jwt-decode";
+
+interface DecodedToken {
+    userId: string;
+    role: string;
+    [key: string]: any;
+}
 
 const getAuthenticatedAdmin = async (req: NextRequest) => {
-    const userEmail = req.headers.get('X-User-Email');
-    if (!userEmail) return null;
-    const admin = await findUserByEmail(userEmail);
-    return (admin && admin.role === 'Admin') ? admin : null;
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader) return null;
+    
+    const token = authHeader.split(' ')[1];
+    if (!token) return null;
+
+    try {
+        const decoded = jwtDecode<DecodedToken>(token);
+        if (decoded.role !== 'Admin' || !decoded.userId) return null;
+        return findHospitalById(decoded.userId);
+    } catch (e) {
+        return null;
+    }
 };
 
 export async function PUT(req: NextRequest) {
@@ -32,3 +48,5 @@ export async function PUT(req: NextRequest) {
         return NextResponse.json({ message: errorMessage }, { status: (error as any).statusCode || 500 });
     }
 }
+
+    
