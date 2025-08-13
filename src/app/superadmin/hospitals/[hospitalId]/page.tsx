@@ -1,7 +1,7 @@
 
 "use client";
 
-import { notFound } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
 import { superAdminData, adminData, doctorData } from "@/lib/data";
 import {
   Card,
@@ -23,18 +23,62 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ArrowLeft, Building, Stethoscope, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import React, { useEffect, useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
+
+type HospitalDetails = {
+    _id: string;
+    hospitalName: string;
+    plan: string;
+    status: string;
+    doctors: any[];
+    parents: any[];
+}
+
 
 export default function HospitalDetailsPage({ params }: { params: { hospitalId: string } }) {
   const { hospitalId } = params;
-  const hospital = superAdminData.hospitals.find(h => h.id === hospitalId);
+  const [hospital, setHospital] = useState<HospitalDetails | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-  if (!hospital) {
-    notFound();
-  }
-  
-  // Using mock data for demonstration. In a real app, this would be a filtered API call.
-  const doctors = adminData.doctors;
-  const parents = doctorData.patients;
+   useEffect(() => {
+    const fetchHospitalDetails = async () => {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem("babyaura_token");
+        // This would be a real API call in a production app
+        // For now, we simulate fetching and combining data
+        const allHospitals = (await (await fetch('/api/superadmin/hospitals', { headers: { 'Authorization': `Bearer ${token}` }})).json());
+        const targetHospital = allHospitals.find((h: any) => h._id === hospitalId);
+        
+        if(!targetHospital) {
+            notFound();
+            return;
+        }
+
+        // Mock fetching doctors and parents for this hospital
+        const doctors = adminData.doctors; // Replace with API call
+        const parents = doctorData.patients; // Replace with API call
+
+        setHospital({
+            _id: targetHospital._id,
+            hospitalName: targetHospital.hospitalName,
+            plan: targetHospital.plan || 'N/A',
+            status: targetHospital.status,
+            doctors,
+            parents
+        });
+
+      } catch (e) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Could not fetch hospital details.' });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchHospitalDetails();
+  }, [hospitalId, toast]);
 
   const getInitials = (name: string) => {
     const parts = name.split(" ");
@@ -42,6 +86,29 @@ export default function HospitalDetailsPage({ params }: { params: { hospitalId: 
       ? `${parts[0][0]}${parts[parts.length - 1][0]}`
       : name.substring(0, 2);
   };
+  
+  if (loading) {
+      return (
+          <div className="space-y-6">
+            <Skeleton className="h-10 w-1/3" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-24 w-full" />
+            </div>
+             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Skeleton className="h-64 w-full" />
+                <Skeleton className="h-64 w-full" />
+            </div>
+          </div>
+      )
+  }
+
+  if (!hospital) {
+    return notFound();
+  }
+
 
   return (
     <div className="space-y-6">
@@ -53,9 +120,9 @@ export default function HospitalDetailsPage({ params }: { params: { hospitalId: 
             </Button>
             <div>
                 <h1 className="text-3xl font-bold font-headline flex items-center gap-2">
-                    <Building className="h-6 w-6" /> {hospital.name}
+                    <Building className="h-6 w-6" /> {hospital.hospitalName}
                 </h1>
-                <p className="text-muted-foreground">ID: {hospital.id}</p>
+                <p className="text-muted-foreground">ID: {hospital._id}</p>
             </div>
         </div>
 
@@ -66,7 +133,7 @@ export default function HospitalDetailsPage({ params }: { params: { hospitalId: 
                     <Stethoscope className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">{doctors.length}</div>
+                    <div className="text-2xl font-bold">{hospital.doctors.length}</div>
                 </CardContent>
             </Card>
              <Card>
@@ -75,7 +142,7 @@ export default function HospitalDetailsPage({ params }: { params: { hospitalId: 
                     <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">{parents.length}</div>
+                    <div className="text-2xl font-bold">{hospital.parents.length}</div>
                 </CardContent>
             </Card>
             <Card>
@@ -91,7 +158,7 @@ export default function HospitalDetailsPage({ params }: { params: { hospitalId: 
                     <CardTitle className="text-sm font-medium">Status</CardTitle>
                 </CardHeader>
                 <CardContent>
-                     <Badge variant={hospital.status === "Active" ? "default" : "destructive"} className="text-lg">{hospital.status}</Badge>
+                     <Badge variant={hospital.status === "verified" ? "default" : "destructive"} className="text-lg">{hospital.status}</Badge>
                 </CardContent>
             </Card>
         </div>
@@ -100,7 +167,7 @@ export default function HospitalDetailsPage({ params }: { params: { hospitalId: 
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><Stethoscope className="h-5 w-5" /> Doctors</CardTitle>
-                    <CardDescription>Doctors associated with {hospital.name}</CardDescription>
+                    <CardDescription>Doctors associated with {hospital.hospitalName}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Table>
@@ -112,7 +179,7 @@ export default function HospitalDetailsPage({ params }: { params: { hospitalId: 
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {doctors.map(doctor => (
+                            {hospital.doctors.map(doctor => (
                                 <TableRow key={doctor.id}>
                                     <TableCell className="font-medium">
                                         <div className="flex items-center gap-3">
@@ -147,7 +214,7 @@ export default function HospitalDetailsPage({ params }: { params: { hospitalId: 
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {parents.map(parent => (
+                            {hospital.parents.map(parent => (
                                 <TableRow key={parent.id}>
                                     <TableCell className="font-medium">{parent.name}</TableCell>
                                     <TableCell>

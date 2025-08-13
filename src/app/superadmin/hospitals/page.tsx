@@ -63,7 +63,12 @@ export default function HospitalsPage() {
 
   const fetchHospitals = async () => {
     try {
-      const response = await fetch('/api/superadmin/hospitals');
+      const token = localStorage.getItem("babyaura_token");
+      const response = await fetch('/api/superadmin/hospitals', {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+      });
       if (!response.ok) throw new Error("Failed to fetch hospitals");
       const data = await response.json();
       setHospitals(data);
@@ -86,9 +91,10 @@ export default function HospitalsPage() {
     if (alertInfo.action === "reactivate") newStatus = "verified";
 
     try {
+        const token = localStorage.getItem("babyaura_token");
       const response = await fetch(`/api/superadmin/hospitals/${alertInfo.hospital._id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ status: newStatus }),
       });
 

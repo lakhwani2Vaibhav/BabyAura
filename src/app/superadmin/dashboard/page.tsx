@@ -49,7 +49,10 @@ export default function SuperAdminDashboardPage() {
 
   const fetchOnboardingRequests = async () => {
     try {
-      const response = await fetch('/api/superadmin/hospitals');
+      const token = localStorage.getItem('babyaura_token');
+      const response = await fetch('/api/superadmin/hospitals', {
+          headers: { 'Authorization': `Bearer ${token}` }
+      });
       if (!response.ok) throw new Error("Failed to fetch requests.");
       const allHospitals = await response.json();
       setRequests(allHospitals.filter((h: OnboardingRequest) => h.status === 'pending_verification'));
