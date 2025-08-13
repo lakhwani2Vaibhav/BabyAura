@@ -47,14 +47,16 @@ export async function PUT(req: NextRequest) {
         const body = await req.json();
         
         // Basic validation
-        const { name, babyName, babyDob, password } = body;
+        const { name, babyName, babyDob } = body;
         if (!name || !babyName || !babyDob) {
             return NextResponse.json({ message: "Name, baby name, and baby's DOB are required." }, { status: 400 });
         }
 
-        const result = await updateParentProfile(parentId, { name, babyName, babyDob, password });
+        const result = await updateParentProfile(parentId, { name, babyName, babyDob });
         
         const updatedParent = await findParentById(parentId);
+        if (!updatedParent) throw new Error("Could not find updated parent.");
+        
         const { password: _, ...updatedData } = updatedParent;
         
         if (result.modifiedCount === 0) {

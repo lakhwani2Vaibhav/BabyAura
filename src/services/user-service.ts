@@ -1,5 +1,6 @@
 
 
+
 import clientPromise from "@/lib/mongodb";
 import bcrypt from 'bcrypt';
 import { Db, Collection, ObjectId } from "mongodb";
@@ -327,16 +328,33 @@ export const findParentById = async (parentId: string) => {
 
 export const updateParentProfile = async (parentId: string, updates: any) => {
     if (!db) await init();
-    const { password, ...restUpdates } = updates;
-    const updateData: any = { ...restUpdates };
-    
-    if (password) {
-        const saltRounds = 10;
-        updateData.password = await bcrypt.hash(password, saltRounds);
-    }
-    
-    return parentsCollection.updateOne({ _id: parentId }, { $set: updateData });
+    return parentsCollection.updateOne({ _id: parentId }, { $set: updates });
 }
+
+export const changeParentPassword = async (parentId: string, currentPassword: string, newPassword: string
+) => {
+    if (!db) await init();
+    const parent = await parentsCollection.findOne({ _id: parentId });
+
+    if (!parent) {
+        const err = new Error("Parent not found.");
+        (err as any).statusCode = 404;
+        throw err;
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, parent.password);
+    if (!isMatch) {
+        const err = new Error("Incorrect current password.");
+        (err as any).statusCode = 401;
+        throw err;
+    }
+
+    const saltRounds = 10;
+    const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    return parentsCollection.updateOne({ _id: parentId }, { $set: { password: hashedNewPassword } });
+};
+
 
 // Parent Timeline Services
 export const getTimelineTasks = async (parentId: string) => {
