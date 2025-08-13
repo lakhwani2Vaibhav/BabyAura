@@ -25,7 +25,8 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default function HospitalDetailsPage({ params }: { params: { hospitalId: string } }) {
-  const hospital = superAdminData.hospitals.find(h => h.id === params.hospitalId);
+  const { hospitalId } = params;
+  const hospital = superAdminData.hospitals.find(h => h.id === hospitalId);
 
   if (!hospital) {
     notFound();
