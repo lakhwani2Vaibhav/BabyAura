@@ -64,7 +64,7 @@ export function AdminRegisterForm() {
         description: "Welcome to BabyAura. You can now log in.",
       });
 
-      login("Admin");
+      login({ role: "Admin", email: result.email, name: result.name });
 
     } catch (err: any) {
       setError(err.message || 'Failed to register. Please try again.');
