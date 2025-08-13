@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -13,16 +14,81 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Copy, Building, User, Mail, Phone, MapPin, ShieldAlert, Users, Pencil, ArrowRight } from "lucide-react";
-import { adminData } from "@/lib/data";
+import { Copy, Building, User, Pencil, ArrowRight } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
+import { useAuth } from '@/hooks/use-auth';
+import { Skeleton } from '@/components/ui/skeleton';
 
+type Doctor = {
+  _id: string;
+  name: string;
+  specialty: string;
+  avatarUrl?: string;
+};
+
+type HospitalProfile = {
+  hospitalName: string;
+  hospitalCode: string;
+  email: string;
+  mobile: string;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
+  };
+  doctors: Doctor[];
+  specialties: string[];
+};
 
 export default function HospitalOnboardingPage() {
   const { toast } = useToast();
-  const hospitalCode = "GAH789";
+  const { user } = useAuth();
+  const [profile, setProfile] = useState<HospitalProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchHospitalProfile = async () => {
+      if (!user) return;
+      setLoading(true);
+      try {
+        const token = localStorage.getItem('babyaura_token');
+        const response = await fetch('/api/admin/dashboard', { // Reusing dashboard API as it has most info
+           headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) throw new Error("Failed to fetch profile");
+        
+        const data = await response.json();
+        const hospitalData = await fetch('/api/admin/profile', { // Get hospital specific info
+             headers: { 'Authorization': `Bearer ${token}` }
+        })
+        const hospitalProfile = await hospitalData.json();
+
+        setProfile({
+          hospitalName: hospitalProfile.hospitalName,
+          hospitalCode: hospitalProfile.hospitalCode,
+          email: hospitalProfile.email,
+          mobile: hospitalProfile.mobile,
+          address: hospitalProfile.address || { street: '', city: '', state: '', zip: '' },
+          doctors: data.doctors,
+          specialties: hospitalProfile.specialties || []
+        });
+
+      } catch (error) {
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: 'Could not fetch hospital profile data.'
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchHospitalProfile();
+  }, [user, toast]);
+  
 
   const handleSaveChanges = () => {
     toast({
@@ -32,7 +98,8 @@ export default function HospitalOnboardingPage() {
   };
 
   const handleCopyCode = () => {
-    navigator.clipboard.writeText(hospitalCode);
+    if (!profile) return;
+    navigator.clipboard.writeText(profile.hospitalCode);
     toast({
         title: "Code Copied!",
         description: "The hospital code has been copied to your clipboard."
@@ -40,11 +107,39 @@ export default function HospitalOnboardingPage() {
   }
   
   const getInitials = (name: string) => {
+    if (!name) return "";
     const parts = name.split(" ");
     return parts.length > 1
       ? `${parts[0][0]}${parts[parts.length - 1][0]}`
       : name.substring(0, 2);
   };
+
+  if (loading) {
+      return <div className="space-y-6">
+          <div className="flex items-center justify-between">
+              <div>
+                  <Skeleton className="h-8 w-64" />
+                  <Skeleton className="h-4 w-96 mt-2" />
+              </div>
+              <Skeleton className="h-10 w-40" />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 space-y-6">
+                  <Skeleton className="h-48" />
+                  <Skeleton className="h-48" />
+                  <Skeleton className="h-48" />
+              </div>
+              <div className="space-y-6">
+                  <Skeleton className="h-64" />
+                  <Skeleton className="h-80" />
+              </div>
+          </div>
+      </div>
+  }
+
+  if (!profile) {
+      return <div>Could not load hospital profile.</div>
+  }
 
 
   return (
@@ -71,16 +166,16 @@ export default function HospitalOnboardingPage() {
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="hospital-name">Hospital Name</Label>
-                            <Input id="hospital-name" defaultValue="General Hospital" />
+                            <Input id="hospital-name" defaultValue={profile.hospitalName} />
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="hospital-phone">Main Phone Number</Label>
-                                <Input id="hospital-phone" type="tel" defaultValue="(123) 456-7890" />
+                                <Input id="hospital-phone" type="tel" defaultValue={profile.mobile} />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="hospital-email">Public Email Address</Label>
-                                <Input id="hospital-email" type="email" defaultValue="contact@generalhospital.com" />
+                                <Input id="hospital-email" type="email" defaultValue={profile.email} />
                             </div>
                         </div>
                     </CardContent>
@@ -92,20 +187,20 @@ export default function HospitalOnboardingPage() {
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="hospital-street">Street Address</Label>
-                            <Input id="hospital-street" defaultValue="123 Health St" />
+                            <Input id="hospital-street" defaultValue={profile.address.street} />
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="hospital-city">City</Label>
-                                <Input id="hospital-city" defaultValue="Wellnessville" />
+                                <Input id="hospital-city" defaultValue={profile.address.city} />
                             </div>
                              <div className="space-y-2">
                                 <Label htmlFor="hospital-state">State</Label>
-                                <Input id="hospital-state" defaultValue="CA" />
+                                <Input id="hospital-state" defaultValue={profile.address.state} />
                             </div>
                              <div className="space-y-2">
                                 <Label htmlFor="hospital-zip">Postal Code</Label>
-                                <Input id="hospital-zip" defaultValue="90210" />
+                                <Input id="hospital-zip" defaultValue={profile.address.zip} />
                             </div>
                         </div>
                     </CardContent>
@@ -166,7 +261,7 @@ export default function HospitalOnboardingPage() {
                         <div>
                             <Label htmlFor="hospital-code">Unique Hospital Code</Label>
                             <div className="flex items-center gap-2 mt-2">
-                                <Input id="hospital-code" value={hospitalCode} readOnly />
+                                <Input id="hospital-code" value={profile.hospitalCode} readOnly />
                                 <Button variant="outline" size="icon" onClick={handleCopyCode}>
                                     <Copy className="h-4 w-4" />
                                 </Button>
@@ -191,8 +286,8 @@ export default function HospitalOnboardingPage() {
                         <CardDescription>Key medical staff on the platform.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        {adminData.doctors.map((doctor) => (
-                            <div key={doctor.id} className="flex items-center gap-3">
+                        {profile.doctors.map((doctor) => (
+                            <div key={doctor._id} className="flex items-center gap-3">
                                 <Avatar className="h-10 w-10">
                                     <AvatarImage src={doctor.avatarUrl} />
                                     <AvatarFallback>{getInitials(doctor.name)}</AvatarFallback>
