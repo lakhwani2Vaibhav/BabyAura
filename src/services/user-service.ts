@@ -50,7 +50,11 @@ export const findUserByEmail = async (email: string) => {
     for (const { collection, role, nameField } of collections) {
         const user = await collection.findOne({ email });
         if (user) {
-            return { ...user, role, name: user[nameField] };
+            const finalUser = { ...user, role, name: user[nameField] };
+            if (role === 'Admin') {
+                finalUser.hospitalName = user.hospitalName;
+            }
+            return finalUser;
         }
     }
     return null;
@@ -319,7 +323,8 @@ export const deleteParent = async (parentId: string) => {
 // Admin Profile Service
 export const updateAdminProfile = async (adminId: string, updates: { name: string }) => {
     if (!db) await init();
-    return hospitalsCollection.updateOne({ _id: adminId }, { $set: updates });
+    // Admins are stored in the 'hospitals' collection, so we update the 'ownerName'
+    return hospitalsCollection.updateOne({ _id: adminId }, { $set: { ownerName: updates.name } });
 };
 
 export const changeAdminPassword = async (adminId: string, currentPassword: string, newPassword: string) => {
@@ -400,3 +405,18 @@ export const updateTimelineTasks = async (parentId: string, tasks: any[]) => {
         { upsert: true }
     );
 };
+
+// Superadmin services
+export const getAllHospitals = async () => {
+    if (!db) await init();
+    return await hospitalsCollection.find({}).toArray();
+}
+
+export const updateHospitalStatus = async (hospitalId: string, status: string) => {
+    if (!db) await init();
+    const result = await hospitalsCollection.updateOne(
+        { _id: hospitalId },
+        { $set: { status: status } }
+    );
+    return result;
+}

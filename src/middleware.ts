@@ -16,5 +16,5 @@ export function middleware(request: NextRequest) {
  
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: ['/api/admin/:path*', '/api/doctor/:path*', '/api/parent/:path*'],
+  matcher: ['/api/admin/:path*', '/api/doctor/:path*', '/api/parent/:path*', '/api/superadmin/:path*'],
 }

@@ -1,8 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
-import { superAdminData } from "@/lib/data";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -28,27 +27,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, UserPlus } from "lucide-react";
+import { MoreHorizontal, CheckCircle, XCircle } from "lucide-react";
 import { format } from "date-fns";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-  DialogClose,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -63,113 +43,92 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-type Hospital = (typeof superAdminData.hospitals)[0] & {
-  status: "Active" | "Pending" | "Suspended";
+type Hospital = {
+  _id: string;
+  hospitalName: string;
+  createdAt: string;
+  plan?: string;
+  status: "pending_verification" | "verified" | "suspended" | "rejected";
 };
 
 export default function HospitalsPage() {
-  const [hospitals, setHospitals] = useState<Hospital[]>(
-    superAdminData.hospitals as Hospital[]
-  );
-  const [open, setOpen] = useState(false);
-  const [suspendAlertOpen, setSuspendAlertOpen] = useState(false);
-  const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(
-    null
-  );
+  const [hospitals, setHospitals] = useState<Hospital[]>([]);
+  const [alertInfo, setAlertInfo] = useState<{
+    open: boolean;
+    hospital: Hospital | null;
+    action: "approve" | "reject" | "suspend" | "reactivate";
+  } | null>(null);
   const { toast } = useToast();
   const router = useRouter();
 
-  const handleAddHospital = () => {
-    toast({
-      title: "Hospital Added",
-      description: "The new hospital has been successfully added.",
-    });
-    setOpen(false);
+  const fetchHospitals = async () => {
+    try {
+      const response = await fetch('/api/superadmin/hospitals');
+      if (!response.ok) throw new Error("Failed to fetch hospitals");
+      const data = await response.json();
+      setHospitals(data);
+    } catch (error) {
+      toast({ variant: "destructive", title: "Error", description: "Could not fetch hospitals." });
+    }
   };
 
-  const handleSuspendConfirm = () => {
-    if (selectedHospital) {
-      setHospitals(
-        hospitals.map((h) =>
-          h.id === selectedHospital.id
-            ? { ...h, status: h.status === "Active" ? "Suspended" : "Active" }
-            : h
-        )
-      );
-      toast({
-        title: `Hospital ${
-          selectedHospital.status === "Active" ? "Suspended" : "Activated"
-        }`,
-        description: `${selectedHospital.name}'s status has been updated.`,
+  useEffect(() => {
+    fetchHospitals();
+  }, []);
+
+  const handleStatusUpdate = async () => {
+    if (!alertInfo || !alertInfo.hospital) return;
+
+    let newStatus: Hospital["status"] = alertInfo.hospital.status;
+    if (alertInfo.action === "approve") newStatus = "verified";
+    if (alertInfo.action === "reject") newStatus = "rejected";
+    if (alertInfo.action === "suspend") newStatus = "suspended";
+    if (alertInfo.action === "reactivate") newStatus = "verified";
+
+    try {
+      const response = await fetch(`/api/superadmin/hospitals/${alertInfo.hospital._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
       });
+
+      if (!response.ok) throw new Error("Failed to update status");
+
+      await fetchHospitals(); // Refresh the list
+      toast({
+        title: "Status Updated",
+        description: `${alertInfo.hospital.hospitalName}'s status has been updated.`,
+      });
+
+    } catch (error) {
+      toast({ variant: "destructive", title: "Error", description: "Could not update hospital status." });
+    } finally {
+      setAlertInfo(null);
     }
-    setSuspendAlertOpen(false);
-    setSelectedHospital(null);
   };
+
+  const getStatusBadge = (status: Hospital['status']) => {
+    switch (status) {
+      case 'verified':
+        return <Badge variant="default" className="bg-green-500/20 text-green-700 border-transparent hover:bg-green-500/30">Verified</Badge>;
+      case 'pending_verification':
+        return <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-700 border-transparent hover:bg-yellow-500/30">Pending</Badge>;
+      case 'suspended':
+      case 'rejected':
+        return <Badge variant="destructive">Suspended</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  }
 
   return (
     <>
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle>Manage Hospitals</CardTitle>
-            <CardDescription>
-              View and manage all partner hospitals on the platform.
-            </CardDescription>
-          </div>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <UserPlus className="mr-2 h-4 w-4" /> Add Hospital
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Add New Hospital</DialogTitle>
-                <DialogDescription>
-                  Enter the details for the new hospital to onboard them.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="name" className="text-right">
-                    Name
-                  </Label>
-                  <Input
-                    id="name"
-                    defaultValue="New City Hospital"
-                    className="col-span-3"
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="plan" className="text-right">
-                    Plan
-                  </Label>
-                  <Select>
-                    <SelectTrigger className="col-span-3">
-                      <SelectValue placeholder="Select a plan" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="licensing">Licensing</SelectItem>
-                      <SelectItem value="revenue-share">
-                        Revenue Share
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button type="button" variant="secondary">
-                    Cancel
-                  </Button>
-                </DialogClose>
-                <Button type="button" onClick={handleAddHospital}>
-                  Add Hospital
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+        <CardHeader>
+          <CardTitle>Manage Hospitals</CardTitle>
+          <CardDescription>
+            View, approve, and manage all partner hospitals on the platform.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -184,38 +143,23 @@ export default function HospitalsPage() {
             </TableHeader>
             <TableBody>
               {hospitals.map((hospital) => (
-                <TableRow key={hospital.id}>
+                <TableRow key={hospital._id}>
                   <TableCell className="font-medium">
                     <Link
-                      href={`/superadmin/hospitals/${hospital.id}`}
+                      href={`/superadmin/hospitals/${hospital._id}`}
                       className="hover:underline"
                     >
-                      {hospital.name}
+                      {hospital.hospitalName}
                     </Link>
                   </TableCell>
                   <TableCell>
-                    {format(new Date(hospital.joinedDate), "MMMM d, yyyy")}
+                    {format(new Date(hospital.createdAt), "MMMM d, yyyy")}
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline">{hospital.plan}</Badge>
+                    <Badge variant="outline">{hospital.plan || 'N/A'}</Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      variant={
-                        hospital.status === "Active"
-                          ? "default"
-                          : "destructive"
-                      }
-                      className={
-                        hospital.status === "Active"
-                          ? "bg-green-500/20 text-green-700 border-transparent hover:bg-green-500/30"
-                          : hospital.status === "Pending"
-                          ? "bg-yellow-500/20 text-yellow-700 border-transparent hover:bg-yellow-500/30"
-                          : "bg-red-500/20 text-red-700 border-transparent hover:bg-red-500/30"
-                      }
-                    >
-                      {hospital.status}
-                    </Badge>
+                    {getStatusBadge(hospital.status)}
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
@@ -228,31 +172,41 @@ export default function HospitalsPage() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem
-                          onSelect={() => router.push(`/superadmin/hospitals/${hospital.id}`)}
+                          onSelect={() => router.push(`/superadmin/hospitals/${hospital._id}`)}
                         >
                           View Dashboard
                         </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onSelect={() =>
-                            toast({ title: "Opening Billing..." })
-                          }
-                        >
-                          Manage Billing
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        {hospital.status !== "Pending" && (
-                          <DropdownMenuItem
-                            className="text-destructive"
-                            onSelect={() => {
-                              setSelectedHospital(hospital);
-                              setSuspendAlertOpen(true);
-                            }}
-                          >
-                            {hospital.status === "Active"
-                              ? "Suspend Account"
-                              : "Reactivate Account"}
-                          </DropdownMenuItem>
+                        
+                        {hospital.status === "pending_verification" && (
+                            <>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem className="text-green-600" onSelect={() => setAlertInfo({ open: true, hospital, action: 'approve' })}>
+                                    <CheckCircle className="mr-2 h-4 w-4" /> Approve
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="text-destructive" onSelect={() => setAlertInfo({ open: true, hospital, action: 'reject' })}>
+                                    <XCircle className="mr-2 h-4 w-4" /> Reject
+                                </DropdownMenuItem>
+                            </>
                         )}
+                        
+                        {hospital.status === "verified" && (
+                            <>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem className="text-destructive" onSelect={() => setAlertInfo({ open: true, hospital, action: 'suspend' })}>
+                                    Suspend Account
+                                </DropdownMenuItem>
+                            </>
+                        )}
+
+                         {hospital.status === "suspended" && (
+                            <>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onSelect={() => setAlertInfo({ open: true, hospital, action: 'reactivate' })}>
+                                    Reactivate Account
+                                </DropdownMenuItem>
+                            </>
+                        )}
+
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -264,23 +218,21 @@ export default function HospitalsPage() {
       </Card>
 
       <AlertDialog
-        open={suspendAlertOpen}
-        onOpenChange={setSuspendAlertOpen}
+        open={alertInfo?.open || false}
+        onOpenChange={(open) => !open && setAlertInfo(null)}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action will{" "}
-              {selectedHospital?.status === "Active" ? "suspend" : "reactivate"}{" "}
-              the account for {selectedHospital?.name}.
+              This action will {alertInfo?.action} the account for {alertInfo?.hospital?.hospitalName}.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setSelectedHospital(null)}>
+            <AlertDialogCancel onClick={() => setAlertInfo(null)}>
               Cancel
             </AlertDialogCancel>
-            <AlertDialogAction onClick={handleSuspendConfirm}>
+            <AlertDialogAction onClick={handleStatusUpdate}>
               Confirm
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { superAdminData } from "@/lib/data";
 import {
   Card,
@@ -16,6 +16,7 @@ import {
   TrendingDown,
   Hospital,
   UserPlus,
+  CheckCircle,
 } from "lucide-react";
 import {
   Table,
@@ -27,47 +28,42 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-  DialogClose,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import Link from 'next/link';
+import { useRouter } from "next/navigation";
+
+
+type OnboardingRequest = {
+  _id: string;
+  hospitalName: string;
+  createdAt: string;
+  status: string;
+};
 
 const Rupee = () => <span className="font-sans">₹</span>;
 
 export default function SuperAdminDashboardPage() {
-  const [addHospitalOpen, setAddHospitalOpen] = useState(false);
+  const [requests, setRequests] = useState<OnboardingRequest[]>([]);
   const { toast } = useToast();
+  const router = useRouter();
 
-  const handleAddHospital = () => {
-    toast({
-      title: "Hospital Added",
-      description: "The new hospital has been successfully added.",
-    });
-    setAddHospitalOpen(false);
-  };
+  const fetchOnboardingRequests = async () => {
+    try {
+      const response = await fetch('/api/superadmin/hospitals');
+      if (!response.ok) throw new Error("Failed to fetch requests.");
+      const allHospitals = await response.json();
+      setRequests(allHospitals.filter((h: OnboardingRequest) => h.status === 'pending_verification'));
+    } catch(e) {
+      toast({ variant: 'destructive', title: 'Error', description: "Could not fetch onboarding requests."})
+    }
+  }
 
-  const handleReviewRequest = () => {
-    toast({
-      title: "Review Request",
-      description:
-        "This would open the review flow for the hospital onboarding request.",
-    });
+  useEffect(() => {
+    fetchOnboardingRequests();
+  }, []);
+
+  const handleReviewRequest = (hospitalId: string) => {
+    router.push(`/superadmin/hospitals/${hospitalId}`);
   };
 
   return (
@@ -104,66 +100,11 @@ export default function SuperAdminDashboardPage() {
       </div>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle>Hospital Onboarding Requests</CardTitle>
-            <CardDescription>
-              New hospitals waiting for approval.
-            </CardDescription>
-          </div>
-          <Dialog open={addHospitalOpen} onOpenChange={setAddHospitalOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <UserPlus className="mr-2 h-4 w-4" /> Add Hospital Manually
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Add New Hospital</DialogTitle>
-                <DialogDescription>
-                  Enter the details for the new hospital to onboard them.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="name" className="text-right">
-                    Name
-                  </Label>
-                  <Input
-                    id="name"
-                    defaultValue="New City Hospital"
-                    className="col-span-3"
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="plan" className="text-right">
-                    Plan
-                  </Label>
-                  <Select>
-                    <SelectTrigger className="col-span-3">
-                      <SelectValue placeholder="Select a plan" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="licensing">Licensing</SelectItem>
-                      <SelectItem value="revenue-share">
-                        Revenue Share
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button type="button" variant="secondary">
-                    Cancel
-                  </Button>
-                </DialogClose>
-                <Button type="button" onClick={handleAddHospital}>
-                  Add Hospital
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+        <CardHeader>
+          <CardTitle>Hospital Onboarding Requests</CardTitle>
+          <CardDescription>
+            New hospitals waiting for approval.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -175,23 +116,31 @@ export default function SuperAdminDashboardPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {superAdminData.onboardingRequests.map((request) => (
-                <TableRow key={request.id}>
-                  <TableCell className="font-medium">{request.name}</TableCell>
-                  <TableCell>
-                    {format(new Date(request.date), "MMMM d, yyyy")}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleReviewRequest}
-                    >
-                      Review
-                    </Button>
+              {requests.length > 0 ? (
+                requests.map((request) => (
+                  <TableRow key={request._id}>
+                    <TableCell className="font-medium">{request.hospitalName}</TableCell>
+                    <TableCell>
+                      {format(new Date(request.createdAt), "MMMM d, yyyy")}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleReviewRequest(request._id)}
+                      >
+                        Review
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={3} className="h-24 text-center">
+                    No pending requests.
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </CardContent>
