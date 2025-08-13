@@ -60,7 +60,7 @@ export function SuperAdminLoginForm() {
         title: "Login Successful",
         description: `Welcome back, ${result.name}!`,
       });
-      login("Superadmin");
+      login({ role: "Superadmin", name: result.name, email: result.email });
 
     } catch (err: any) {
        setError(err.message || 'Failed to login. Please try again.');
