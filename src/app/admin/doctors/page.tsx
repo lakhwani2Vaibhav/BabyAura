@@ -113,6 +113,7 @@ export default function ManageDoctorsPage() {
       if (!response.ok) throw new Error("Failed to fetch doctors");
       const data = await response.json();
       setDoctors(data);
+      setFilteredDoctors(data);
     } catch (error) {
       toast({ variant: "destructive", title: "Error", description: "Could not fetch doctor list." });
     }
@@ -126,7 +127,7 @@ export default function ManageDoctorsPage() {
     const results = doctors.filter(doctor =>
         doctor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         doctor.specialty.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        doctor._id.toLowerCase().includes(searchTerm.toLowerCase())
+        doctor.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredDoctors(results);
   }, [searchTerm, doctors]);
@@ -305,7 +306,7 @@ export default function ManageDoctorsPage() {
           <div className="relative pt-4">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
-              placeholder="Search by name, specialty, or ID..."
+              placeholder="Search by name, specialty, or email..."
               className="pl-10"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}

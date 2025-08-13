@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -31,11 +32,12 @@ import {
 
 export default function LogsPage() {
   const [logs, setLogs] = useState(superAdminData.platformLogs);
+  const [filteredLogs, setFilteredLogs] = useState(superAdminData.platformLogs);
   const [searchTerm, setSearchTerm] = useState("");
   const [logType, setLogType] = useState("all");
 
   useEffect(() => {
-    let results = superAdminData.platformLogs;
+    let results = logs;
 
     if (logType !== "all") {
       results = results.filter(
@@ -52,8 +54,8 @@ export default function LogsPage() {
       );
     }
 
-    setLogs(results);
-  }, [searchTerm, logType]);
+    setFilteredLogs(results);
+  }, [searchTerm, logType, logs]);
 
   return (
     <Card>
@@ -97,8 +99,8 @@ export default function LogsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {logs.length > 0 ? (
-              logs.map((log) => (
+            {filteredLogs.length > 0 ? (
+              filteredLogs.map((log) => (
                 <TableRow key={log.id}>
                   <TableCell className="font-mono text-xs">
                     {format(new Date(log.timestamp), "MMM d, yyyy, hh:mm:ss a")}

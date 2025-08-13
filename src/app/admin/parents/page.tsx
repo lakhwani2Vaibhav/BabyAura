@@ -129,6 +129,7 @@ export default function ParentsPage() {
         if(!response.ok) throw new Error("Failed to fetch parents");
         const data = await response.json();
         setAllParents(data);
+        setFilteredParents(data);
       } catch (error) {
         toast({
             variant: "destructive",
@@ -498,4 +499,3 @@ export default function ParentsPage() {
     </>
   );
 }
-
