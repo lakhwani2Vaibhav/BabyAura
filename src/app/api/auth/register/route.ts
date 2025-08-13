@@ -3,7 +3,6 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { findUserByEmail, createUser, getHospitalByDoctorId, findHospitalById, findHospitalByCode } from "@/services/user-service";
-import { sendWelcomeEmail, sendOnboardingEmail } from "@/services/email-service";
 
 // This is a placeholder for a secure session check.
 const getAuthenticatedProfessionalId = async (req: NextRequest) => {
@@ -85,23 +84,6 @@ export async function POST(req: NextRequest) {
 
 
     const newUser = await createUser({ name, email, password, role, hospitalId, ...rest });
-
-    // Send relevant email after user is created
-    if (registeredBy) { // Onboarded by a professional
-        await sendOnboardingEmail({
-            recipientEmail: newUser.email,
-            recipientName: newUser.name,
-            role: newUser.role,
-            hospitalName: hospitalData?.hospitalName || "our partner hospital",
-            temporaryPassword: password,
-        });
-    } else { // Self-registered
-        await sendWelcomeEmail({
-            recipientEmail: newUser.email,
-            recipientName: newUser.name,
-            role: newUser.role,
-        });
-    }
 
     const { password: _, ...userWithoutPassword } = newUser;
 

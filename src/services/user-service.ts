@@ -3,6 +3,7 @@
 
 
 
+
 import clientPromise from "@/lib/mongodb";
 import bcrypt from 'bcrypt';
 import { Db, Collection, ObjectId } from "mongodb";
@@ -105,7 +106,7 @@ export const createUser = async (userData: any) => {
     case 'Admin':
         collection = hospitalsCollection;
         userDocument._id = generateId('hospital'); // Use specific ID for clarity
-        userDocument.hospitalName = restOfUser.hospitalName;
+        userDocument.hospitalName = userData.hospitalName; // Corrected from restOfUser.hospitalName
         userDocument.hospitalCode = `HOSP-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
         break;
     case 'Superadmin':
