@@ -4,24 +4,42 @@
 import { NextRequest, NextResponse } from "next/server";
 import { findUserByEmail, createUser, getHospitalByDoctorId, findHospitalById, findHospitalByCode } from "@/services/user-service";
 import jwt from 'jsonwebtoken';
+import { jwtDecode } from "jwt-decode";
 
-// This is a placeholder for a secure session check.
+interface DecodedToken {
+    userId: string;
+    role: string;
+    [key: string]: any;
+}
+
 const getAuthenticatedProfessional = async (req: NextRequest) => {
-    // In a real app, this would come from a decoded JWT in the Authorization header.
-    // For now, we simulate different logged-in users.
-    const userEmail = req.headers.get('X-User-Email');
-    if (!userEmail) return null;
+    const authHeader = req.headers.get('authorization');
+    const userEmailFromHeader = req.headers.get('X-User-Email');
 
-    // This part would typically involve a database lookup for the user by email
-    // to get their ID and other details. We're simulating that.
-    if (userEmail === 'admin@babyaura.in') {
-        return { id: "HOSP-ID-FROM-ADMIN-SESSION", role: 'Admin' };
+    if (authHeader) {
+        const token = authHeader.split(' ')[1];
+        if (token) {
+            try {
+                const decoded = jwtDecode<DecodedToken>(token);
+                return { id: decoded.userId, role: decoded.role };
+            } catch (e) {
+                console.error("Token decoding failed", e);
+                return null;
+            }
+        }
     }
-    if (userEmail === 'doctor@babyaura.in') {
-        return { id: "d1", role: 'Doctor' };
+
+    if (userEmailFromHeader) {
+        console.warn("Using X-User-Email header for auth. This should be deprecated.");
+        if (userEmailFromHeader === 'admin@babyaura.in') {
+            return { id: "HOSP-ID-FROM-ADMIN-SESSION", role: 'Admin' };
+        }
+        if (userEmailFromHeader === 'doctor@babyaura.in') {
+            return { id: "d1", role: 'Doctor' };
+        }
     }
     
-    return null; // No authenticated professional
+    return null; 
 }
 
 
@@ -49,7 +67,6 @@ export async function POST(req: NextRequest) {
     let doctorId;
     let hospitalData;
 
-    // Scenario 1: Registration is initiated by a logged-in professional (Admin or Doctor)
     if (registeredBy === 'Doctor' || registeredBy === 'Admin') {
         const professional = await getAuthenticatedProfessional(req);
         if (!professional) {
@@ -60,31 +77,25 @@ export async function POST(req: NextRequest) {
             hospitalData = await getHospitalByDoctorId(professional.id);
             if (hospitalData) {
                 hospitalId = hospitalData._id;
-                doctorId = professional.id; // The doctor is registering the parent
+                doctorId = professional.id; 
             }
-        } else { // registeredBy is 'Admin'
-            hospitalData = await findHospitalById(professional.id);
-            if (hospitalData) {
-                hospitalId = hospitalData._id;
-            }
+        } else { 
+            // If role is Admin, the professional.id from token IS the hospitalId
+            hospitalId = professional.id;
         }
 
         if (!hospitalId) {
             return NextResponse.json({ message: "Could not find the hospital associated with this professional." }, { status: 400 });
         }
     } 
-    // Scenario 2: A parent self-registers using a hospital code
     else if (role === 'Parent' && hospitalCode) {
         hospitalData = await findHospitalByCode(hospitalCode);
         if(hospitalData) {
             hospitalId = hospitalData._id;
-            // Note: In this scenario, a doctor is not yet assigned.
-            // This might happen in a subsequent step.
         } else {
              return NextResponse.json({ message: "Invalid hospital code provided." }, { status: 400 });
         }
     }
-    // Scenario 3: A parent self-registers independently (requires phone and address)
     else if (role === 'Parent' && !hospitalId) {
         if(!rest.phone || !rest.address) {
              return NextResponse.json(
@@ -94,12 +105,10 @@ export async function POST(req: NextRequest) {
         }
     }
 
-
     const newUser = await createUser({ name, email, password, role, hospitalId, doctorId, ...rest });
 
     const { password: _, ...userWithoutPassword } = newUser;
 
-    // Generate token after successful creation
     const token = jwt.sign(
         { 
             userId: userWithoutPassword._id, 

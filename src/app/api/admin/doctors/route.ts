@@ -1,13 +1,32 @@
 
 import { NextRequest, NextResponse } from "next/server";
-import { getDoctorsByHospital } from "@/services/user-service";
+import { getDoctorsByHospital, findUserByEmail } from "@/services/user-service";
+import { jwtDecode } from 'jwt-decode';
 
-// This is a placeholder for a secure session check.
-// In a real app, this would involve decoding a JWT or similar.
+interface DecodedToken {
+    userId: string;
+    role: string;
+    email: string;
+    [key: string]: any;
+}
+
 const getAuthenticatedAdminHospitalId = async (req: NextRequest) => {
-    // Placeholder logic: In a real scenario, decode a JWT or query a session store.
-    // This is NOT secure for production. For demo purposes, we return a known ID.
-    return "HOSP-ID-FROM-ADMIN-SESSION";
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader) return null;
+    
+    const token = authHeader.split(' ')[1];
+    if (!token) return null;
+
+    try {
+        const decoded = jwtDecode<DecodedToken>(token);
+        if (decoded.role !== 'Admin') return null;
+
+        // An Admin's userId in the token IS the hospitalId
+        return decoded.userId; 
+    } catch (e) {
+        console.error("JWT decoding error:", e);
+        return null;
+    }
 }
 
 export async function GET(req: NextRequest) {

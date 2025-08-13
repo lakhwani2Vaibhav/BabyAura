@@ -58,6 +58,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import Link from "next/link";
+import { useAuth } from "@/hooks/use-auth";
 
 // This will be the shape of data fetched from the API
 type Doctor = {
@@ -92,6 +93,7 @@ export default function ManageDoctorsPage() {
   const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
 
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const form = useForm<AddDoctorFormValues>({
     resolver: zodResolver(addDoctorSchema),
@@ -100,7 +102,14 @@ export default function ManageDoctorsPage() {
 
   const fetchDoctors = async () => {
     try {
-      const response = await fetch('/api/admin/doctors');
+      const token = localStorage.getItem('babyaura_token');
+      if (!token) throw new Error("Authentication token not found.");
+
+      const response = await fetch('/api/admin/doctors', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (!response.ok) throw new Error("Failed to fetch doctors");
       const data = await response.json();
       setDoctors(data);
@@ -124,10 +133,19 @@ export default function ManageDoctorsPage() {
 
 
   const handleAddDoctorSubmit = async (values: AddDoctorFormValues) => {
-    // The backend will get the hospitalId from the admin's session
+    const token = localStorage.getItem('babyaura_token');
+    if (!token || !user?.email) {
+      toast({ variant: "destructive", title: "Error", description: "Authentication error." });
+      return;
+    }
+
     const response = await fetch('/api/auth/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'X-User-Email': user.email // Pass admin email for backend context
+        },
         body: JSON.stringify({ ...values, role: 'Doctor', registeredBy: 'Admin' })
     });
     
@@ -159,9 +177,13 @@ export default function ManageDoctorsPage() {
   
   const updateDoctorStatus = async (doctor: Doctor, status: 'Active' | 'On Leave') => {
       try {
+          const token = localStorage.getItem('babyaura_token');
           const response = await fetch(`/api/admin/doctors/${doctor._id}`, {
               method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
+              headers: { 
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`
+              },
               body: JSON.stringify({ status })
           });
           if (!response.ok) throw new Error("Failed to update status");
@@ -179,8 +201,12 @@ export default function ManageDoctorsPage() {
   
   const handleDeleteDoctor = async (doctorId: string) => {
        try {
+           const token = localStorage.getItem('babyaura_token');
           const response = await fetch(`/api/admin/doctors/${doctorId}`, {
-              method: 'DELETE'
+              method: 'DELETE',
+              headers: {
+                  'Authorization': `Bearer ${token}`
+              }
           });
           if (!response.ok) throw new Error("Failed to delete doctor");
           

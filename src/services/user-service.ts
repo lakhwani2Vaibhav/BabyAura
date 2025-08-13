@@ -44,14 +44,14 @@ export const findUserByEmail = async (email: string) => {
     const collections = [
         { collection: parentsCollection, role: 'Parent', nameField: 'name' },
         { collection: doctorsCollection, role: 'Doctor', nameField: 'name' },
-        { collection: hospitalsCollection, role: 'Admin', nameField: 'ownerName' }, // Use ownerName for hospital admin
+        { collection: hospitalsCollection, role: 'Admin', nameField: 'ownerName' },
         { collection: superadminsCollection, role: 'Superadmin', nameField: 'name' }
     ];
 
     for (const { collection, role, nameField } of collections) {
         const user = await collection.findOne({ email });
         if (user) {
-            const finalUser = { ...user, role, name: user[nameField] };
+            const finalUser = { ...user, role, name: user[nameField], _id: String(user._id) };
             if (role === 'Admin') {
                 finalUser.hospitalName = user.hospitalName;
             }
@@ -79,42 +79,40 @@ export const createUser = async (userData: any) => {
   };
 
   let collection;
-  const customId = generateId(role.toLowerCase());
-  userDocument._id = customId;
-  userDocument.role = role;
+  let customId: string;
   
-
   switch(role) {
     case 'Parent':
         collection = parentsCollection;
+        customId = generateId('parent');
         userDocument.status = 'Active';
-        if (hospitalId) {
-            userDocument.hospitalId = hospitalId;
-        }
-        if (doctorId) {
-            userDocument.doctorId = doctorId;
-        }
+        if (hospitalId) userDocument.hospitalId = hospitalId;
+        if (doctorId) userDocument.doctorId = doctorId;
         break;
     case 'Doctor':
         collection = doctorsCollection;
-        userDocument.hospitalId = hospitalId; // Can be null if self-registered
-        userDocument.status = 'active'; // e.g. active, suspended
-        userDocument.profileStatus = 'incomplete_profile'; // e.g. incomplete_profile, under_review, complete
+        customId = generateId('doctor');
+        userDocument.hospitalId = hospitalId;
+        userDocument.status = 'Active'; 
+        userDocument.profileStatus = 'incomplete_profile';
         break;
     case 'Admin':
         collection = hospitalsCollection;
-        userDocument._id = generateId('hospital'); // Use specific ID for clarity
-        userDocument.status = 'pending_verification'; // Initial status
+        customId = generateId('hospital');
+        userDocument.status = 'pending_verification';
         userDocument.hospitalCode = `HOSP-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
-        // ownerName, hospitalName, address, mobile are already in restOfUser
         break;
     case 'Superadmin':
         collection = superadminsCollection;
+        customId = generateId('superadmin');
         userDocument.status = 'Active';
         break;
     default:
         throw new Error("Invalid user role for creation.");
   }
+
+  userDocument._id = customId;
+  userDocument.role = role;
 
   await collection.insertOne(userDocument);
   
@@ -130,7 +128,7 @@ export const seedUsers = async () => {
 
     const saltRounds = 10;
     
-    // Seed Superadmins - This is the definitive implementation
+    // Seed Superadmins
     const superadminsToSeed = [
         { email: 'superadmin@babyaura.in', name: 'BabyAura Superadmin', password: 'password' },
         { email: 'babyauraindia@gmail.com', name: 'BabyAura Superadmin', password: 'BabyAura@123' },
@@ -159,7 +157,7 @@ export const seedUsers = async () => {
     let hospitalId;
 
     if(!existingHospital) {
-        hospitalId = "HOSP-ID-FROM-ADMIN-SESSION"; // Placeholder
+        hospitalId = generateId('hospital'); 
         const hashedPassword = await bcrypt.hash('password', saltRounds);
         await hospitalsCollection.insertOne({
             _id: hospitalId,
@@ -168,7 +166,7 @@ export const seedUsers = async () => {
             hospitalName: 'General Hospital',
             password: hashedPassword,
             role: 'Admin',
-            status: 'verified', // Pre-verify for demo purposes
+            status: 'verified', 
             hospitalCode: 'GAH789',
             createdAt: new Date(),
         })
@@ -180,8 +178,9 @@ export const seedUsers = async () => {
     // Seed an initial doctor linked to the hospital
     const doctorEmail = 'doctor@babyaura.in';
     const existingDoctor = await doctorsCollection.findOne({email: doctorEmail});
-    let doctorId = 'd1';
+    let doctorId;
     if(!existingDoctor) {
+        doctorId = generateId('doctor');
         const hashedPassword = await bcrypt.hash('password', saltRounds);
         await doctorsCollection.insertOne({
             _id: doctorId,
@@ -433,11 +432,11 @@ export const getHospitalDetails = async (hospitalId: string) => {
     const doctors = await doctorsCollection.find({ hospitalId: hospital._id }, { projection: { password: 0 }}).toArray();
     const parents = await parentsCollection.find({ hospitalId: hospital._id }, { projection: { password: 0 }}).toArray();
 
-    const doctorMap = new Map(doctors.map(doc => [doc._id, doc.name]));
+    const doctorMap = new Map(doctors.map(doc => [doc._id.toString(), doc.name]));
     
     const parentsWithDoctorNames = parents.map(parent => ({
         ...parent,
-        assignedDoctor: parent.doctorId ? doctorMap.get(parent.doctorId) || "Unassigned" : "Unassigned"
+        assignedDoctor: parent.doctorId ? doctorMap.get(parent.doctorId.toString()) || "Unassigned" : "Unassigned"
     }));
 
     return {
