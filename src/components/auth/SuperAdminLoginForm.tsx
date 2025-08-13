@@ -39,6 +39,7 @@ export function SuperAdminLoginForm() {
     formState: { errors, isSubmitting },
   } = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
+    defaultValues: { email: "superadmin@babyaura.in", password: "password"},
   });
 
   const onSubmit = async (data: LoginValues) => {
@@ -58,9 +59,9 @@ export function SuperAdminLoginForm() {
 
       toast({
         title: "Login Successful",
-        description: `Welcome back, ${result.name}!`,
+        description: `Welcome back, ${result.user.name}!`,
       });
-      login({ role: "Superadmin", name: result.name, email: result.email });
+      login({ token: result.token, user: result.user });
 
     } catch (err: any) {
        setError(err.message || 'Failed to login. Please try again.');
@@ -99,7 +100,7 @@ export function SuperAdminLoginForm() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" {...register("password")} />
+            <Input id="password" type="password" {...register("password")} defaultValue="password" />
             {errors.password && (
               <p className="text-sm text-destructive">
                 {errors.password.message}
