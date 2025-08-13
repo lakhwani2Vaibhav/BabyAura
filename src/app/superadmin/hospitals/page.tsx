@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -59,6 +60,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 type Hospital = (typeof superAdminData.hospitals)[0] & {
   status: "Active" | "Pending" | "Suspended";
@@ -74,6 +77,7 @@ export default function HospitalsPage() {
     null
   );
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleAddHospital = () => {
     toast({
@@ -182,7 +186,12 @@ export default function HospitalsPage() {
               {hospitals.map((hospital) => (
                 <TableRow key={hospital.id}>
                   <TableCell className="font-medium">
-                    {hospital.name}
+                    <Link
+                      href={`/superadmin/hospitals/${hospital.id}`}
+                      className="hover:underline"
+                    >
+                      {hospital.name}
+                    </Link>
                   </TableCell>
                   <TableCell>
                     {format(new Date(hospital.joinedDate), "MMMM d, yyyy")}
@@ -219,9 +228,7 @@ export default function HospitalsPage() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem
-                          onSelect={() =>
-                            toast({ title: "Navigating to Dashboard..." })
-                          }
+                          onSelect={() => router.push(`/superadmin/hospitals/${hospital.id}`)}
                         >
                           View Dashboard
                         </DropdownMenuItem>
