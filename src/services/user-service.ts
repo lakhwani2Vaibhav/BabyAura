@@ -5,6 +5,7 @@
 
 
 
+
 import clientPromise from "@/lib/mongodb";
 import bcrypt from 'bcrypt';
 import { Db, Collection, ObjectId } from "mongodb";
@@ -110,7 +111,7 @@ export const createUser = async (userData: any) => {
     case 'Admin':
         collection = hospitalsCollection;
         userDocument._id = generateId('hospital'); // Use specific ID for clarity
-        userDocument.hospitalName = userData.hospitalName;
+        userDocument.hospitalName = userData.name; // Use name field from registration for the hospital name
         userDocument.hospitalCode = `HOSP-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
         break;
     case 'Superadmin':
@@ -307,13 +308,13 @@ export const getParentsByHospital = async (hospitalId: string) => {
     if(!db) await init();
     const parents = await parentsCollection.find({ hospitalId: hospitalId }).toArray();
     
-    // For each parent, we need to find their assigned doctor. This is a simplification.
+    // Create a map of doctors in the hospital for efficient lookup
     const doctors = await doctorsCollection.find({ hospitalId }).toArray();
-    const firstDoctorName = doctors.length > 0 ? doctors[0].name : "N/A";
+    const doctorMap = new Map(doctors.map(doc => [doc._id, doc.name]));
 
     return parents.map(parent => ({
         ...parent,
-        assignedDoctor: firstDoctorName, // Placeholder logic
+        assignedDoctor: parent.doctorId ? doctorMap.get(parent.doctorId) || "Unassigned" : "Unassigned",
     }));
 }
 
