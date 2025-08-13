@@ -2,6 +2,7 @@
 
 
 
+
 import clientPromise from "@/lib/mongodb";
 import bcrypt from 'bcrypt';
 import { Db, Collection, ObjectId } from "mongodb";
@@ -45,15 +46,19 @@ export const findUserByEmail = async (email: string) => {
     if (!db) await init();
     
     const collections = [
-        { collection: parentsCollection, role: 'Parent' },
-        { collection: doctorsCollection, role: 'Doctor' },
-        { collection: hospitalsCollection, role: 'Admin' },
-        { collection: superadminsCollection, role: 'Superadmin' }
+        { collection: parentsCollection, role: 'Parent', nameField: 'name' },
+        { collection: doctorsCollection, role: 'Doctor', nameField: 'name' },
+        { collection: hospitalsCollection, role: 'Admin', nameField: 'hospitalName' },
+        { collection: superadminsCollection, role: 'Superadmin', nameField: 'name' }
     ];
 
-    for (const { collection, role } of collections) {
+    for (const { collection, role, nameField } of collections) {
         const user = await collection.findOne({ email });
         if (user) {
+            // Include hospitalName for Admins if it exists
+            if (role === 'Admin') {
+                return { ...user, role, hospitalName: user.hospitalName };
+            }
             return { ...user, role };
         }
     }
@@ -227,8 +232,39 @@ export const getDoctorsByHospital = async (hospitalId: string) => {
 
 export const findDoctorById = async (doctorId: string) => {
     if (!db) await init();
-    return doctorsCollection.findOne({ _id: doctorId });
+    const doctor = await doctorsCollection.findOne({ _id: doctorId });
+    if (!doctor) return null;
+
+    if (doctor.hospitalId) {
+        const hospital = await hospitalsCollection.findOne({ _id: doctor.hospitalId });
+        doctor.hospitalName = hospital ? hospital.hospitalName : 'Unknown Hospital';
+    }
+    return doctor;
 }
+
+export const updateDoctorProfile = async (doctorId: string, updates: any) => {
+    if (!db) await init();
+    return doctorsCollection.updateOne({ _id: doctorId }, { $set: updates });
+}
+
+export const changeDoctorPassword = async (doctorId: string, currentPassword: string, newPassword: string) => {
+    if (!db) await init();
+    const doctor = await doctorsCollection.findOne({ _id: doctorId });
+    if (!doctor) {
+        const err = new Error("Doctor not found.");
+        (err as any).statusCode = 404;
+        throw err;
+    }
+    const isMatch = await bcrypt.compare(currentPassword, doctor.password);
+    if (!isMatch) {
+        const err = new Error("Incorrect current password.");
+        (err as any).statusCode = 401;
+        throw err;
+    }
+    const saltRounds = 10;
+    const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+    return doctorsCollection.updateOne({ _id: doctorId }, { $set: { password: hashedNewPassword } });
+};
 
 export const updateDoctor = async (doctorId: string, updates: Partial<{ name: string; specialty: string; status: 'Active' | 'On Leave' }>) => {
     if (!db) await init();
@@ -281,17 +317,28 @@ export const deleteParent = async (parentId: string) => {
 }
 
 // Admin Profile Service
-export const updateAdminProfile = async (adminId: string, updates: { name: string, password?: string }) => {
+export const updateAdminProfile = async (adminId: string, updates: { name: string }) => {
     if (!db) await init();
+    return hospitalsCollection.updateOne({ _id: adminId }, { $set: updates });
+};
 
-    const updateData: { [key: string]: any } = { name: updates.name };
-
-    if (updates.password) {
-        const saltRounds = 10;
-        updateData.password = await bcrypt.hash(updates.password, saltRounds);
+export const changeAdminPassword = async (adminId: string, currentPassword: string, newPassword: string) => {
+    if (!db) await init();
+    const admin = await hospitalsCollection.findOne({ _id: adminId });
+    if (!admin) {
+        const err = new Error("Admin not found.");
+        (err as any).statusCode = 404;
+        throw err;
     }
-    
-    return hospitalsCollection.updateOne({ _id: adminId }, { $set: updateData });
+    const isMatch = await bcrypt.compare(currentPassword, admin.password);
+    if (!isMatch) {
+        const err = new Error("Incorrect current password.");
+        (err as any).statusCode = 401;
+        throw err;
+    }
+    const saltRounds = 10;
+    const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+    return hospitalsCollection.updateOne({ _id: adminId }, { $set: { password: hashedNewPassword } });
 };
 
 

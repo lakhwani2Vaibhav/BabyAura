@@ -1,40 +1,53 @@
 
 import { NextRequest, NextResponse } from "next/server";
-import { updateAdminProfile } from "@/services/user-service";
+import { updateAdminProfile, findUserByEmail } from "@/services/user-service";
 
-// This is a placeholder for a secure session check.
-const getAuthenticatedAdminId = async (req: NextRequest) => {
-    // In a real app, this would involve decoding a JWT or similar to get the user's ID.
-    // For this demo, we'll return the ID of the seeded admin user.
-    return "HOSP-ID-FROM-ADMIN-SESSION"; 
+const getAuthenticatedAdmin = async (req: NextRequest) => {
+    const userEmail = req.headers.get('X-User-Email');
+    if (!userEmail) return null;
+    return await findUserByEmail(userEmail);
 };
+
+export async function GET(req: NextRequest) {
+    try {
+        const admin = await getAuthenticatedAdmin(req);
+        if (!admin || admin.role !== 'Admin') {
+            return NextResponse.json({ message: "Authentication required." }, { status: 401 });
+        }
+        
+        const { password, ...adminWithoutPassword } = admin;
+        return NextResponse.json(adminWithoutPassword);
+
+    } catch (error) {
+        console.error("Failed to fetch admin profile:", error);
+        return NextResponse.json({ message: "An unexpected error occurred." }, { status: 500 });
+    }
+}
 
 export async function PUT(req: NextRequest) {
     try {
-        const adminId = await getAuthenticatedAdminId(req);
-        if (!adminId) {
+        const admin = await getAuthenticatedAdmin(req);
+        if (!admin || admin.role !== 'Admin') {
             return NextResponse.json({ message: "Authentication required." }, { status: 401 });
         }
 
         const body = await req.json();
-        const { name, password } = body;
+        const { name } = body;
 
         if (!name) {
             return NextResponse.json({ message: "Name is a required field." }, { status: 400 });
         }
         
-        const updates: { name: string, password?: string } = { name };
-        if (password) {
-            updates.password = password;
-        }
+        const updates: { name: string } = { name };
 
-        const result = await updateAdminProfile(adminId, updates);
-
-        if (result.modifiedCount === 0) {
-            return NextResponse.json({ message: "Admin not found or no changes were made." }, { status: 404 });
-        }
+        await updateAdminProfile(admin._id, updates);
         
-        return NextResponse.json({ message: "Profile updated successfully." });
+        const updatedAdmin = await findUserByEmail(admin.email);
+        if (!updatedAdmin) throw new Error("Could not find updated admin.");
+
+        const { password: _, ...updatedData } = updatedAdmin;
+        
+        return NextResponse.json({ message: "Profile updated successfully.", updatedData });
 
     } catch (error) {
         console.error("Failed to update admin profile:", error);
