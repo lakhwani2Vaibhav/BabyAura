@@ -2,12 +2,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { findParentById, updateParentProfile, findUserByEmail } from "@/services/user-service";
 
-// This is a placeholder for getting the authenticated user's ID from a session/token.
+// This function now dynamically gets the user's email from the request headers,
+// simulating a real authentication session.
 const getAuthenticatedParentId = async (req: NextRequest): Promise<string | null> => {
-    // In a real app, you would decode a JWT or look up a session to get the user's email or ID.
-    // For this demo, we'll find the seeded parent user and return their ID.
-    // This is NOT secure and for demonstration purposes only.
-    const parent = await findUserByEmail('parent@babyaura.in');
+    // In a real app, you would decode a secure JWT from the Authorization header.
+    // For this demo, we are passing the email in a custom header.
+    const userEmail = req.headers.get('X-User-Email');
+    if (!userEmail) {
+        return null;
+    }
+    const parent = await findUserByEmail(userEmail);
     return parent ? parent._id : null;
 };
 
@@ -49,15 +53,14 @@ export async function PUT(req: NextRequest) {
         }
 
         const result = await updateParentProfile(parentId, { name, babyName, babyDob, password });
-        if (result.modifiedCount === 0) {
-            // Even if no data changed, we can return success, or a specific "no change" message.
-            const updatedParent = await findParentById(parentId);
-            const { password, ...updatedData } = updatedParent;
-            return NextResponse.json({ message: "No changes were made.", updatedData });
-        }
         
         const updatedParent = await findParentById(parentId);
         const { password: _, ...updatedData } = updatedParent;
+        
+        if (result.modifiedCount === 0) {
+            return NextResponse.json({ message: "No changes were made.", updatedData });
+        }
+        
         return NextResponse.json({ message: "Profile updated successfully.", updatedData });
 
     } catch (error) {

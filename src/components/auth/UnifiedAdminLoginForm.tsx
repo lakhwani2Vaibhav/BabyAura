@@ -32,7 +32,7 @@ const loginSchema = z.object({
 
 type LoginValues = z.infer<typeof loginSchema>;
 
-type ProfessionalRole = "Admin" | "Doctor";
+type ProfessionalRole = "Admin" | "Doctor" | "Superadmin";
 
 const professionalRoles: { value: ProfessionalRole; label: string; icon: React.ReactNode }[] =
   [
@@ -67,7 +67,7 @@ export function UnifiedAdminLoginForm() {
     setError(null);
     try {
       // Superadmin check for non-public login
-      const roleToSubmit = data.email === 'superadmin@babyaura.in' ? 'Superadmin' : selectedRole;
+      const roleToSubmit: ProfessionalRole = data.email === 'superadmin@babyaura.in' ? 'Superadmin' : selectedRole;
       
       const response = await fetch('/api/auth/login', {
         method: 'POST',
@@ -85,7 +85,7 @@ export function UnifiedAdminLoginForm() {
         title: "Login Successful",
         description: `Welcome back, ${result.name}!`,
       });
-      login(roleToSubmit as NonNullable<UserRole>);
+      login({ role: roleToSubmit, email: result.email, name: result.name });
 
     } catch (err: any) {
        setError(err.message || 'Failed to login. Please try again.');

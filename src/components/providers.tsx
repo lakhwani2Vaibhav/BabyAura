@@ -10,7 +10,7 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AuthContext, useAuth, UserRole } from "@/hooks/use-auth";
+import { AuthContext, useAuth, UserRole, User } from "@/hooks/use-auth";
 
 const roleRedirects: Record<NonNullable<UserRole>, string> = {
   Parent: "/parent/dashboard",
@@ -20,15 +20,18 @@ const roleRedirects: Record<NonNullable<UserRole>, string> = {
 };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [role, setRole] = useState<UserRole>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     try {
-      const storedRole = localStorage.getItem("userRole") as UserRole;
-      if (storedRole && Object.keys(roleRedirects).includes(storedRole)) {
-        setRole(storedRole);
+      const storedUser = localStorage.getItem("babyaura_user");
+      if (storedUser) {
+        const parsedUser: User = JSON.parse(storedUser);
+        if (parsedUser.role && Object.keys(roleRedirects).includes(parsedUser.role)) {
+          setUser(parsedUser);
+        }
       }
     } catch (e) {
       console.error("Could not access localStorage", e);
@@ -38,22 +41,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(
-    (newRole: NonNullable<UserRole>) => {
-      localStorage.setItem("userRole", newRole);
-      setRole(newRole);
-      router.push(roleRedirects[newRole]);
+    (userInfo: { role: NonNullable<UserRole>, email: string, name: string }) => {
+      const newUser = { role: userInfo.role, email: userInfo.email, name: userInfo.name };
+      localStorage.setItem("babyaura_user", JSON.stringify(newUser));
+      setUser(newUser);
+      router.push(roleRedirects[userInfo.role]);
     },
     [router]
   );
 
   const logout = useCallback(() => {
-    localStorage.removeItem("userRole");
-    setRole(null);
+    localStorage.removeItem("babyaura_user");
+    setUser(null);
     router.push("/");
   }, [router]);
 
   return (
-    <AuthContext.Provider value={{ role, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
@@ -65,7 +69,7 @@ export function withAuth<P extends object>(
   options?: { loginPath?: string }
 ) {
   const WithAuthComponent = (props: P) => {
-    const { role, loading } = useAuth();
+    const { user, loading } = useAuth();
     const router = useRouter();
     const loginPath = options?.loginPath || '/auth/login';
 
@@ -74,23 +78,23 @@ export function withAuth<P extends object>(
         return;
       }
       
-      if (!role) {
+      if (!user || !user.role) {
         router.push(loginPath);
         return;
       }
 
-      if (!allowedRoles.includes(role)) {
+      if (!allowedRoles.includes(user.role)) {
         // If user is logged in but with a wrong role, redirect to their own dashboard
-        const userDashboard = roleRedirects[role];
+        const userDashboard = roleRedirects[user.role];
         if (userDashboard) {
            router.push(userDashboard);
         } else {
            router.push(loginPath);
         }
       }
-    }, [role, loading, allowedRoles, loginPath]);
+    }, [user, loading, allowedRoles, loginPath, router]);
 
-    if (loading || !role || !allowedRoles.includes(role)) {
+    if (loading || !user || !user.role || !allowedRoles.includes(user.role)) {
       return (
         <div className="w-full h-screen flex items-center justify-center">
             <div className="flex flex-col items-center gap-4">

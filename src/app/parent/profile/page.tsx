@@ -14,6 +14,7 @@ import { useState, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { format, parseISO } from "date-fns";
+import { useAuth } from "@/hooks/use-auth";
 
 const profileSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -46,7 +47,8 @@ type UserProfile = {
 
 export default function ParentProfilePage() {
   const { toast } = useToast();
-  const [user, setUser] = useState<UserProfile | null>(null);
+  const { user } = useAuth(); // Get user from auth context
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   const form = useForm<ProfileFormValues>({
@@ -56,13 +58,17 @@ export default function ParentProfilePage() {
   
   useEffect(() => {
     const fetchUserData = async () => {
+        if (!user?.email) return; // Wait until user info is available
+
         setLoading(true);
         try {
-            const response = await fetch('/api/parent/profile');
+            const response = await fetch('/api/parent/profile', {
+                headers: { 'X-User-Email': user.email }
+            });
             if (!response.ok) throw new Error("Failed to fetch profile");
             const profileData = await response.json();
             
-            setUser(profileData);
+            setProfile(profileData);
             form.reset({
                 name: profileData.name,
                 babyName: profileData.babyName,
@@ -80,10 +86,15 @@ export default function ParentProfilePage() {
         }
     }
     fetchUserData();
-  }, [form, toast]);
+  }, [form, toast, user]);
 
 
   const onSubmit = async (data: ProfileFormValues) => {
+    if (!user?.email) {
+        toast({ variant: "destructive", title: "Error", description: "You are not logged in." });
+        return;
+    }
+    
     toast({
         title: "Updating Profile...",
         description: "Please wait while we save your changes.",
@@ -101,7 +112,10 @@ export default function ParentProfilePage() {
 
         const response = await fetch('/api/parent/profile', {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-User-Email': user.email 
+            },
             body: JSON.stringify(payload),
         });
 
@@ -110,9 +124,9 @@ export default function ParentProfilePage() {
             throw new Error(error.message || "Failed to update profile.");
         }
 
-        const updatedProfile = await response.json();
-
-        setUser(prev => prev ? {...prev, ...updatedProfile.updatedData} : null);
+        const result = await response.json();
+        
+        setProfile(result.updatedData);
 
         toast({
             title: "Profile Updated!",
@@ -170,12 +184,12 @@ export default function ParentProfilePage() {
         <CardHeader>
           <div className="flex items-center gap-4">
             <Avatar className="h-20 w-20">
-              <AvatarImage src={user?.avatarUrl} data-ai-hint="woman smiling" />
-              <AvatarFallback>{getInitials(user?.name || '')}</AvatarFallback>
+              <AvatarImage src={profile?.avatarUrl} data-ai-hint="woman smiling" />
+              <AvatarFallback>{getInitials(profile?.name || '')}</AvatarFallback>
             </Avatar>
             <div>
-              <CardTitle className="text-2xl">{user?.name}</CardTitle>
-              <CardDescription>{user?.email}</CardDescription>
+              <CardTitle className="text-2xl">{profile?.name}</CardTitle>
+              <CardDescription>{profile?.email}</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -197,7 +211,7 @@ export default function ParentProfilePage() {
             )}/>
           <div className="space-y-2">
             <Label>Connected Hospital</Label>
-            <Input value={user?.hospitalName || "Independent"} readOnly disabled />
+            <Input value={profile?.hospitalName || "Independent"} readOnly disabled />
           </div>
            <Button type="submit" disabled={form.formState.isSubmitting}>
             {form.formState.isSubmitting ? "Saving..." : "Save Changes"}

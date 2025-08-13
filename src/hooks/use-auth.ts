@@ -3,13 +3,23 @@
 import {
   createContext,
   useContext,
+  useState,
+  useEffect,
+  useCallback,
 } from "react";
 
 export type UserRole = "Parent" | "Doctor" | "Admin" | "Superadmin" | null;
 
-export interface AuthContextType {
+// Add a user object to store more than just the role
+export interface User {
   role: UserRole;
-  login: (role: NonNullable<UserRole>) => void;
+  email?: string;
+  name?: string;
+}
+
+export interface AuthContextType {
+  user: User | null;
+  login: (userInfo: { role: NonNullable<UserRole>, email: string, name: string }) => void;
   logout: () => void;
   loading: boolean;
 }

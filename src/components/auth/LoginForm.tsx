@@ -63,7 +63,7 @@ export function LoginForm() {
         title: "Login Successful",
         description: `Welcome back, ${result.name}!`,
       });
-      login("Parent");
+      login({ role: "Parent", email: result.email, name: result.name });
 
     } catch (err: any) {
        setError(err.message || 'Failed to login. Please try again.');

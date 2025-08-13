@@ -31,11 +31,14 @@ import { NotificationBell } from "./NotificationBell";
 export function SuperAdminHeader() {
   const pathname = usePathname();
   const router = useRouter();
-  const { role, logout } = useAuth();
+  const { user, logout } = useAuth();
 
-  const getInitials = (role: string | null) => {
-    if (!role) return "U";
-    return role.substring(0, 1).toUpperCase();
+  const getInitials = (name?: string) => {
+    if (!name) return "SA";
+    const parts = name.split(" ");
+    return parts.length > 1
+      ? `${parts[0][0]}${parts[parts.length - 1][0]}`
+      : name.substring(0, 2).toUpperCase();
   };
 
   return (
@@ -124,16 +127,16 @@ export function SuperAdminHeader() {
                     data-ai-hint="admin portrait"
                     alt="@superadmin"
                   />
-                  <AvatarFallback>{getInitials(role)}</AvatarFallback>
+                  <AvatarFallback>{getInitials(user?.name)}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{role}</p>
+                  <p className="text-sm font-medium leading-none">{user?.name}</p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    superadmin@babyaura.in
+                    {user?.email}
                   </p>
                 </div>
               </DropdownMenuLabel>
