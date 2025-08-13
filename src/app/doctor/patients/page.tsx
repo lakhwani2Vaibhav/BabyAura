@@ -40,10 +40,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Simulating the type that would come from a database fetch
 type Patient = {
-  id: string;
+  _id: string;
   name: string;
   lastVisit: string;
   status: 'Active' | 'Inactive';
@@ -63,6 +64,7 @@ type AddParentFormValues = z.infer<typeof addParentSchema>;
 
 export default function PatientsPage() {
   const [patients, setPatients] = useState<Patient[]>([]);
+  const [loading, setLoading] = useState(true);
   const [addParentOpen, setAddParentOpen] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
@@ -79,27 +81,41 @@ export default function PatientsPage() {
   });
 
   const fetchPatients = async () => {
-    // Replace with a real API call to fetch patients for the logged-in doctor
-    const { doctorData } = await import("@/lib/data");
-    setPatients(doctorData.patients);
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('babyaura_token');
+      if (!token) throw new Error("Authentication failed");
+      const response = await fetch('/api/doctor/patients', {
+          headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!response.ok) throw new Error("Could not fetch patients");
+      const data = await response.json();
+      setPatients(data);
+    } catch(e) {
+      toast({ variant: 'destructive', title: 'Error', description: 'Could not load your patient list.'})
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    fetchPatients();
-  }, []);
+    if (user) {
+        fetchPatients();
+    }
+  }, [user]);
 
   const handleAddParentSubmit = async (values: AddParentFormValues) => {
     if (!user || !user.email) {
       toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to add a parent." });
       return;
     }
+    const token = localStorage.getItem('babyaura_token');
     
     const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 
             'Content-Type': 'application/json',
-            // This header is crucial for the backend to identify the logged-in doctor
-            'X-User-Email': user.email
+            'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ 
             name: values.parentName,
@@ -113,7 +129,7 @@ export default function PatientsPage() {
     });
     
     if (response.ok) {
-        await fetchPatients(); // In a real app, you would fetch from the API here
+        await fetchPatients(); 
         toast({
             title: "Parent Added",
             description: `${values.parentName} has been successfully added.`,
@@ -213,11 +229,20 @@ export default function PatientsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {patients.map((patient) => (
-                <TableRow key={patient.id}>
+              {loading ? (
+                  Array.from({ length: 3 }).map((_, i) => (
+                      <TableRow key={i}>
+                          <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+                          <TableCell><Skeleton className="h-5 w-32" /></TableCell>
+                          <TableCell><Skeleton className="h-6 w-16 rounded-full" /></TableCell>
+                          <TableCell className="text-right"><Skeleton className="h-8 w-24" /></TableCell>
+                      </TableRow>
+                  ))
+              ) : patients.map((patient) => (
+                <TableRow key={patient._id}>
                   <TableCell className="font-medium">
                     <Link
-                      href={`/doctor/patients/${patient.id}`}
+                      href={`/doctor/patients/${patient._id}`}
                       className="hover:underline"
                     >
                       {patient.name}
@@ -237,13 +262,18 @@ export default function PatientsPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <Button variant="outline" size="sm" asChild>
-                      <Link href={`/doctor/patients/${patient.id}`}>
+                      <Link href={`/doctor/patients/${patient._id}`}>
                         View Profile
                       </Link>
                     </Button>
                   </TableCell>
                 </TableRow>
               ))}
+               {!loading && patients.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center h-24">No patients assigned to you yet.</TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>

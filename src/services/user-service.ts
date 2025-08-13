@@ -576,3 +576,9 @@ export const getAdminAnalytics = async (hospitalId: string) => {
         }
     };
 };
+
+// Doctor Services
+export const getPatientsByDoctorId = async (doctorId: string) => {
+    if (!db) await init();
+    return parentsCollection.find({ doctorId: doctorId }, { projection: { password: 0 }}).toArray();
+}
