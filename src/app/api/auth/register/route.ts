@@ -5,16 +5,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { findUserByEmail, createUser, getHospitalByDoctorId, findHospitalById, findHospitalByCode } from "@/services/user-service";
 
 // This is a placeholder for a secure session check.
-const getAuthenticatedProfessionalId = async (req: NextRequest) => {
+const getAuthenticatedProfessional = async (req: NextRequest) => {
     // In a real app, this would come from a decoded JWT in the Authorization header.
     // For now, we simulate different logged-in users.
     const userEmail = req.headers.get('X-User-Email');
+    if (!userEmail) return null;
 
+    // This part would typically involve a database lookup for the user by email
+    // to get their ID and other details. We're simulating that.
     if (userEmail === 'admin@babyaura.in') {
-        return "HOSP-ID-FROM-ADMIN-SESSION";
+        return { id: "HOSP-ID-FROM-ADMIN-SESSION", role: 'Admin' };
     }
     if (userEmail === 'doctor@babyaura.in') {
-        return "d1";
+        return { id: "d1", role: 'Doctor' };
     }
     
     return null; // No authenticated professional
@@ -42,25 +45,31 @@ export async function POST(req: NextRequest) {
     }
 
     let hospitalId;
+    let doctorId;
     let hospitalData;
 
     // Scenario 1: Registration is initiated by a logged-in professional (Admin or Doctor)
     if (registeredBy === 'Doctor' || registeredBy === 'Admin') {
-        const professionalId = await getAuthenticatedProfessionalId(req);
-        if (!professionalId) {
+        const professional = await getAuthenticatedProfessional(req);
+        if (!professional) {
              return NextResponse.json({ message: "Professional user session not found." }, { status: 403 });
         }
 
-        if(registeredBy === 'Doctor') {
-            hospitalData = await getHospitalByDoctorId(professionalId);
+        if(professional.role === 'Doctor') {
+            hospitalData = await getHospitalByDoctorId(professional.id);
+            if (hospitalData) {
+                hospitalId = hospitalData._id;
+                doctorId = professional.id; // The doctor is registering the parent
+            }
         } else { // registeredBy is 'Admin'
-            hospitalData = await findHospitalById(professionalId);
+            hospitalData = await findHospitalById(professional.id);
+            if (hospitalData) {
+                hospitalId = hospitalData._id;
+            }
         }
 
-        if (hospitalData) {
-            hospitalId = hospitalData._id;
-        } else {
-             return NextResponse.json({ message: "Could not find the hospital associated with this professional." }, { status: 400 });
+        if (!hospitalId) {
+            return NextResponse.json({ message: "Could not find the hospital associated with this professional." }, { status: 400 });
         }
     } 
     // Scenario 2: A parent self-registers using a hospital code
@@ -68,6 +77,8 @@ export async function POST(req: NextRequest) {
         hospitalData = await findHospitalByCode(hospitalCode);
         if(hospitalData) {
             hospitalId = hospitalData._id;
+            // Note: In this scenario, a doctor is not yet assigned.
+            // This might happen in a subsequent step.
         } else {
              return NextResponse.json({ message: "Invalid hospital code provided." }, { status: 400 });
         }
@@ -83,7 +94,7 @@ export async function POST(req: NextRequest) {
     }
 
 
-    const newUser = await createUser({ name, email, password, role, hospitalId, ...rest });
+    const newUser = await createUser({ name, email, password, role, hospitalId, doctorId, ...rest });
 
     const { password: _, ...userWithoutPassword } = newUser;
 

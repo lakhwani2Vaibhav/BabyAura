@@ -4,6 +4,7 @@
 
 
 
+
 import clientPromise from "@/lib/mongodb";
 import bcrypt from 'bcrypt';
 import { Db, Collection, ObjectId } from "mongodb";
@@ -68,7 +69,7 @@ export const findUserByEmail = async (email: string) => {
 
 export const createUser = async (userData: any) => {
   if (!db) await init();
-  const { password, role, hospitalId, ...restOfUser } = userData;
+  const { password, role, hospitalId, doctorId, ...restOfUser } = userData;
   
   if(!password) {
       throw new Error("Password is required for user creation.");
@@ -94,7 +95,10 @@ export const createUser = async (userData: any) => {
         collection = parentsCollection;
         if (hospitalId) {
             userDocument.hospitalId = hospitalId;
-        } 
+        }
+        if (doctorId) {
+            userDocument.doctorId = doctorId;
+        }
         break;
     case 'Doctor':
         collection = doctorsCollection;
@@ -106,7 +110,7 @@ export const createUser = async (userData: any) => {
     case 'Admin':
         collection = hospitalsCollection;
         userDocument._id = generateId('hospital'); // Use specific ID for clarity
-        userDocument.hospitalName = userData.hospitalName; // Corrected from restOfUser.hospitalName
+        userDocument.hospitalName = userData.hospitalName;
         userDocument.hospitalCode = `HOSP-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
         break;
     case 'Superadmin':
@@ -214,6 +218,7 @@ export const seedUsers = async () => {
                 babyName: 'Aura', 
                 babyDob: '2023-12-05',
                 hospitalId: hospitalId,
+                doctorId: doctorId,
                 createdAt: new Date(),
                 status: 'Active'
             });
