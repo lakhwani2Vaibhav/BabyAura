@@ -1,18 +1,28 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { findParentById, updateParentProfile, findUserByEmail } from "@/services/user-service";
+import { jwtDecode } from "jwt-decode";
 
-// This function now dynamically gets the user's email from the request headers,
-// simulating a real authentication session.
+
+interface DecodedToken {
+  userId: string;
+  role: string;
+}
+
 const getAuthenticatedParentId = async (req: NextRequest): Promise<string | null> => {
-    // In a real app, you would decode a secure JWT from the Authorization header.
-    // For this demo, we are passing the email in a custom header.
-    const userEmail = req.headers.get('X-User-Email');
-    if (!userEmail) {
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader) return null;
+    
+    const token = authHeader.split(' ')[1];
+    if (!token) return null;
+
+    try {
+        const decoded = jwtDecode<DecodedToken>(token);
+        if (decoded.role !== 'Parent') return null;
+        return decoded.userId;
+    } catch (e) {
         return null;
     }
-    const parent = await findUserByEmail(userEmail);
-    return parent ? parent._id : null;
 };
 
 

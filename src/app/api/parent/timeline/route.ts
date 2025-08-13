@@ -1,13 +1,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getTimelineTasks, updateTimelineTasks } from "@/services/user-service";
-
-// This is a placeholder for getting the authenticated user's ID from a session/token.
-const getAuthenticatedParentId = async (req: NextRequest): Promise<string | null> => {
-    const parent = await db.collection('parents').findOne({ email: 'parent@babyaura.in' });
-    return parent ? parent._id : null;
-};
-
+import { jwtDecode } from "jwt-decode";
 import { Db } from "mongodb";
 import clientPromise from "@/lib/mongodb";
 
@@ -28,6 +22,26 @@ async function init() {
   await init();
 })();
 
+interface DecodedToken {
+  userId: string;
+  role: string;
+}
+
+const getAuthenticatedParentId = async (req: NextRequest): Promise<string | null> => {
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader) return null;
+    
+    const token = authHeader.split(' ')[1];
+    if (!token) return null;
+
+    try {
+        const decoded = jwtDecode<DecodedToken>(token);
+        if (decoded.role !== 'Parent') return null;
+        return decoded.userId;
+    } catch (e) {
+        return null;
+    }
+};
 
 export async function GET(req: NextRequest) {
     try {

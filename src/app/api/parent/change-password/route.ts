@@ -1,12 +1,27 @@
 
 import { NextRequest, NextResponse } from "next/server";
-import { findUserByEmail, changeParentPassword } from "@/services/user-service";
+import { changeParentPassword } from "@/services/user-service";
+import { jwtDecode } from "jwt-decode";
+
+interface DecodedToken {
+  userId: string;
+  role: string;
+}
 
 const getAuthenticatedParentId = async (req: NextRequest): Promise<string | null> => {
-    const userEmail = req.headers.get('X-User-Email');
-    if (!userEmail) return null;
-    const parent = await findUserByEmail(userEmail);
-    return parent ? parent._id : null;
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader) return null;
+    
+    const token = authHeader.split(' ')[1];
+    if (!token) return null;
+
+    try {
+        const decoded = jwtDecode<DecodedToken>(token);
+        if (decoded.role !== 'Parent') return null;
+        return decoded.userId;
+    } catch (e) {
+        return null;
+    }
 };
 
 export async function PUT(req: NextRequest) {

@@ -67,8 +67,9 @@ export default function ParentProfilePage() {
 
         setLoading(true);
         try {
+            const token = localStorage.getItem('babyaura_token');
             const response = await fetch('/api/parent/profile', {
-                headers: { 'X-User-Email': user.email }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
             if (!response.ok) throw new Error("Failed to fetch profile");
             const profileData = await response.json();
@@ -101,11 +102,12 @@ export default function ParentProfilePage() {
     }
     
     try {
+        const token = localStorage.getItem('babyaura_token');
         const response = await fetch('/api/parent/profile', {
             method: 'PUT',
             headers: { 
                 'Content-Type': 'application/json',
-                'X-User-Email': user.email 
+                'Authorization': `Bearer ${token}` 
             },
             body: JSON.stringify(data),
         });
@@ -139,11 +141,12 @@ export default function ParentProfilePage() {
         return;
     }
      try {
+        const token = localStorage.getItem('babyaura_token');
         const response = await fetch('/api/parent/change-password', {
             method: 'PUT',
             headers: { 
                 'Content-Type': 'application/json',
-                'X-User-Email': user.email 
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(data),
         });
