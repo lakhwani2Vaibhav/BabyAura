@@ -11,6 +11,7 @@ import {
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AuthContext, useAuth, UserRole, User } from "@/hooks/use-auth";
+import { jwtDecode } from 'jwt-decode';
 
 const roleRedirects: Record<NonNullable<UserRole>, string> = {
   Parent: "/parent/dashboard",
@@ -19,6 +20,10 @@ const roleRedirects: Record<NonNullable<UserRole>, string> = {
   Superadmin: "/superadmin/dashboard",
 };
 
+interface DecodedToken extends User {
+    exp: number;
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -26,32 +31,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      const storedUser = localStorage.getItem("babyaura_user");
-      if (storedUser) {
-        const parsedUser: User = JSON.parse(storedUser);
-        if (parsedUser.role && Object.keys(roleRedirects).includes(parsedUser.role)) {
-          setUser(parsedUser);
+      const token = localStorage.getItem("babyaura_token");
+      if (token) {
+        const decodedToken: DecodedToken = jwtDecode(token);
+        if (decodedToken.exp * 1000 > Date.now()) {
+            setUser({ 
+                role: decodedToken.role, 
+                name: decodedToken.name, 
+                email: decodedToken.email,
+                hospitalName: decodedToken.hospitalName
+            });
+        } else {
+             localStorage.removeItem("babyaura_token");
         }
       }
     } catch (e) {
-      console.error("Could not access localStorage", e);
+      console.error("Could not access localStorage or decode token", e);
+      localStorage.removeItem("babyaura_token");
     } finally {
       setLoading(false);
     }
   }, []);
 
   const login = useCallback(
-    (userInfo: User) => {
-      const newUser = { role: userInfo.role, email: userInfo.email, name: userInfo.name, hospitalName: userInfo.hospitalName };
-      localStorage.setItem("babyaura_user", JSON.stringify(newUser));
+    (userInfo: { token: string, user: User }) => {
+      localStorage.setItem("babyaura_token", userInfo.token);
+      const newUser = { 
+          role: userInfo.user.role, 
+          email: userInfo.user.email, 
+          name: userInfo.user.name, 
+          hospitalName: userInfo.user.hospitalName 
+      };
       setUser(newUser);
-      router.push(roleRedirects[userInfo.role!]);
+      if(newUser.role) {
+        router.push(roleRedirects[newUser.role]);
+      }
     },
     [router]
   );
 
   const logout = useCallback(() => {
-    localStorage.removeItem("babyaura_user");
+    localStorage.removeItem("babyaura_token");
     setUser(null);
     router.push("/");
   }, [router]);

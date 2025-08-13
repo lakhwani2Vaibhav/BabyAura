@@ -83,9 +83,9 @@ export function UnifiedAdminLoginForm() {
 
       toast({
         title: "Login Successful",
-        description: `Welcome back, ${result.name}!`,
+        description: `Welcome back, ${result.user.name}!`,
       });
-      login({ role: roleToSubmit, email: result.email, name: result.name, hospitalName: result.hospitalName });
+      login({ token: result.token, user: result.user });
 
     } catch (err: any) {
        setError(err.message || 'Failed to login. Please try again.');

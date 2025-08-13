@@ -61,9 +61,9 @@ export function LoginForm() {
 
       toast({
         title: "Login Successful",
-        description: `Welcome back, ${result.name}!`,
+        description: `Welcome back, ${result.user.name}!`,
       });
-      login({ role: "Parent", email: result.email, name: result.name });
+      login({ token: result.token, user: result.user });
 
     } catch (err: any) {
        setError(err.message || 'Failed to login. Please try again.');

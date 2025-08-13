@@ -3,9 +3,6 @@
 import {
   createContext,
   useContext,
-  useState,
-  useEffect,
-  useCallback,
 } from "react";
 
 export type UserRole = "Parent" | "Doctor" | "Admin" | "Superadmin" | null;
@@ -20,7 +17,7 @@ export interface User {
 
 export interface AuthContextType {
   user: User | null;
-  login: (userInfo: User) => void;
+  login: (userInfo: { token: string, user: User }) => void;
   logout: () => void;
   loading: boolean;
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { findUserByEmail, seedUsers } from "@/services/user-service";
 import bcrypt from "bcrypt";
+import jwt from 'jsonwebtoken';
 
 export async function POST(req: NextRequest) {
   try {
@@ -41,11 +42,22 @@ export async function POST(req: NextRequest) {
         { status: 401 }
       );
     }
-
-    // Return user info (excluding password) upon successful login
+    
     const { password: _, ...userWithoutPassword } = user;
 
-    return NextResponse.json(userWithoutPassword);
+    const token = jwt.sign(
+        { 
+            userId: userWithoutPassword._id, 
+            role: userWithoutPassword.role, 
+            name: userWithoutPassword.name,
+            email: userWithoutPassword.email,
+        }, 
+        process.env.JWT_SECRET!, 
+        { expiresIn: '1h' }
+    );
+
+    return NextResponse.json({ token, user: userWithoutPassword });
+
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json(

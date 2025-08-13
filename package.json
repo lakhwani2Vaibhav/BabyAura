@@ -47,6 +47,7 @@
     "framer-motion": "^11.2.12",
     "genkit": "^1.13.0",
     "html2canvas": "^1.4.1",
+    "jsonwebtoken": "^9.0.2",
     "jspdf": "^2.5.1",
     "lucide-react": "^0.475.0",
     "mongodb": "^6.7.0",
@@ -64,6 +65,7 @@
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.13",
     "@types/bcrypt": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
