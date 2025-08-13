@@ -1,19 +1,14 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { findUserByEmail, createUser, getHospitalByDoctorId, findHospitalById } from "@/services/user-service";
+import { sendWelcomeEmail, sendOnboardingEmail } from "@/services/email-service";
 
 // This is a placeholder for a secure session check.
-// In a real app, this would involve decoding a JWT or similar.
 const getAuthenticatedDoctorId = async (req: NextRequest) => {
-    // For demo purposes, we'll return a static ID.
-    // In a real app, you would get this from the user's session.
-    // This is NOT secure for production.
     return 'd1';
 }
 
 const getAuthenticatedAdminHospitalId = async (req: NextRequest) => {
-    // Placeholder logic for getting admin's hospitalId
-    // In a real app, this would come from a secure session/token
     return "HOSP-ID-FROM-ADMIN-SESSION";
 }
 
@@ -31,13 +26,13 @@ export async function POST(req: NextRequest) {
     }
     
     let hospitalId;
+    let hospitalData;
 
-    // If a doctor is registering a parent
     if (role === 'Parent' && registeredBy === 'Doctor') {
         const doctorId = await getAuthenticatedDoctorId(req);
-        const hospital = await getHospitalByDoctorId(doctorId);
-        if (hospital) {
-            hospitalId = hospital._id;
+        hospitalData = await getHospitalByDoctorId(doctorId);
+        if (hospitalData) {
+            hospitalId = hospitalData._id;
         } else {
              return NextResponse.json(
                 { message: "Could not find the hospital associated with the doctor." },
@@ -46,24 +41,21 @@ export async function POST(req: NextRequest) {
         }
     }
 
-    // If an Admin is registering a parent
     if (role === 'Parent' && registeredBy === 'Admin') {
         const adminHospitalId = await getAuthenticatedAdminHospitalId(req);
-        const hospital = await findHospitalById(adminHospitalId);
-        if (hospital) {
-            hospitalId = hospital._id;
+        hospitalData = await findHospitalById(adminHospitalId);
+        if (hospitalData) {
+            hospitalId = hospitalData._id;
         } else {
              return NextResponse.json({ message: "Could not find the hospital for this administrator." }, { status: 400 });
         }
     }
     
-    // If an Admin is registering a Doctor
     if (role === 'Doctor' && registeredBy === 'Admin') {
         hospitalId = await getAuthenticatedAdminHospitalId(req);
+        hospitalData = await findHospitalById(hospitalId);
     }
 
-
-    // For independent parents, certain fields are also required
     if (role === 'Parent' && !rest.hospitalCode && !hospitalId) {
         if(!rest.phone || !rest.address) {
              return NextResponse.json(
@@ -81,10 +73,25 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Pass all relevant data to createUser, including the determined hospitalId
     const newUser = await createUser({ name, email, password, role, hospitalId, ...rest });
 
-    // Return user info (excluding password) upon successful registration
+    // Send relevant email after user is created
+    if (registeredBy) {
+        await sendOnboardingEmail({
+            recipientEmail: newUser.email,
+            recipientName: newUser.name,
+            role: newUser.role,
+            hospitalName: hospitalData?.hospitalName || "our partner hospital",
+            temporaryPassword: password,
+        });
+    } else {
+        await sendWelcomeEmail({
+            recipientEmail: newUser.email,
+            recipientName: newUser.name,
+            role: newUser.role,
+        });
+    }
+
     const { password: _, ...userWithoutPassword } = newUser;
 
     return NextResponse.json(userWithoutPassword, { status: 201 });
