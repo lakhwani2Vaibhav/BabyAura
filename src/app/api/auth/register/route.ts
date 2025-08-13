@@ -1,22 +1,31 @@
 
+'use server';
+
 import { NextRequest, NextResponse } from "next/server";
-import { findUserByEmail, createUser, getHospitalByDoctorId, findHospitalById } from "@/services/user-service";
+import { findUserByEmail, createUser, getHospitalByDoctorId, findHospitalById, findHospitalByCode } from "@/services/user-service";
 import { sendWelcomeEmail, sendOnboardingEmail } from "@/services/email-service";
 
 // This is a placeholder for a secure session check.
-const getAuthenticatedDoctorId = async (req: NextRequest) => {
-    return 'd1';
-}
+const getAuthenticatedProfessionalId = async (req: NextRequest) => {
+    // In a real app, this would come from a decoded JWT in the Authorization header.
+    // For now, we simulate different logged-in users.
+    const userEmail = req.headers.get('X-User-Email');
 
-const getAuthenticatedAdminHospitalId = async (req: NextRequest) => {
-    return "HOSP-ID-FROM-ADMIN-SESSION";
+    if (userEmail === 'admin@babyaura.in') {
+        return "HOSP-ID-FROM-ADMIN-SESSION";
+    }
+    if (userEmail === 'doctor@babyaura.in') {
+        return "d1";
+    }
+    
+    return null; // No authenticated professional
 }
 
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    let { name, email, password, role, registeredBy, ...rest } = body;
+    let { name, email, password, role, registeredBy, hospitalCode, ...rest } = body;
 
     if (!name || !email || !password || !role) {
       return NextResponse.json(
@@ -25,46 +34,6 @@ export async function POST(req: NextRequest) {
       );
     }
     
-    let hospitalId;
-    let hospitalData;
-
-    if (role === 'Parent' && registeredBy === 'Doctor') {
-        const doctorId = await getAuthenticatedDoctorId(req);
-        hospitalData = await getHospitalByDoctorId(doctorId);
-        if (hospitalData) {
-            hospitalId = hospitalData._id;
-        } else {
-             return NextResponse.json(
-                { message: "Could not find the hospital associated with the doctor." },
-                { status: 400 }
-            );
-        }
-    }
-
-    if (role === 'Parent' && registeredBy === 'Admin') {
-        const adminHospitalId = await getAuthenticatedAdminHospitalId(req);
-        hospitalData = await findHospitalById(adminHospitalId);
-        if (hospitalData) {
-            hospitalId = hospitalData._id;
-        } else {
-             return NextResponse.json({ message: "Could not find the hospital for this administrator." }, { status: 400 });
-        }
-    }
-    
-    if (role === 'Doctor' && registeredBy === 'Admin') {
-        hospitalId = await getAuthenticatedAdminHospitalId(req);
-        hospitalData = await findHospitalById(hospitalId);
-    }
-
-    if (role === 'Parent' && !rest.hospitalCode && !hospitalId) {
-        if(!rest.phone || !rest.address) {
-             return NextResponse.json(
-                { message: "Phone number and address are required for independent registration." },
-                { status: 400 }
-            );
-        }
-    }
-
     const existingUser = await findUserByEmail(email);
     if (existingUser) {
       return NextResponse.json(
@@ -73,10 +42,52 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    let hospitalId;
+    let hospitalData;
+
+    // Scenario 1: Registration is initiated by a logged-in professional (Admin or Doctor)
+    if (registeredBy === 'Doctor' || registeredBy === 'Admin') {
+        const professionalId = await getAuthenticatedProfessionalId(req);
+        if (!professionalId) {
+             return NextResponse.json({ message: "Professional user session not found." }, { status: 403 });
+        }
+
+        if(registeredBy === 'Doctor') {
+            hospitalData = await getHospitalByDoctorId(professionalId);
+        } else { // registeredBy is 'Admin'
+            hospitalData = await findHospitalById(professionalId);
+        }
+
+        if (hospitalData) {
+            hospitalId = hospitalData._id;
+        } else {
+             return NextResponse.json({ message: "Could not find the hospital associated with this professional." }, { status: 400 });
+        }
+    } 
+    // Scenario 2: A parent self-registers using a hospital code
+    else if (role === 'Parent' && hospitalCode) {
+        hospitalData = await findHospitalByCode(hospitalCode);
+        if(hospitalData) {
+            hospitalId = hospitalData._id;
+        } else {
+             return NextResponse.json({ message: "Invalid hospital code provided." }, { status: 400 });
+        }
+    }
+    // Scenario 3: A parent self-registers independently (requires phone and address)
+    else if (role === 'Parent' && !hospitalId) {
+        if(!rest.phone || !rest.address) {
+             return NextResponse.json(
+                { message: "Phone number and address are required for independent registration." },
+                { status: 400 }
+            );
+        }
+    }
+
+
     const newUser = await createUser({ name, email, password, role, hospitalId, ...rest });
 
     // Send relevant email after user is created
-    if (registeredBy) {
+    if (registeredBy) { // Onboarded by a professional
         await sendOnboardingEmail({
             recipientEmail: newUser.email,
             recipientName: newUser.name,
@@ -84,7 +95,7 @@ export async function POST(req: NextRequest) {
             hospitalName: hospitalData?.hospitalName || "our partner hospital",
             temporaryPassword: password,
         });
-    } else {
+    } else { // Self-registered
         await sendWelcomeEmail({
             recipientEmail: newUser.email,
             recipientName: newUser.name,

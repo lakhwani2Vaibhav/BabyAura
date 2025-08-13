@@ -1,6 +1,7 @@
 
 
 
+
 import clientPromise from "@/lib/mongodb";
 import bcrypt from 'bcrypt';
 import { Db, Collection, ObjectId } from "mongodb";
@@ -61,7 +62,7 @@ export const findUserByEmail = async (email: string) => {
 
 export const createUser = async (userData: any) => {
   if (!db) await init();
-  const { password, role, hospitalCode, hospitalId, hospitalName, ...restOfUser } = userData;
+  const { password, role, hospitalId, ...restOfUser } = userData;
   
   if(!password) {
       throw new Error("Password is required for user creation.");
@@ -85,42 +86,21 @@ export const createUser = async (userData: any) => {
   switch(role) {
     case 'Parent':
         collection = parentsCollection;
-        let finalHospitalId = hospitalId;
-
-        // Handle parent registration by hospital code
-        if (!finalHospitalId && hospitalCode) {
-            const hospital = await hospitalsCollection.findOne({ hospitalCode });
-            if(hospital) {
-                finalHospitalId = hospital._id;
-            } else {
-                 throw new Error("Invalid hospital code provided.");
-            }
-        }
-        
-        if (finalHospitalId) {
-            userDocument.hospitalId = finalHospitalId;
+        if (hospitalId) {
+            userDocument.hospitalId = hospitalId;
         } 
-        // Handle independent parent registration
-        else if (restOfUser.phone && restOfUser.address) {
-            // This is an independent parent, no hospitalId needed initially
-        }
-        // Handle registration by admin/doctor where hospitalId should already be set
-        else if (!finalHospitalId) {
-            // If not independent and no hospital link, something is wrong
-            throw new Error("Could not determine hospital affiliation for this parent.");
-        }
         break;
     case 'Doctor':
         collection = doctorsCollection;
         if (!hospitalId) {
-            throw new Error("Hospital ID is required for doctor registration.");
+            throw new Error("Internal Error: Hospital ID is required for doctor creation.");
         }
         userDocument.hospitalId = hospitalId;
         break;
     case 'Admin':
         collection = hospitalsCollection;
         userDocument._id = generateId('hospital'); // Use specific ID for clarity
-        userDocument.hospitalName = hospitalName;
+        userDocument.hospitalName = restOfUser.hospitalName;
         userDocument.hospitalCode = `HOSP-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
         break;
     case 'Superadmin':
@@ -171,32 +151,29 @@ export const seedUsers = async () => {
     const hospitalAdminEmail = 'admin@babyaura.in';
     const existingHospital = await hospitalsCollection.findOne({email: hospitalAdminEmail});
     let hospitalId;
-    let hospitalCodeForParent;
 
     if(!existingHospital) {
-        hospitalCodeForParent = `GAH789`; // Make it deterministic for demo purposes
         hospitalId = "HOSP-ID-FROM-ADMIN-SESSION"; // Placeholder
         const hashedPassword = await bcrypt.hash('password', saltRounds);
         await hospitalsCollection.insertOne({
             _id: hospitalId,
             email: hospitalAdminEmail,
-            name: 'Admin User', // Changed from "General Hospital" to a user name
+            name: 'Admin User',
             hospitalName: 'General Hospital',
             password: hashedPassword,
             role: 'Admin',
-            hospitalCode: hospitalCodeForParent,
+            hospitalCode: 'GAH789',
             createdAt: new Date(),
         })
         console.log(`Seeded hospital: ${hospitalAdminEmail}`);
     } else {
         hospitalId = existingHospital._id;
-        hospitalCodeForParent = existingHospital.hospitalCode;
     }
     
     // Seed an initial doctor linked to the hospital
     const doctorEmail = 'doctor@babyaura.in';
     const existingDoctor = await doctorsCollection.findOne({email: doctorEmail});
-    let doctorId = 'd1'; // Make it deterministic for demo
+    let doctorId = 'd1';
     if(!existingDoctor) {
         const hashedPassword = await bcrypt.hash('password', saltRounds);
         await doctorsCollection.insertOne({
@@ -215,7 +192,7 @@ export const seedUsers = async () => {
         doctorId = existingDoctor._id;
     }
     
-    // Seed an initial parent, find hospital by code to link
+    // Seed an initial parent linked to the hospital
     const parentEmail = 'parent@babyaura.in';
     const existingParent = await parentsCollection.findOne({email: parentEmail});
     if(!existingParent) {
@@ -277,6 +254,12 @@ export const findHospitalById = async (hospitalId: string) => {
     if(!db) await init();
     return hospitalsCollection.findOne({ _id: hospitalId });
 }
+
+export const findHospitalByCode = async (code: string) => {
+    if(!db) await init();
+    return hospitalsCollection.findOne({ hospitalCode: code });
+}
+
 
 export const getParentsByHospital = async (hospitalId: string) => {
     if(!db) await init();

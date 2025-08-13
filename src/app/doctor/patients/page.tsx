@@ -65,7 +65,7 @@ export default function PatientsPage() {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [addParentOpen, setAddParentOpen] = useState(false);
   const { toast } = useToast();
-  const { role } = useAuth(); // Assuming useAuth provides the doctor's context
+  const { user } = useAuth();
 
   const form = useForm<AddParentFormValues>({
     resolver: zodResolver(addParentSchema),
@@ -89,10 +89,18 @@ export default function PatientsPage() {
   }, []);
 
   const handleAddParentSubmit = async (values: AddParentFormValues) => {
-    // The doctor's ID and hospital affiliation would be retrieved from the auth context
+    if (!user || !user.email) {
+      toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to add a parent." });
+      return;
+    }
+    
     const response = await fetch('/api/auth/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+            'Content-Type': 'application/json',
+            // This header is crucial for the backend to identify the logged-in doctor
+            'X-User-Email': user.email
+        },
         body: JSON.stringify({ 
             name: values.parentName,
             email: values.email,
@@ -100,12 +108,12 @@ export default function PatientsPage() {
             babyName: values.babyName,
             babyDob: values.babyDob,
             role: 'Parent',
-            registeredBy: 'Doctor' // This indicates a doctor is registering the parent
+            registeredBy: 'Doctor'
         })
     });
     
     if (response.ok) {
-        await fetchPatients(); // Refetch the list
+        await fetchPatients(); // In a real app, you would fetch from the API here
         toast({
             title: "Parent Added",
             description: `${values.parentName} has been successfully added.`,
