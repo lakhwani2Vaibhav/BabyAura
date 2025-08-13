@@ -236,7 +236,7 @@ export const seedUsers = async () => {
 // Doctor Management Services for Admin
 export const getDoctorsByHospital = async (hospitalId: string) => {
     if (!db) await init();
-    return doctorsCollection.find({ hospitalId: hospitalId }).toArray();
+    return doctorsCollection.find({ hospitalId: hospitalId }).project({ password: 0 }).toArray();
 };
 
 export const findDoctorById = async (doctorId: string) => {
@@ -297,7 +297,7 @@ export const getHospitalByDoctorId = async (doctorId: string) => {
 
 export const findHospitalById = async (hospitalId: string) => {
     if(!db) await init();
-    return hospitalsCollection.findOne({ _id: new ObjectId(hospitalId).toString() });
+    return hospitalsCollection.findOne({ _id: hospitalId });
 }
 
 export const findHospitalByCode = async (code: string) => {
@@ -325,6 +325,12 @@ export const deleteParent = async (parentId: string) => {
     if(!db) await init();
     return parentsCollection.deleteOne({ _id: parentId });
 }
+
+export const assignDoctorToParent = async (parentId: string, doctorId: string) => {
+    if (!db) await init();
+    return parentsCollection.updateOne({ _id: parentId }, { $set: { doctorId: doctorId, updatedAt: new Date() } });
+}
+
 
 // Admin Profile Service
 export const updateAdminProfile = async (adminId: string, updates: { name: string }) => {

@@ -23,7 +23,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, MoreHorizontal, UserPlus } from "lucide-react";
+import { Search, MoreHorizontal, UserPlus, UserCheck } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
@@ -67,15 +67,21 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuth } from "@/hooks/use-auth";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-// This will be the shape of data fetched from the API
+
+type Doctor = {
+  _id: string;
+  name: string;
+};
+
 type Parent = {
   _id: string;
   name: string;
   email: string;
   babyName: string;
   status: 'Active' | 'Inactive';
-  assignedDoctor: string; // This would be populated by the backend
+  assignedDoctor: string; 
   createdAt: string;
   avatarUrl?: string;
 };
@@ -93,11 +99,14 @@ type AddParentFormValues = z.infer<typeof addParentSchema>;
 
 export default function ParentsPage() {
   const [allParents, setAllParents] = useState<Parent[]>([]);
+  const [allDoctors, setAllDoctors] = useState<Doctor[]>([]);
   const [filteredParents, setFilteredParents] = useState<Parent[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
   const [addParentOpen, setAddParentOpen] = useState(false);
+  const [assignDoctorOpen, setAssignDoctorOpen] = useState(false);
   const [selectedParent, setSelectedParent] = useState<Parent | null>(null);
+  const [selectedDoctorId, setSelectedDoctorId] = useState<string>('');
   const { toast } = useToast();
   const { user } = useAuth();
   
@@ -129,8 +138,24 @@ export default function ParentsPage() {
       }
   }
 
+  const fetchDoctors = async () => {
+    try {
+      const token = localStorage.getItem('babyaura_token');
+      if (!token) throw new Error("Authentication token not found.");
+       const response = await fetch('/api/admin/doctors', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) throw new Error("Failed to fetch doctors");
+        const data = await response.json();
+        setAllDoctors(data);
+    } catch (error) {
+         toast({ variant: "destructive", title: "Error fetching doctors", description: "Could not fetch the doctor list for assignment." });
+    }
+  }
+
   useEffect(() => {
     fetchParents();
+    fetchDoctors();
   }, []);
 
 
@@ -151,7 +176,6 @@ export default function ParentsPage() {
       return;
     }
     
-    // The backend will determine the hospitalId from the admin's session
     const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 
@@ -167,7 +191,7 @@ export default function ParentsPage() {
     });
     
     if (response.ok) {
-        await fetchParents(); // Refetch the list
+        await fetchParents(); 
         toast({
             title: "Parent Added",
             description: `${values.name} has been successfully added to the system.`,
@@ -183,7 +207,6 @@ export default function ParentsPage() {
         });
     }
   };
-
 
   const handleDeleteParent = async (parentId: string) => {
       if (!parentId) return;
@@ -201,7 +224,7 @@ export default function ParentsPage() {
             title: "Parent Removed",
             description: "The parent has been removed from the system."
         });
-        await fetchParents(); // Refetch parents
+        await fetchParents(); 
       } catch (error) {
         toast({
             variant: "destructive",
@@ -213,6 +236,35 @@ export default function ParentsPage() {
         setSelectedParent(null);
       }
   }
+
+  const handleAssignDoctor = async () => {
+    if (!selectedParent || !selectedDoctorId) {
+        toast({ variant: "destructive", title: "Error", description: "Parent or doctor not selected." });
+        return;
+    }
+    try {
+        const token = localStorage.getItem('babyaura_token');
+        const response = await fetch(`/api/admin/parents/${selectedParent._id}/assign-doctor`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ doctorId: selectedDoctorId })
+        });
+        if (!response.ok) throw new Error((await response.json()).message || "Failed to assign doctor.");
+        
+        await fetchParents();
+        toast({ title: "Doctor Assigned!", description: "The parent has been assigned a new doctor." });
+    } catch(error: any) {
+        toast({ variant: "destructive", title: "Assignment Failed", description: error.message });
+    } finally {
+        setAssignDoctorOpen(false);
+        setSelectedParent(null);
+        setSelectedDoctorId('');
+    }
+  }
+
 
   const getInitials = (name: string) => {
     const parts = name.split(" ");
@@ -340,7 +392,11 @@ export default function ParentsPage() {
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>{parent.assignedDoctor}</TableCell>
+                  <TableCell>
+                      <Badge variant={parent.assignedDoctor === "Unassigned" ? "destructive" : "secondary"}>
+                          {parent.assignedDoctor}
+                      </Badge>
+                  </TableCell>
                   <TableCell>
                     {format(new Date(parent.createdAt), "MMMM d, yyyy")}
                   </TableCell>
@@ -364,8 +420,9 @@ export default function ParentsPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onSelect={() => toast({title: "Coming Soon", description: "Parent profile view is in development."})}>
-                            View Details
+                        <DropdownMenuItem onSelect={() => { setSelectedParent(parent); setAssignDoctorOpen(true);}}>
+                            <UserCheck className="mr-2 h-4 w-4" />
+                            Assign Doctor
                         </DropdownMenuItem>
                          <DropdownMenuItem onSelect={() => toast({title: "Coming Soon", description: "Parent edit functionality is in development."})}>
                             Edit Parent
@@ -405,6 +462,40 @@ export default function ParentsPage() {
             </AlertDialogFooter>
         </AlertDialogContent>
     </AlertDialog>
+    
+    <Dialog open={assignDoctorOpen} onOpenChange={setAssignDoctorOpen}>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Assign Doctor to {selectedParent?.name}</DialogTitle>
+                <DialogDescription>
+                    Select an active doctor to be the primary point of contact for this parent.
+                </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+                <Select onValueChange={setSelectedDoctorId} defaultValue={selectedDoctorId}>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Select a doctor" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {allDoctors
+                            .filter((doc: any) => doc.status === 'Active')
+                            .map(doctor => (
+                                <SelectItem key={doctor._id} value={doctor._id}>
+                                    {doctor.name}
+                                </SelectItem>
+                            ))}
+                    </SelectContent>
+                </Select>
+            </div>
+            <DialogFooter>
+                <DialogClose asChild>
+                    <Button type="button" variant="secondary">Cancel</Button>
+                </DialogClose>
+                <Button type="button" onClick={handleAssignDoctor} disabled={!selectedDoctorId}>Assign Doctor</Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
     </>
   );
 }
+
