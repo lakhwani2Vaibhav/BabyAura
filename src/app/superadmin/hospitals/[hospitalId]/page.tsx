@@ -1,3 +1,4 @@
+
 "use client";
 
 import { notFound, useParams } from "next/navigation";
@@ -18,7 +19,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ArrowLeft, Building, Stethoscope, Users } from "lucide-react";
+import { ArrowLeft, Building, Stethoscope, Users, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
@@ -39,6 +40,12 @@ type Parent = {
     assignedDoctor: string;
 }
 
+type VerificationDocument = {
+    docId: string;
+    name: string;
+    status: 'Pending' | 'Uploaded' | 'Verified' | 'Rejected';
+};
+
 type HospitalDetails = {
     _id: string;
     hospitalName: string;
@@ -46,6 +53,7 @@ type HospitalDetails = {
     status: string;
     doctors: Doctor[];
     parents: Parent[];
+    documents: VerificationDocument[];
 }
 
 
@@ -109,12 +117,28 @@ export default function HospitalDetailsPage() {
                 <Skeleton className="h-64 w-full" />
                 <Skeleton className="h-64 w-full" />
             </div>
+             <div className="grid grid-cols-1 gap-6">
+                <Skeleton className="h-48 w-full" />
+            </div>
           </div>
       )
   }
 
   if (!hospital) {
     return notFound();
+  }
+
+    const getStatusBadge = (status: VerificationDocument['status']) => {
+      switch (status) {
+          case 'Verified':
+              return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200 hover:bg-green-200">Verified</Badge>;
+          case 'Uploaded':
+                return <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200">Uploaded</Badge>;
+          case 'Rejected':
+                return <Badge variant="destructive">Rejected</Badge>;
+          default:
+               return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-200">Pending</Badge>;
+      }
   }
 
 
@@ -170,6 +194,37 @@ export default function HospitalDetailsPage() {
                 </CardContent>
             </Card>
         </div>
+
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5" /> KYC Documents Status</CardTitle>
+                <CardDescription>Verification status of documents submitted by {hospital.hospitalName}</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Document Name</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="text-right">Action</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {hospital.documents?.map(doc => (
+                            <TableRow key={doc.docId}>
+                                <TableCell className="font-medium">{doc.name}</TableCell>
+                                <TableCell>{getStatusBadge(doc.status)}</TableCell>
+                                <TableCell className="text-right">
+                                    <Button variant="outline" size="sm" disabled={doc.status !== 'Uploaded'}>
+                                        Verify
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
       
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>

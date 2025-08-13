@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -21,6 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { Textarea } from "../ui/textarea";
+import { useAuth } from "@/hooks/use-auth";
 
 const registerSchema = z.object({
   ownerName: z.string().min(1, { message: "Owner's full name is required" }),
@@ -41,6 +43,8 @@ export function HospitalRegisterForm() {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   const router = useRouter();
+  const { login } = useAuth();
+
 
   const form = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
@@ -62,13 +66,26 @@ export function HospitalRegisterForm() {
       if (!response.ok) {
         throw new Error(result.message || "An error occurred");
       }
+      
+      const loginResponse = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: data.email, password: data.password, role: 'Admin' })
+      });
+      
+      const loginResult = await loginResponse.json();
+      if(!loginResponse.ok) {
+          throw new Error(loginResult.message || "Registration succeeded, but login failed.")
+      }
+      
+      login({ token: loginResult.token, user: loginResult.user });
 
       toast({
         title: "Registration Submitted!",
-        description: "Your hospital registration is under review. You will be notified upon approval.",
+        description: "Your hospital registration is under review. Please complete your KYC documents.",
       });
       
-      router.push('/auth/login/admins');
+      router.push('/admin/billing');
 
     } catch (err: any) {
       setError(err.message || 'Failed to register. Please try again.');

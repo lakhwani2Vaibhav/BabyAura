@@ -2,6 +2,7 @@
 import clientPromise from "@/lib/mongodb";
 import bcrypt from 'bcrypt';
 import { Db, Collection, ObjectId } from "mongodb";
+import { initializeHospitalDocuments } from "@/services/document-service";
 
 let client;
 let db: Db;
@@ -114,8 +115,12 @@ export const createUser = async (userData: any) => {
   userDocument._id = customId;
   userDocument.role = role;
 
-  await collection.insertOne(userDocument);
+  const result = await collection.insertOne(userDocument);
   
+  if (role === 'Admin') {
+      await initializeHospitalDocuments(customId);
+  }
+
   const { password: _, ...userWithoutPassword } = userDocument;
   return userWithoutPassword;
 };
@@ -170,6 +175,7 @@ export const seedUsers = async () => {
             hospitalCode: 'GAH789',
             createdAt: new Date(),
         })
+        await initializeHospitalDocuments(hospitalId);
         console.log(`Seeded hospital: ${hospitalAdminEmail}`);
     } else {
         hospitalId = existingHospital._id;
@@ -291,7 +297,7 @@ export const getHospitalByDoctorId = async (doctorId: string) => {
 
 export const findHospitalById = async (hospitalId: string) => {
     if(!db) await init();
-    return hospitalsCollection.findOne({ _id: hospitalId });
+    return hospitalsCollection.findOne({ _id: new ObjectId(hospitalId).toString() });
 }
 
 export const findHospitalByCode = async (code: string) => {

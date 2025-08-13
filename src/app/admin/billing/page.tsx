@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -24,6 +25,8 @@ import { format } from "date-fns";
 import { Progress } from "@/components/ui/progress";
 import Link from "next/link";
 import { adminData } from "@/lib/data";
+import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const paymentHistory = [
   {
@@ -53,26 +56,69 @@ const currentPlan = {
   patientLimit: "Unlimited",
 };
 
-const verificationDocuments = [
-    {
-        name: "Hospital Registration Certificate",
-        description: "Official registration document of the hospital.",
-        status: 'Verified' as const,
-    },
-    {
-        name: "Owner's PAN Card",
-        description: "Identity and tax information for the owner.",
-        status: 'Verified' as const,
-    },
-    {
-        name: "Bank Account Details",
-        description: "Cancelled cheque or bank statement for payouts.",
-        status: 'Pending' as const,
-    }
-]
+type VerificationDocument = {
+    docId: string;
+    name: string;
+    description: string;
+    status: 'Pending' | 'Uploaded' | 'Verified' | 'Rejected';
+};
 
 export default function BillingPage() {
   const doctorUsage = adminData.metrics.doctors;
+  const [documents, setDocuments] = useState<VerificationDocument[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  const fetchHospitalDocuments = async () => {
+    setLoading(true);
+    try {
+        const token = localStorage.getItem('babyaura_token');
+        const response = await fetch('/api/admin/documents', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) throw new Error("Failed to fetch documents");
+        const data = await response.json();
+        setDocuments(data.documents);
+    } catch (error) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Could not fetch verification documents.' });
+    } finally {
+        setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchHospitalDocuments();
+  }, []);
+  
+  const handleUploadDocument = async (docId: string) => {
+      try {
+        const token = localStorage.getItem('babyaura_token');
+        const response = await fetch(`/api/admin/documents/upload`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ docId })
+        });
+        if (!response.ok) throw new Error("Failed to upload document");
+
+        toast({ title: 'Document "Uploaded"', description: 'Your document is now pending verification by the superadmin.' });
+        fetchHospitalDocuments(); // Refresh the list
+      } catch (error) {
+          toast({ variant: 'destructive', title: 'Error', description: 'Could not upload the document.' });
+      }
+  }
+
+  const getStatusBadge = (status: VerificationDocument['status']) => {
+      switch (status) {
+          case 'Verified':
+              return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200 hover:bg-green-200">Verified</Badge>;
+          case 'Uploaded':
+                return <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200">Uploaded</Badge>;
+          case 'Rejected':
+                return <Badge variant="destructive">Rejected</Badge>;
+          default:
+               return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-200">Pending</Badge>;
+      }
+  }
 
   return (
     <div className="space-y-6">
@@ -151,25 +197,29 @@ export default function BillingPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                   {verificationDocuments.map(doc => (
-                        <div key={doc.name} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border rounded-lg gap-4">
-                            <div>
-                                <p className="font-semibold">{doc.name}</p>
-                                <p className="text-sm text-muted-foreground">{doc.description}</p>
-                            </div>
-                            <div className="flex items-center gap-4 flex-shrink-0">
-                                {doc.status === 'Verified' ? (
-                                    <Badge variant="default" className="bg-green-100 text-green-800 border-green-200 hover:bg-green-200">Verified</Badge>
-                                ) : (
-                                    <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-200">Pending</Badge>
-                                )}
-                                <Button variant="outline" size="sm" disabled={doc.status === 'Verified'}>
-                                    <FileUp className="mr-2 h-4 w-4" />
-                                    {doc.status === 'Verified' ? 'Uploaded' : 'Upload'}
-                                </Button>
-                            </div>
+                    {loading ? (
+                        <div className="space-y-4">
+                            <Skeleton className="h-20 w-full" />
+                            <Skeleton className="h-20 w-full" />
+                            <Skeleton className="h-20 w-full" />
                         </div>
-                   ))}
+                    ) : (
+                       documents.map(doc => (
+                            <div key={doc.docId} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border rounded-lg gap-4">
+                                <div>
+                                    <p className="font-semibold">{doc.name}</p>
+                                    <p className="text-sm text-muted-foreground">{doc.description}</p>
+                                </div>
+                                <div className="flex items-center gap-4 flex-shrink-0">
+                                    {getStatusBadge(doc.status)}
+                                    <Button variant="outline" size="sm" onClick={() => handleUploadDocument(doc.docId)} disabled={doc.status !== 'Pending'}>
+                                        <FileUp className="mr-2 h-4 w-4" />
+                                        {doc.status === 'Pending' ? 'Upload' : 'Re-Upload'}
+                                    </Button>
+                                </div>
+                            </div>
+                       ))
+                    )}
                 </CardContent>
             </Card>
             <Card>
