@@ -430,8 +430,8 @@ export const getHospitalDetails = async (hospitalId: string) => {
         return null;
     }
 
-    const doctors = await doctorsCollection.find({ hospitalId: hospitalId }, { projection: { password: 0 }}).toArray();
-    const parents = await parentsCollection.find({ hospitalId: hospitalId }, { projection: { password: 0 }}).toArray();
+    const doctors = await doctorsCollection.find({ hospitalId: hospital._id }, { projection: { password: 0 }}).toArray();
+    const parents = await parentsCollection.find({ hospitalId: hospital._id }, { projection: { password: 0 }}).toArray();
 
     const doctorMap = new Map(doctors.map(doc => [doc._id, doc.name]));
     
