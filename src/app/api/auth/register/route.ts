@@ -3,6 +3,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { findUserByEmail, createUser, getHospitalByDoctorId, findHospitalById, findHospitalByCode } from "@/services/user-service";
+import jwt from 'jsonwebtoken';
 
 // This is a placeholder for a secure session check.
 const getAuthenticatedProfessional = async (req: NextRequest) => {
@@ -98,7 +99,20 @@ export async function POST(req: NextRequest) {
 
     const { password: _, ...userWithoutPassword } = newUser;
 
-    return NextResponse.json(userWithoutPassword, { status: 201 });
+    // Generate token after successful creation
+    const token = jwt.sign(
+        { 
+            userId: userWithoutPassword._id, 
+            role: userWithoutPassword.role, 
+            name: userWithoutPassword.name,
+            email: userWithoutPassword.email,
+        }, 
+        process.env.JWT_SECRET!, 
+        { expiresIn: '1h' }
+    );
+
+    return NextResponse.json({ token, user: userWithoutPassword }, { status: 201 });
+
   } catch (error) {
     console.error("Registration error:", error);
     const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred.";

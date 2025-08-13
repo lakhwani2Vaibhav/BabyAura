@@ -112,7 +112,7 @@ export function RegisterForm() {
           description: "Welcome to BabyAura. Let's get started.",
         });
 
-        login("Parent");
+        login({ token: result.token, user: result.user });
 
       } catch (err: any) {
         setError(err.message || 'Failed to register. Please try again.');
