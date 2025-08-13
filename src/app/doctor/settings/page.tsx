@@ -160,6 +160,10 @@ export default function DoctorSettingsPage() {
                             <FormField control={profileForm.control} name="specialty" render={({ field }) => (
                                 <FormItem><FormLabel>Specialty</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                             )}/>
+                             <FormItem>
+                                <FormLabel>Hospital</FormLabel>
+                                <FormControl><Input readOnly disabled value={profile?.hospitalName || "N/A"} /></FormControl>
+                            </FormItem>
                              <Button type="submit" disabled={profileForm.formState.isSubmitting}>
                                 {profileForm.formState.isSubmitting ? "Saving..." : "Save Profile"}
                             </Button>
