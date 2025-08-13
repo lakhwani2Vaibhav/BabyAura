@@ -1,6 +1,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
-import { deleteParent } from "@/services/user-service";
+import { deleteParent, findParentById } from "@/services/user-service";
+import { jwtDecode } from "jwt-decode";
 
 type RouteParams = {
     params: {
@@ -8,11 +9,35 @@ type RouteParams = {
     }
 }
 
+const hasPermission = async (req: NextRequest, parentId: string): Promise<boolean> => {
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader) return false;
+    
+    const token = authHeader.split(' ')[1];
+    if (!token) return false;
+
+    try {
+        const decoded: { userId: string, role: string } = jwtDecode(token);
+        if (decoded.role !== 'Admin') return false;
+
+        const parent = await findParentById(parentId);
+        if (!parent) return false;
+
+        // Admin's userId in their token is their hospitalId
+        return parent.hospitalId === decoded.userId;
+    } catch(e) {
+        return false;
+    }
+}
+
 export async function DELETE(req: NextRequest, { params }: RouteParams) {
      try {
         const { parentId } = params;
         
-        // Add security here: check if the admin making the request has permission for this parent's hospital.
+        const permission = await hasPermission(req, parentId);
+        if (!permission) {
+             return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+        }
         
         const result = await deleteParent(parentId);
 

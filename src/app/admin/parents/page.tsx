@@ -66,6 +66,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useAuth } from "@/hooks/use-auth";
 
 // This will be the shape of data fetched from the API
 type Parent = {
@@ -98,6 +99,7 @@ export default function ParentsPage() {
   const [addParentOpen, setAddParentOpen] = useState(false);
   const [selectedParent, setSelectedParent] = useState<Parent | null>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
   
   const form = useForm<AddParentFormValues>({
     resolver: zodResolver(addParentSchema),
@@ -106,7 +108,15 @@ export default function ParentsPage() {
 
   const fetchParents = async () => {
       try {
-        const response = await fetch('/api/admin/parents');
+        const token = localStorage.getItem('babyaura_token');
+        if (!token) throw new Error("Authentication token not found.");
+        
+        const response = await fetch('/api/admin/parents', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
         if(!response.ok) throw new Error("Failed to fetch parents");
         const data = await response.json();
         setAllParents(data);
@@ -135,10 +145,20 @@ export default function ParentsPage() {
   }, [searchTerm, allParents]);
 
   const handleAddParentSubmit = async (values: AddParentFormValues) => {
+    const token = localStorage.getItem('babyaura_token');
+    if (!token || !user?.email) {
+      toast({ variant: "destructive", title: "Error", description: "Authentication error." });
+      return;
+    }
+    
     // The backend will determine the hospitalId from the admin's session
     const response = await fetch('/api/auth/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'X-User-Email': user.email
+        },
         body: JSON.stringify({ 
             ...values, 
             role: 'Parent',
@@ -168,7 +188,13 @@ export default function ParentsPage() {
   const handleDeleteParent = async (parentId: string) => {
       if (!parentId) return;
       try {
-        const response = await fetch(`/api/admin/parents/${parentId}`, { method: 'DELETE' });
+        const token = localStorage.getItem('babyaura_token');
+        const response = await fetch(`/api/admin/parents/${parentId}`, { 
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
         if(!response.ok) throw new Error("Failed to delete parent");
 
         toast({
