@@ -41,11 +41,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(
-    (userInfo: { role: NonNullable<UserRole>, email: string, name: string }) => {
-      const newUser = { role: userInfo.role, email: userInfo.email, name: userInfo.name };
+    (userInfo: User) => {
+      const newUser = { role: userInfo.role, email: userInfo.email, name: userInfo.name, hospitalName: userInfo.hospitalName };
       localStorage.setItem("babyaura_user", JSON.stringify(newUser));
       setUser(newUser);
-      router.push(roleRedirects[userInfo.role]);
+      router.push(roleRedirects[userInfo.role!]);
     },
     [router]
   );

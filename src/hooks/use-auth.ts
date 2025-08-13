@@ -15,11 +15,12 @@ export interface User {
   role: UserRole;
   email?: string;
   name?: string;
+  hospitalName?: string;
 }
 
 export interface AuthContextType {
   user: User | null;
-  login: (userInfo: { role: NonNullable<UserRole>, email: string, name: string }) => void;
+  login: (userInfo: User) => void;
   logout: () => void;
   loading: boolean;
 }

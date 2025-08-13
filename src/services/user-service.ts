@@ -1,11 +1,3 @@
-
-
-
-
-
-
-
-
 import clientPromise from "@/lib/mongodb";
 import bcrypt from 'bcrypt';
 import { Db, Collection, ObjectId } from "mongodb";
@@ -51,18 +43,14 @@ export const findUserByEmail = async (email: string) => {
     const collections = [
         { collection: parentsCollection, role: 'Parent', nameField: 'name' },
         { collection: doctorsCollection, role: 'Doctor', nameField: 'name' },
-        { collection: hospitalsCollection, role: 'Admin', nameField: 'hospitalName' },
+        { collection: hospitalsCollection, role: 'Admin', nameField: 'ownerName' }, // Use ownerName for hospital admin
         { collection: superadminsCollection, role: 'Superadmin', nameField: 'name' }
     ];
 
     for (const { collection, role, nameField } of collections) {
         const user = await collection.findOne({ email });
         if (user) {
-            // Include hospitalName for Admins if it exists
-            if (role === 'Admin') {
-                return { ...user, role, hospitalName: user.hospitalName };
-            }
-            return { ...user, role };
+            return { ...user, role, name: user[nameField] };
         }
     }
     return null;
@@ -89,11 +77,12 @@ export const createUser = async (userData: any) => {
   const customId = generateId(role.toLowerCase());
   userDocument._id = customId;
   userDocument.role = role;
-  userDocument.status = 'Active'; // Default status for new users
+  
 
   switch(role) {
     case 'Parent':
         collection = parentsCollection;
+        userDocument.status = 'Active';
         if (hospitalId) {
             userDocument.hospitalId = hospitalId;
         }
@@ -103,19 +92,20 @@ export const createUser = async (userData: any) => {
         break;
     case 'Doctor':
         collection = doctorsCollection;
-        if (!hospitalId) {
-            throw new Error("Internal Error: Hospital ID is required for doctor creation.");
-        }
-        userDocument.hospitalId = hospitalId;
+        userDocument.hospitalId = hospitalId; // Can be null if self-registered
+        userDocument.status = 'active'; // e.g. active, suspended
+        userDocument.profileStatus = 'incomplete_profile'; // e.g. incomplete_profile, under_review, complete
         break;
     case 'Admin':
         collection = hospitalsCollection;
         userDocument._id = generateId('hospital'); // Use specific ID for clarity
-        userDocument.hospitalName = userData.name; // Use name field from registration for the hospital name
+        userDocument.status = 'pending_verification'; // Initial status
         userDocument.hospitalCode = `HOSP-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
+        // ownerName, hospitalName, address, mobile are already in restOfUser
         break;
     case 'Superadmin':
         collection = superadminsCollection;
+        userDocument.status = 'Active';
         break;
     default:
         throw new Error("Invalid user role for creation.");
@@ -169,10 +159,11 @@ export const seedUsers = async () => {
         await hospitalsCollection.insertOne({
             _id: hospitalId,
             email: hospitalAdminEmail,
-            name: 'Admin User',
+            ownerName: 'Admin User',
             hospitalName: 'General Hospital',
             password: hashedPassword,
             role: 'Admin',
+            status: 'verified', // Pre-verify for demo purposes
             hospitalCode: 'GAH789',
             createdAt: new Date(),
         })
@@ -196,6 +187,7 @@ export const seedUsers = async () => {
             specialty: 'Pediatrics',
             hospitalId: hospitalId,
             status: 'Active',
+            profileStatus: 'complete',
             createdAt: new Date(),
         })
         console.log(`Seeded doctor: ${doctorEmail}`);
@@ -305,7 +297,7 @@ export const findHospitalByCode = async (code: string) => {
 
 
 export const getParentsByHospital = async (hospitalId: string) => {
-    if(!db) await init();
+    if (!db) await init();
     const parents = await parentsCollection.find({ hospitalId: hospitalId }).toArray();
     
     // Create a map of doctors in the hospital for efficient lookup
@@ -317,6 +309,7 @@ export const getParentsByHospital = async (hospitalId: string) => {
         assignedDoctor: parent.doctorId ? doctorMap.get(parent.doctorId) || "Unassigned" : "Unassigned",
     }));
 }
+
 
 export const deleteParent = async (parentId: string) => {
     if(!db) await init();

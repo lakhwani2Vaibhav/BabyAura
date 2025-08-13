@@ -85,7 +85,7 @@ export function UnifiedAdminLoginForm() {
         title: "Login Successful",
         description: `Welcome back, ${result.name}!`,
       });
-      login({ role: roleToSubmit, email: result.email, name: result.name });
+      login({ role: roleToSubmit, email: result.email, name: result.name, hospitalName: result.hospitalName });
 
     } catch (err: any) {
        setError(err.message || 'Failed to login. Please try again.');
