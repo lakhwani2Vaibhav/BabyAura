@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -9,9 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Pencil } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/use-auth";
 import { useState, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -43,6 +41,7 @@ type UserProfile = {
   babyName: string;
   babyDob: string;
   hospitalName?: string;
+  avatarUrl?: string;
 }
 
 export default function ParentProfilePage() {
@@ -111,12 +110,15 @@ export default function ParentProfilePage() {
             throw new Error(error.message || "Failed to update profile.");
         }
 
+        const updatedProfile = await response.json();
+
+        setUser(prev => prev ? {...prev, ...updatedProfile.updatedData} : null);
+
         toast({
             title: "Profile Updated!",
             description: "Your changes have been saved successfully.",
         });
         
-        // Clear password fields after successful submission
         form.reset({ ...data, password: '', confirmPassword: '' });
 
     } catch (error: any) {
@@ -129,6 +131,7 @@ export default function ParentProfilePage() {
   };
   
   const getInitials = (name: string) => {
+    if (!name) return "";
     const parts = name.split(" ");
     return parts.length > 1
       ? `${parts[0][0]}${parts[parts.length - 1][0]}`
@@ -167,8 +170,8 @@ export default function ParentProfilePage() {
         <CardHeader>
           <div className="flex items-center gap-4">
             <Avatar className="h-20 w-20">
-              <AvatarImage src="https://placehold.co/80x80.png" data-ai-hint="woman smiling" />
-              <AvatarFallback>{getInitials(user?.name || 'P')}</AvatarFallback>
+              <AvatarImage src={user?.avatarUrl} data-ai-hint="woman smiling" />
+              <AvatarFallback>{getInitials(user?.name || '')}</AvatarFallback>
             </Avatar>
             <div>
               <CardTitle className="text-2xl">{user?.name}</CardTitle>

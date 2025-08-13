@@ -1,35 +1,15 @@
 
 import { NextRequest, NextResponse } from "next/server";
-import { findParentById, updateParentProfile } from "@/services/user-service";
+import { findParentById, updateParentProfile, findUserByEmail } from "@/services/user-service";
 
 // This is a placeholder for getting the authenticated user's ID from a session/token.
 const getAuthenticatedParentId = async (req: NextRequest): Promise<string | null> => {
-    // In a real app, you would decode a JWT or look up a session.
+    // In a real app, you would decode a JWT or look up a session to get the user's email or ID.
     // For this demo, we'll find the seeded parent user and return their ID.
     // This is NOT secure and for demonstration purposes only.
-    const parent = await db.collection('parents').findOne({ email: 'parent@babyaura.in' });
+    const parent = await findUserByEmail('parent@babyaura.in');
     return parent ? parent._id : null;
 };
-
-import { Db } from "mongodb";
-import clientPromise from "@/lib/mongodb";
-
-let client;
-let db: Db;
-
-async function init() {
-  if (db) return;
-  try {
-    client = await clientPromise;
-    db = client.db();
-  } catch (error) {
-    throw new Error('Failed to connect to the database.');
-  }
-}
-
-(async () => {
-  await init();
-})();
 
 
 export async function GET(req: NextRequest) {
@@ -70,10 +50,15 @@ export async function PUT(req: NextRequest) {
 
         const result = await updateParentProfile(parentId, { name, babyName, babyDob, password });
         if (result.modifiedCount === 0) {
-            return NextResponse.json({ message: "Profile not found or no changes were made." }, { status: 404 });
+            // Even if no data changed, we can return success, or a specific "no change" message.
+            const updatedParent = await findParentById(parentId);
+            const { password, ...updatedData } = updatedParent;
+            return NextResponse.json({ message: "No changes were made.", updatedData });
         }
         
-        return NextResponse.json({ message: "Profile updated successfully." });
+        const updatedParent = await findParentById(parentId);
+        const { password: _, ...updatedData } = updatedParent;
+        return NextResponse.json({ message: "Profile updated successfully.", updatedData });
 
     } catch (error) {
         console.error("Failed to update parent profile:", error);
