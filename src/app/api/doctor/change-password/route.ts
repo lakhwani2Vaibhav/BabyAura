@@ -1,12 +1,30 @@
 
+'use server';
+
 import { NextRequest, NextResponse } from "next/server";
-import { findUserByEmail, changeDoctorPassword } from "@/services/user-service";
+import { changeDoctorPassword, findDoctorById } from "@/services/user-service";
+import { jwtDecode } from "jwt-decode";
+
+interface DecodedToken {
+    userId: string;
+    role: string;
+    [key: string]: any;
+}
 
 const getAuthenticatedDoctor = async (req: NextRequest) => {
-    const userEmail = req.headers.get('X-User-Email');
-    if (!userEmail) return null;
-    const doctor = await findUserByEmail(userEmail);
-    return (doctor && doctor.role === 'Doctor') ? doctor : null;
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader) return null;
+    
+    const token = authHeader.split(' ')[1];
+    if (!token) return null;
+
+    try {
+        const decoded = jwtDecode<DecodedToken>(token);
+        if (decoded.role !== 'Doctor' || !decoded.userId) return null;
+        return findDoctorById(decoded.userId);
+    } catch (e) {
+        return null;
+    }
 };
 
 export async function PUT(req: NextRequest) {

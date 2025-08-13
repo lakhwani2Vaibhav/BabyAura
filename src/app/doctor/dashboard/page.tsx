@@ -1,4 +1,6 @@
 
+"use client";
+
 import { doctorData } from "@/lib/data";
 import {
   Card,
@@ -11,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MetricCard } from "@/components/cards/MetricCard";
 import { Users, Video, MessageSquare } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 
 const recentChats = [
     { id: 'chat1', patientName: 'Baby Williams', lastMessage: 'The rash seems to be getting a bit better, but still red.', time: '5m ago' },
@@ -18,6 +21,7 @@ const recentChats = [
 ];
 
 export default function DoctorDashboardPage() {
+   const { user } = useAuth();
    const getInitials = (name: string) => {
     const parts = name.split(" ");
     return parts.length > 1
@@ -27,7 +31,7 @@ export default function DoctorDashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold font-headline">Doctor's Dashboard</h1>
+        <h1 className="text-3xl font-bold font-headline">Welcome, {user?.name}</h1>
         <p className="text-muted-foreground">
           Here's what's happening with your patients today.
         </p>

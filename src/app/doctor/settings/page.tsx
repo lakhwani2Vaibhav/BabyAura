@@ -60,8 +60,9 @@ export default function DoctorSettingsPage() {
         if (!user?.email) return;
         setLoading(true);
         try {
+            const token = localStorage.getItem('babyaura_token');
             const response = await fetch('/api/doctor/profile', {
-                headers: { 'X-User-Email': user.email }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
             if (!response.ok) throw new Error("Failed to fetch profile");
             const profileData = await response.json();
@@ -87,9 +88,10 @@ export default function DoctorSettingsPage() {
   const onProfileSubmit = async (data: ProfileFormValues) => {
     if (!user?.email) return;
     try {
+        const token = localStorage.getItem('babyaura_token');
         const response = await fetch('/api/doctor/profile', {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'X-User-Email': user.email },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify(data),
         });
         if (!response.ok) throw new Error((await response.json()).message);
@@ -104,9 +106,10 @@ export default function DoctorSettingsPage() {
   const onPasswordSubmit = async (data: PasswordFormValues) => {
       if (!user?.email) return;
       try {
+        const token = localStorage.getItem('babyaura_token');
         const response = await fetch('/api/doctor/change-password', {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'X-User-Email': user.email },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify(data),
         });
         if (!response.ok) throw new Error((await response.json()).message);

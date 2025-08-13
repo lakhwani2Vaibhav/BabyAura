@@ -1,26 +1,40 @@
 
+'use server';
+
 import { NextRequest, NextResponse } from "next/server";
 import { findUserByEmail, findDoctorById, updateDoctorProfile } from "@/services/user-service";
+import { jwtDecode } from "jwt-decode";
+
+interface DecodedToken {
+    userId: string;
+    role: string;
+    [key: string]: any;
+}
 
 const getAuthenticatedDoctor = async (req: NextRequest) => {
-    const userEmail = req.headers.get('X-User-Email');
-    if (!userEmail) return null;
-    return await findUserByEmail(userEmail);
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader) return null;
+    
+    const token = authHeader.split(' ')[1];
+    if (!token) return null;
+
+    try {
+        const decoded = jwtDecode<DecodedToken>(token);
+        if (decoded.role !== 'Doctor' || !decoded.userId) return null;
+        return findDoctorById(decoded.userId);
+    } catch (e) {
+        return null;
+    }
 };
 
 export async function GET(req: NextRequest) {
     try {
         const doctor = await getAuthenticatedDoctor(req);
-        if (!doctor || doctor.role !== 'Doctor') {
+        if (!doctor) {
             return NextResponse.json({ message: "Authentication required." }, { status: 401 });
         }
         
-        const fullProfile = await findDoctorById(doctor._id);
-        if (!fullProfile) {
-            return NextResponse.json({ message: "Doctor profile not found." }, { status: 404 });
-        }
-        
-        const { password, ...doctorWithoutPassword } = fullProfile;
+        const { password, ...doctorWithoutPassword } = doctor;
         return NextResponse.json(doctorWithoutPassword);
 
     } catch (error) {
@@ -32,7 +46,7 @@ export async function GET(req: NextRequest) {
 export async function PUT(req: NextRequest) {
     try {
         const doctor = await getAuthenticatedDoctor(req);
-        if (!doctor || doctor.role !== 'Doctor') {
+        if (!doctor) {
             return NextResponse.json({ message: "Authentication required." }, { status: 401 });
         }
 

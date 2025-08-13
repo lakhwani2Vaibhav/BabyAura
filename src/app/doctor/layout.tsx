@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from "react";
@@ -6,13 +7,13 @@ import { DoctorHeader } from "@/components/layout/DoctorHeader";
 
 function DoctorLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="flex min-h-screen w-full flex-col">
       <DoctorHeader />
-      <main className="container mx-auto px-4 pt-24 pb-8">
+      <main className="flex flex-1 flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-8">
         {children}
       </main>
     </div>
   );
 }
 
-export default withAuth(DoctorLayout, ["Doctor"]);
+export default withAuth(DoctorLayout, ["Doctor"], { loginPath: '/auth/login/admins'});
