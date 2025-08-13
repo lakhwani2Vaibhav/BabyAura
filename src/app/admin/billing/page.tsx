@@ -10,7 +10,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Zap, CreditCard, Users, Stethoscope, ArrowRight } from "lucide-react";
+import { CheckCircle, Zap, CreditCard, Users, Stethoscope, ArrowRight, FileUp, ShieldCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -52,6 +52,24 @@ const currentPlan = {
   doctorLimit: "Unlimited",
   patientLimit: "Unlimited",
 };
+
+const verificationDocuments = [
+    {
+        name: "Hospital Registration Certificate",
+        description: "Official registration document of the hospital.",
+        status: 'Verified' as const,
+    },
+    {
+        name: "Owner's PAN Card",
+        description: "Identity and tax information for the owner.",
+        status: 'Verified' as const,
+    },
+    {
+        name: "Bank Account Details",
+        description: "Cancelled cheque or bank statement for payouts.",
+        status: 'Pending' as const,
+    }
+]
 
 export default function BillingPage() {
   const doctorUsage = adminData.metrics.doctors;
@@ -120,6 +138,38 @@ export default function BillingPage() {
                         <Button className="mt-4 w-full">Contact Sales</Button>
                     </CardContent>
                 </Card>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <ShieldCheck className="h-5 w-5" />
+                        KYC & Verification Documents
+                    </CardTitle>
+                    <CardDescription>
+                        Upload the required documents to complete your hospital verification for payouts.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                   {verificationDocuments.map(doc => (
+                        <div key={doc.name} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border rounded-lg gap-4">
+                            <div>
+                                <p className="font-semibold">{doc.name}</p>
+                                <p className="text-sm text-muted-foreground">{doc.description}</p>
+                            </div>
+                            <div className="flex items-center gap-4 flex-shrink-0">
+                                {doc.status === 'Verified' ? (
+                                    <Badge variant="default" className="bg-green-100 text-green-800 border-green-200 hover:bg-green-200">Verified</Badge>
+                                ) : (
+                                    <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-200">Pending</Badge>
+                                )}
+                                <Button variant="outline" size="sm" disabled={doc.status === 'Verified'}>
+                                    <FileUp className="mr-2 h-4 w-4" />
+                                    {doc.status === 'Verified' ? 'Uploaded' : 'Upload'}
+                                </Button>
+                            </div>
+                        </div>
+                   ))}
                 </CardContent>
             </Card>
             <Card>
