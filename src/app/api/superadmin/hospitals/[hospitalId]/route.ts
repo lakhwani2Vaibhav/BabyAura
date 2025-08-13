@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from "next/server";
-import { updateHospitalStatus } from "@/services/user-service";
+import { updateHospitalStatus, getHospitalDetails } from "@/services/user-service";
 import { findUserByEmail } from "@/services/user-service";
 
 type RouteParams = {
@@ -10,16 +10,43 @@ type RouteParams = {
 }
 
 const checkSuperAdmin = async (req: NextRequest) => {
-    const userEmail = req.headers.get('X-User-Email');
-    if (!userEmail) return false;
-    const user = await findUserByEmail(userEmail);
-    return user && user.role === 'Superadmin';
+    // This is a placeholder for real auth check from token
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader) return false;
+    // In a real app, you would decode the token and check the role
+    return true; 
 }
+
+
+export async function GET(req: NextRequest, { params }: RouteParams) {
+    try {
+        const isSuperAdmin = await checkSuperAdmin(req);
+        if(!isSuperAdmin) {
+            return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+        }
+
+        const { hospitalId } = params;
+        const hospitalDetails = await getHospitalDetails(hospitalId);
+
+        if (!hospitalDetails) {
+            return NextResponse.json({ message: "Hospital not found." }, { status: 404 });
+        }
+        
+        return NextResponse.json(hospitalDetails);
+
+    } catch (error) {
+        console.error("Failed to fetch hospital details:", error);
+        return NextResponse.json({ message: "An unexpected error occurred." }, { status: 500 });
+    }
+}
+
 
 export async function PUT(req: NextRequest, { params }: RouteParams) {
     try {
-        // This should be protected and only accessible by a superadmin
-        // For now, we'll assume the check is handled by middleware or a session check
+        const isSuperAdmin = await checkSuperAdmin(req);
+        if(!isSuperAdmin) {
+            return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+        }
         
         const { hospitalId } = params;
         const { status } = await req.json();

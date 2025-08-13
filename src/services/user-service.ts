@@ -409,7 +409,7 @@ export const updateTimelineTasks = async (parentId: string, tasks: any[]) => {
 // Superadmin services
 export const getAllHospitals = async () => {
     if (!db) await init();
-    return await hospitalsCollection.find({}).toArray();
+    return await hospitalsCollection.find({}).project({ password: 0 }).toArray();
 }
 
 export const updateHospitalStatus = async (hospitalId: string, status: string) => {
@@ -419,4 +419,29 @@ export const updateHospitalStatus = async (hospitalId: string, status: string) =
         { $set: { status: status } }
     );
     return result;
+}
+
+export const getHospitalDetails = async (hospitalId: string) => {
+    if (!db) await init();
+
+    const hospital = await hospitalsCollection.findOne({ _id: hospitalId }, { projection: { password: 0 }});
+    if (!hospital) {
+        return null;
+    }
+
+    const doctors = await doctorsCollection.find({ hospitalId: hospitalId }, { projection: { password: 0 }}).toArray();
+    const parents = await parentsCollection.find({ hospitalId: hospitalId }, { projection: { password: 0 }}).toArray();
+
+    const doctorMap = new Map(doctors.map(doc => [doc._id, doc.name]));
+    
+    const parentsWithDoctorNames = parents.map(parent => ({
+        ...parent,
+        assignedDoctor: parent.doctorId ? doctorMap.get(parent.doctorId) || "Unassigned" : "Unassigned"
+    }));
+
+    return {
+        ...hospital,
+        doctors,
+        parents: parentsWithDoctorNames
+    };
 }

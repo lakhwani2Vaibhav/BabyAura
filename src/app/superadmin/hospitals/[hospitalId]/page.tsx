@@ -1,8 +1,6 @@
-
 "use client";
 
 import { notFound, useParams } from "next/navigation";
-import { superAdminData, adminData, doctorData } from "@/lib/data";
 import {
   Card,
   CardContent,
@@ -27,49 +25,58 @@ import React, { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 
+type Doctor = {
+  _id: string;
+  name: string;
+  specialty: string;
+  status: 'Active' | 'On Leave';
+  avatarUrl?: string;
+};
+
+type Parent = {
+    _id: string;
+    name: string;
+    assignedDoctor: string;
+}
+
 type HospitalDetails = {
     _id: string;
     hospitalName: string;
     plan: string;
     status: string;
-    doctors: any[];
-    parents: any[];
+    doctors: Doctor[];
+    parents: Parent[];
 }
 
 
-export default function HospitalDetailsPage({ params }: { params: { hospitalId: string } }) {
-  const { hospitalId } = params;
+export default function HospitalDetailsPage() {
+  const params = useParams();
+  const hospitalId = params.hospitalId as string;
   const [hospital, setHospital] = useState<HospitalDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
    useEffect(() => {
     const fetchHospitalDetails = async () => {
+      if (!hospitalId) return;
       setLoading(true);
       try {
         const token = localStorage.getItem("babyaura_token");
-        // This would be a real API call in a production app
-        // For now, we simulate fetching and combining data
-        const allHospitals = (await (await fetch('/api/superadmin/hospitals', { headers: { 'Authorization': `Bearer ${token}` }})).json());
-        const targetHospital = allHospitals.find((h: any) => h._id === hospitalId);
-        
-        if(!targetHospital) {
-            notFound();
-            return;
+        const response = await fetch(`/api/superadmin/hospitals/${hospitalId}`, { 
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.status === 404) {
+             notFound();
+             return;
         }
 
-        // Mock fetching doctors and parents for this hospital
-        const doctors = adminData.doctors; // Replace with API call
-        const parents = doctorData.patients; // Replace with API call
-
-        setHospital({
-            _id: targetHospital._id,
-            hospitalName: targetHospital.hospitalName,
-            plan: targetHospital.plan || 'N/A',
-            status: targetHospital.status,
-            doctors,
-            parents
-        });
+        if (!response.ok) {
+            throw new Error('Failed to fetch hospital details');
+        }
+        
+        const data = await response.json();
+        setHospital(data);
 
       } catch (e) {
         toast({ variant: 'destructive', title: 'Error', description: 'Could not fetch hospital details.' });
@@ -81,6 +88,7 @@ export default function HospitalDetailsPage({ params }: { params: { hospitalId: 
   }, [hospitalId, toast]);
 
   const getInitials = (name: string) => {
+    if(!name) return "";
     const parts = name.split(" ");
     return parts.length > 1
       ? `${parts[0][0]}${parts[parts.length - 1][0]}`
@@ -150,7 +158,7 @@ export default function HospitalDetailsPage({ params }: { params: { hospitalId: 
                     <CardTitle className="text-sm font-medium">Partnership Plan</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <Badge variant="outline" className="text-lg">{hospital.plan}</Badge>
+                    <Badge variant="outline" className="text-lg">{hospital.plan || 'N/A'}</Badge>
                 </CardContent>
             </Card>
             <Card>
@@ -180,7 +188,7 @@ export default function HospitalDetailsPage({ params }: { params: { hospitalId: 
                         </TableHeader>
                         <TableBody>
                             {hospital.doctors.map(doctor => (
-                                <TableRow key={doctor.id}>
+                                <TableRow key={doctor._id}>
                                     <TableCell className="font-medium">
                                         <div className="flex items-center gap-3">
                                             <Avatar className="h-8 w-8">
@@ -215,10 +223,10 @@ export default function HospitalDetailsPage({ params }: { params: { hospitalId: 
                         </TableHeader>
                         <TableBody>
                             {hospital.parents.map(parent => (
-                                <TableRow key={parent.id}>
+                                <TableRow key={parent._id}>
                                     <TableCell className="font-medium">{parent.name}</TableCell>
                                     <TableCell>
-                                        <Badge variant="secondary">Dr. Emily Carter</Badge>
+                                        <Badge variant="secondary">{parent.assignedDoctor}</Badge>
                                     </TableCell>
                                 </TableRow>
                             ))}
