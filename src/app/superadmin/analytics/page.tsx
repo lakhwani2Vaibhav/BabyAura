@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -15,9 +16,10 @@ import {
   ChartConfig,
 } from "@/components/ui/chart";
 import { Bar, BarChart, Line, LineChart, CartesianGrid, XAxis, YAxis, Legend } from "recharts";
-import { superAdminData } from "@/lib/data";
 import { MetricCard } from "@/components/cards/MetricCard";
 import { Hospital, Users, TrendingUp } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Rupee = () => <span className="font-sans">₹</span>;
 
@@ -39,8 +41,60 @@ const userGrowthConfig = {
   },
 } satisfies ChartConfig;
 
+type AnalyticsData = {
+    totalHospitals: number;
+    totalUsers: number;
+    platformMRR: number;
+    growthRate: number;
+    monthlyRevenue: { month: string; revenue: number }[];
+    userGrowth: { month: string; parents: number; doctors: number }[];
+}
+
 export default function AnalyticsPage() {
-  const { analytics } = superAdminData;
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+        try {
+            const token = localStorage.getItem('babyaura_token');
+            const response = await fetch('/api/superadmin/analytics', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) throw new Error("Failed to fetch analytics data.");
+            const data = await response.json();
+            setAnalytics(data);
+        } catch (error) {
+            toast({ variant: 'destructive', title: 'Error', description: 'Could not load platform analytics.' });
+        } finally {
+            setLoading(false);
+        }
+    };
+    fetchAnalytics();
+  }, [toast]);
+
+  if (loading) {
+      return (
+          <div className="space-y-6">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <Skeleton className="h-28" />
+                <Skeleton className="h-28" />
+                <Skeleton className="h-28" />
+                <Skeleton className="h-28" />
+            </div>
+             <div className="grid gap-6 lg:grid-cols-2">
+                <Skeleton className="h-80" />
+                <Skeleton className="h-80" />
+            </div>
+          </div>
+      )
+  }
+
+  if (!analytics) {
+      return <div className="text-center">Could not load analytics data.</div>
+  }
+
   return (
     <div className="space-y-6">
        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

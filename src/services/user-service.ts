@@ -446,3 +446,44 @@ export const getHospitalDetails = async (hospitalId: string) => {
         parents: parentsWithDoctorNames
     };
 }
+
+
+export const getSuperAdminAnalytics = async () => {
+    if (!db) await init();
+
+    const totalHospitals = await hospitalsCollection.countDocuments({ status: 'verified' });
+    const totalParents = await parentsCollection.countDocuments();
+    const totalDoctors = await doctorsCollection.countDocuments();
+    const totalUsers = totalParents + totalDoctors;
+
+    // Placeholder for MRR calculation. In a real app, this would involve complex aggregation
+    // based on each hospital's subscription plan and number of active parents/doctors.
+    const platformMRR = totalHospitals * 5000; 
+
+    // Placeholder data for charts as we don't store historical data yet.
+    const monthlyRevenue = [
+        { month: "Jan", revenue: 120000 },
+        { month: "Feb", revenue: 130000 },
+        { month: "Mar", revenue: 145000 },
+        { month: "Apr", revenue: 155000 },
+        { month: "May", revenue: 160000 },
+        { month: "Jun", revenue: 170000 },
+    ];
+    const userGrowth = [
+        { month: "Jan", parents: 8000, doctors: 800 },
+        { month: "Feb", parents: 9000, doctors: 850 },
+        { month: "Mar", parents: 10500, doctors: 900 },
+        { month: "Apr", parents: 12000, doctors: 950 },
+        { month: "May", parents: 13000, doctors: 1000 },
+        { month: "Jun", parents: 14800, doctors: 1100 },
+    ];
+
+    return {
+        totalHospitals,
+        totalUsers,
+        platformMRR,
+        growthRate: 12, // Placeholder
+        monthlyRevenue,
+        userGrowth
+    };
+};
