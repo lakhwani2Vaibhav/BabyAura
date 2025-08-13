@@ -1,7 +1,7 @@
 
 "use client";
 
-import { doctorData } from "@/lib/data";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -14,20 +14,96 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MetricCard } from "@/components/cards/MetricCard";
 import { Users, Video, MessageSquare } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { doctorData } from "@/lib/data";
+import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const recentChats = [
-    { id: 'chat1', patientName: 'Baby Williams', lastMessage: 'The rash seems to be getting a bit better, but still red.', time: '5m ago' },
-    { id: 'chat2', patientName: 'Baby Smith', lastMessage: 'Just confirming our appointment for tomorrow.', time: '1h ago' },
+  { id: 'chat1', patientName: 'Baby Williams', lastMessage: 'The rash seems to be getting a bit better, but still red.', time: '5m ago' },
+  { id: 'chat2', patientName: 'Baby Smith', lastMessage: 'Just confirming our appointment for tomorrow.', time: '1h ago' },
 ];
 
+type DashboardData = {
+  activePatients: number;
+  todaysConsultations: typeof doctorData.todaysConsultations;
+};
+
 export default function DoctorDashboardPage() {
-   const { user } = useAuth();
-   const getInitials = (name: string) => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      if (!user) return;
+      try {
+        const token = localStorage.getItem('babyaura_token');
+        const response = await fetch('/api/doctor/dashboard', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch dashboard data.");
+        }
+        const dashboardData = await response.json();
+        setData(dashboardData);
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Could not load dashboard data.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDashboardData();
+  }, [user, toast]);
+
+  const getInitials = (name: string) => {
     const parts = name.split(" ");
     return parts.length > 1
       ? `${parts[0][0]}${parts[parts.length - 1][0]}`
       : name.substring(0, 2);
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <div className="space-y-2">
+            <Skeleton className="h-8 w-64" />
+            <Skeleton className="h-4 w-80" />
+        </div>
+         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Skeleton className="h-28" />
+            <Skeleton className="h-28" />
+        </div>
+        <div className="grid gap-6 lg:grid-cols-3">
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <Skeleton className="h-6 w-56" />
+              <Skeleton className="h-4 w-72" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-24 w-full" />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-48" />
+              <Skeleton className="h-4 w-64" />
+            </CardHeader>
+             <CardContent className="space-y-4">
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full" />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       <div>
@@ -40,12 +116,12 @@ export default function DoctorDashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <MetricCard
           title="Today's Consultations"
-          value={doctorData.todaysConsultations.length}
+          value={data?.todaysConsultations.length || 0}
           icon={<Video className="h-5 w-5 text-muted-foreground" />}
         />
         <MetricCard
           title="Active Patients"
-          value={doctorData.patients.filter(p => p.status === 'Active').length}
+          value={data?.activePatients || 0}
           icon={<Users className="h-5 w-5 text-muted-foreground" />}
         />
       </div>
@@ -59,7 +135,7 @@ export default function DoctorDashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-             {doctorData.todaysConsultations.map((consultation) => (
+             {data?.todaysConsultations.map((consultation) => (
                 <Card key={consultation.id} className="p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
                   <div className="flex items-center gap-4 w-full sm:w-auto">
                     <div className="flex flex-col items-center justify-center p-2 bg-muted rounded-md w-16 text-center">

@@ -1,4 +1,5 @@
 
+
 import clientPromise from "@/lib/mongodb";
 import bcrypt from 'bcrypt';
 import { Db, Collection, ObjectId } from "mongodb";
@@ -582,3 +583,21 @@ export const getPatientsByDoctorId = async (doctorId: string) => {
     if (!db) await init();
     return parentsCollection.find({ doctorId: doctorId }, { projection: { password: 0 }}).toArray();
 }
+
+
+export const getDoctorDashboardData = async (doctorId: string) => {
+    if (!db) await init();
+    const activePatientsCount = await parentsCollection.countDocuments({ doctorId, status: 'Active' });
+    
+    // Placeholder data for consultations. A real implementation would query a consultations collection.
+    const todaysConsultations = [
+        { id: 101, patientName: "Baby Smith", time: "09:30 AM", reason: "Fever" },
+        { id: 102, patientName: "Baby Jones", time: "11:00 AM", reason: "Routine Check-up" },
+        { id: 103, patientName: "Baby Williams", time: "01:15 PM", reason: "Rash" },
+    ];
+    
+    return {
+        activePatients: activePatientsCount,
+        todaysConsultations: todaysConsultations, // Keeping this static for now
+    };
+};
