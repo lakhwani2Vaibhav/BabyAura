@@ -1,6 +1,7 @@
+
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,35 +14,85 @@ import { Button } from "@/components/ui/button";
 import { Bell, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
+import Link from "next/link";
 
-const initialNotifications = [
-  {
-    id: 1,
-    title: "New message from Dr. Carter",
-    description: "Regarding your upcoming appointment.",
-    read: false,
-  },
-  {
-    id: 2,
-    title: "Vaccination Reminder",
-    description: "Hepatitis B (3rd dose) is due next week.",
-    read: false,
-  },
-  {
-    id: 3,
-    title: "Scrapbook comment",
-    description: "Jessica M. commented on 'First Smile'.",
-    read: true,
-  },
-];
+type Notification = {
+  _id: string;
+  title: string;
+  description: string;
+  read: boolean;
+  href?: string;
+};
 
 export function NotificationBell() {
-  const [notifications, setNotifications] = useState(initialNotifications);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  const fetchNotifications = async () => {
+    if (!user) return;
+    try {
+      const token = localStorage.getItem('babyaura_token');
+      const response = await fetch('/api/notifications', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!response.ok) throw new Error("Failed to fetch notifications");
+      const data = await response.json();
+      setNotifications(data);
+    } catch (error) {
+      // Don't toast this error as it can be noisy on page loads
+      console.error("Could not fetch notifications:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+    
+    const interval = setInterval(fetchNotifications, 60000); // Poll every minute
+    return () => clearInterval(interval);
+
+  }, [user]);
+
+  const handleMarkAllRead = async () => {
+     try {
+        const token = localStorage.getItem('babyaura_token');
+        const response = await fetch('/api/notifications/mark-read', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) throw new Error("Failed to mark notifications as read");
+        setNotifications(notifications.map(n => ({ ...n, read: true })));
+     } catch (error) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Could not update notifications.'})
+     }
+  };
+
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  const handleMarkAllRead = () => {
-    setNotifications(notifications.map(n => ({ ...n, read: true })));
-  };
+  const NotificationItem = ({ notification }: { notification: Notification }) => {
+      const content = (
+          <DropdownMenuItem
+            className={cn(
+                "flex flex-col items-start gap-1 whitespace-normal py-2 px-3",
+                !notification.read && "bg-accent"
+            )}
+            onSelect={(e) => e.preventDefault()}
+            >
+            <p className={cn("font-medium", !notification.read && "text-primary")}>{notification.title}</p>
+            <p className="text-xs text-muted-foreground">
+                {notification.description}
+            </p>
+          </DropdownMenuItem>
+      );
+
+      if (notification.href) {
+          return <Link href={notification.href}>{content}</Link>;
+      }
+
+      return content;
+  }
 
   return (
     <DropdownMenu>
@@ -68,19 +119,7 @@ export function NotificationBell() {
         <div className="max-h-80 overflow-y-auto">
           {notifications.length > 0 ? (
             notifications.map((notification) => (
-              <DropdownMenuItem
-                key={notification.id}
-                className={cn(
-                  "flex flex-col items-start gap-1 whitespace-normal py-2 px-3",
-                  !notification.read && "bg-accent"
-                )}
-                onSelect={(e) => e.preventDefault()}
-              >
-                <p className={cn("font-medium", !notification.read && "text-primary")}>{notification.title}</p>
-                <p className="text-xs text-muted-foreground">
-                  {notification.description}
-                </p>
-              </DropdownMenuItem>
+              <NotificationItem key={notification._id} notification={notification} />
             ))
           ) : (
             <div className="text-center text-sm text-muted-foreground p-4">

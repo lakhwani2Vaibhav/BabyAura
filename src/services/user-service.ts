@@ -4,6 +4,7 @@ import clientPromise from "@/lib/mongodb";
 import bcrypt from 'bcrypt';
 import { Db, Collection, ObjectId } from "mongodb";
 import { initializeHospitalDocuments } from "@/services/document-service";
+import { createNotification } from "./notification-service";
 
 let client;
 let db: Db;
@@ -90,6 +91,14 @@ export const createUser = async (userData: any) => {
         userDocument.status = 'Active';
         if (hospitalId) userDocument.hospitalId = hospitalId;
         if (doctorId) userDocument.doctorId = doctorId;
+        if(hospitalId) {
+            await createNotification({
+                userId: hospitalId, // Notify the hospital admin
+                title: 'New Parent Onboarded',
+                description: `${userDocument.name} has registered under your hospital.`,
+                href: `/admin/parents`
+            })
+        }
         break;
     case 'Doctor':
         collection = doctorsCollection;
@@ -97,12 +106,30 @@ export const createUser = async (userData: any) => {
         userDocument.hospitalId = hospitalId;
         userDocument.status = 'Active'; 
         userDocument.profileStatus = 'incomplete_profile';
+         if(hospitalId) {
+            await createNotification({
+                userId: hospitalId, // Notify the hospital admin
+                title: 'New Doctor Added',
+                description: `${userDocument.name} has been added to your hospital's team.`,
+                href: `/admin/doctors`
+            })
+        }
         break;
     case 'Admin':
         collection = hospitalsCollection;
         customId = generateId('hospital');
         userDocument.status = 'pending_verification';
         userDocument.hospitalCode = `HOSP-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
+        // Notify superadmins about new hospital registration
+        const superadmins = await superadminsCollection.find({}).toArray();
+        for (const superadmin of superadmins) {
+            await createNotification({
+                userId: superadmin._id,
+                title: 'New Hospital Registration',
+                description: `${userDocument.hospitalName} has registered and is pending verification.`,
+                href: `/superadmin/hospitals/${customId}`
+            });
+        }
         break;
     case 'Superadmin':
         collection = superadminsCollection;
@@ -329,6 +356,24 @@ export const deleteParent = async (parentId: string) => {
 
 export const assignDoctorToParent = async (parentId: string, doctorId: string) => {
     if (!db) await init();
+    const parent = await findParentById(parentId);
+    const doctor = await findDoctorById(doctorId);
+    if (!parent || !doctor) throw new Error("Parent or doctor not found");
+
+    // Create notifications for parent and doctor
+    await createNotification({
+        userId: parent._id,
+        title: "New Doctor Assigned",
+        description: `${doctor.name} has been assigned as your primary pediatrician.`,
+        href: "/parent/contact"
+    });
+    await createNotification({
+        userId: doctor._id,
+        title: "New Patient Assigned",
+        description: `${parent.name} (Baby: ${parent.babyName}) has been assigned to you.`,
+        href: `/doctor/patients/${parent._id}`
+    });
+
     return parentsCollection.updateOne({ _id: parentId }, { $set: { doctorId: doctorId, updatedAt: new Date() } });
 }
 
@@ -431,6 +476,15 @@ export const updateHospitalStatus = async (hospitalId: string, status: string) =
         { _id: hospitalId },
         { $set: { status: status } }
     );
+
+    // Notify the admin of the hospital about the status change
+    await createNotification({
+        userId: hospitalId,
+        title: `Your Hospital Status is Updated`,
+        description: `Your hospital has been ${status}.`,
+        href: '/admin/dashboard'
+    });
+
     return result;
 }
 
