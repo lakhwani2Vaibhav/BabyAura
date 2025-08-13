@@ -486,3 +486,41 @@ export const getSuperAdminAnalytics = async () => {
         userGrowth
     };
 };
+
+// Admin Dashboard Service
+export const getAdminDashboardData = async (hospitalId: string) => {
+    if (!db) await init();
+
+    const doctorCount = await doctorsCollection.countDocuments({ hospitalId });
+    const parentCount = await parentsCollection.countDocuments({ hospitalId });
+
+    const doctors = await doctorsCollection.find({ hospitalId }).toArray();
+    const doctorSnapshots = await Promise.all(doctors.map(async (doctor) => {
+        const patientCount = await parentsCollection.countDocuments({ doctorId: doctor._id });
+        return {
+            _id: doctor._id,
+            name: doctor.name,
+            specialty: doctor.specialty,
+            avatarUrl: doctor.avatarUrl,
+            patientCount: patientCount,
+            consultationsThisMonth: Math.floor(Math.random() * 50) + 10, // Placeholder
+            satisfaction: (4.5 + Math.random() * 0.5).toFixed(1), // Placeholder
+        };
+    }));
+
+    // Placeholder calculations for other metrics
+    const monthlyRevenue = parentCount * 50; 
+    const activeSubscriptions = Math.floor(parentCount * 0.95);
+    const churnRate = 2.5;
+
+    return {
+        metrics: {
+            doctors: doctorCount,
+            parents: parentCount,
+            activeSubscriptions,
+            monthlyRevenue,
+            churnRate: churnRate.toString(),
+        },
+        doctors: doctorSnapshots,
+    };
+};
