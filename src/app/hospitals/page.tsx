@@ -14,6 +14,7 @@ import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { HowItWorksSteps } from '@/components/hospitals/HowItWorksSteps';
+import { PartnershipForm } from '@/components/hospitals/PartnershipForm';
 
 const Rupee = () => <span className="font-sans h-8 w-8 text-primary flex items-center justify-center text-3xl font-bold">₹</span>;
 
@@ -37,7 +38,7 @@ export default function HospitalsPage() {
                     </p>
                     <div className="flex flex-col gap-2 min-[400px]:flex-row">
                       <Button size="lg" asChild>
-                        <a href="mailto:contact@babyaura.in?subject=Partnership Inquiry">Become a Partner</a>
+                        <a href="#partner-form">Become a Partner</a>
                       </Button>
                       <Button size="lg" variant="outline" asChild>
                         <a href="mailto:contact@babyaura.in?subject=Demo Request">Schedule a Demo</a>
@@ -151,15 +152,10 @@ export default function HospitalsPage() {
                             <CardHeader className="text-center p-8 bg-background rounded-t-lg">
                                 <Handshake className="mx-auto h-12 w-12 text-primary mb-4" />
                                 <CardTitle className="text-3xl font-bold font-headline">Start Your Partnership Journey</CardTitle>
-                                <CardDescription className="text-lg text-muted-foreground">Contact our partnership team today to get started.</CardDescription>
+                                <CardDescription className="text-lg text-muted-foreground">Fill out the form below and our team will be in touch shortly.</CardDescription>
                             </CardHeader>
-                            <CardContent className="p-6 md:p-8 flex justify-center">
-                                <Button asChild size="lg">
-                                  <a href="mailto:contact@babyaura.in?subject=Partnership Inquiry">
-                                    <Mail className="mr-2 h-5 w-5" />
-                                    Contact Partnership Team
-                                  </a>
-                                </Button>
+                            <CardContent className="p-6 md:p-8">
+                                <PartnershipForm />
                             </CardContent>
                         </Card>
                     </div>
@@ -191,3 +187,5 @@ function BenefitCard({ icon, title, description }: { icon: React.ReactNode, titl
     </ScrollAnimationWrapper>
   );
 }
+
+    
