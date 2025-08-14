@@ -1,25 +1,12 @@
 
 import { NextRequest, NextResponse } from "next/server";
-
-// To complete this implementation, you will need to install an email library
-// such as 'nodemailer'. You can do this by running:
-// npm install nodemailer
-//
-// Then, you can uncomment the code below and fill in your Brevo SMTP credentials
-// in your .env file.
-//
-// import nodemailer from 'nodemailer';
+import nodemailer from 'nodemailer';
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { hospitalName, hospitalAddress, hospitalSize, adminName, adminEmail, adminPhone, businessModel, comments } = body;
 
-    // --- Placeholder for sending email ---
-    // This section demonstrates how you would send an email.
-    // As an AI, I cannot handle API keys, so you will need to complete this part.
-
-    /*
     // 1. Configure the transporter using your Brevo credentials from .env
     const transporter = nodemailer.createTransport({
       host: 'smtp-relay.brevo.com',
@@ -61,14 +48,14 @@ export async function POST(req: NextRequest) {
 
     // 3. Send the email
     await transporter.sendMail(mailOptions);
-    */
-
-    console.log("Received partnership form submission:", body);
-    console.log("Email sending logic is commented out. You will need to implement it.");
 
     return NextResponse.json({ message: "Application received successfully!" }, { status: 200 });
   } catch (error) {
     console.error("Failed to process partnership application:", error);
+    // Check for authentication errors specifically
+    if ((error as any).code === 'EAUTH') {
+        return NextResponse.json({ message: "Could not send email. Please check server credentials." }, { status: 500 });
+    }
     return NextResponse.json({ message: "An unexpected error occurred." }, { status: 500 });
   }
 }
