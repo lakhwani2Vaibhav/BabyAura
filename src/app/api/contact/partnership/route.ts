@@ -20,7 +20,8 @@ export async function POST(req: NextRequest) {
 
     // 2. Define the email options
     const mailOptions = {
-      from: `"${adminName}" <${adminEmail}>`,
+      from: `"BabyAura Partnerships" <noreply@babyaura.in>`,
+      replyTo: `"${adminName}" <${adminEmail}>`,
       to: "babyauraindia@gmail.com",
       subject: `New Hospital Partnership Application: ${hospitalName}`,
       html: `
