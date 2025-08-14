@@ -91,19 +91,34 @@ export function PartnershipForm() {
     setCurrentStep((prev) => Math.max(prev - 1, 0));
   };
   
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
-    console.log("Partnership form submitted:", data);
-    
-    setTimeout(() => {
-        toast({
-            title: "Application Sent!",
-            description: "Thank you for your interest! Our team will be in touch shortly.",
-        });
-        form.reset();
-        setCurrentStep(0);
+    try {
+      const response = await fetch('/api/contact/partnership', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+      });
+
+      if (!response.ok) {
+          throw new Error("Failed to send the application. Please try again later.");
+      }
+
+      toast({
+          title: "Application Sent!",
+          description: "Thank you for your interest! Our team will be in touch shortly.",
+      });
+      form.reset();
+      setCurrentStep(0);
+    } catch (error: any) {
+      toast({
+          variant: "destructive",
+          title: "Error",
+          description: error.message,
+      });
+    } finally {
         setIsSubmitting(false);
-    }, 1500);
+    }
   };
 
   const progress = ((currentStep + 1) / (steps.length + 1)) * 100;
@@ -243,5 +258,3 @@ export function PartnershipForm() {
     </Form>
   );
 }
-
-    
