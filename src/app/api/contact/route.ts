@@ -32,21 +32,48 @@ export async function POST(req: NextRequest) {
     ];
     sendSmtpEmail.subject = `Message Received: ${subject}`;
     sendSmtpEmail.htmlContent = `
-        <html>
+      <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Contact Form Submission</title>
+            <style>
+                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; line-height: 1.6; color: #333; background-color: #f4f4f7; margin: 0; padding: 0; }
+                .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #e2e8f0; }
+                .header { background-color: #4f46e5; color: #ffffff; padding: 24px; text-align: center; }
+                .header h1 { margin: 0; font-size: 24px; }
+                .content { padding: 24px; }
+                .content p { margin-bottom: 16px; }
+                .details-box { background-color: #f7fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; margin-top: 16px; }
+                .details-box h2 { font-size: 18px; color: #4a5568; margin-top: 0; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;}
+                .details-box p { margin-bottom: 8px; }
+                .message-content { white-space: pre-wrap; font-style: italic; color: #4a5568; }
+                .footer { text-align: center; font-size: 12px; color: #718096; padding: 20px; }
+            </style>
+        </head>
         <body>
-            <h1>Thank you for contacting us!</h1>
-            <p>We have received your message and will get back to you as soon as possible. Below is a copy of your submission.</p>
-            <hr />
-            <h2>Your Message Details:</h2>
-            <ul>
-            <li><strong>Name:</strong> ${name}</li>
-            <li><strong>Email:</strong> ${email}</li>
-            <li><strong>Subject:</strong> ${subject}</li>
-            </ul>
-            <h2>Message:</h2>
-            <p style="white-space: pre-wrap;">${message}</p>
-            <hr />
-            <p>Best Regards,<br/>The BabyAura Support Team</p>
+            <div class="container">
+                <div class="header">
+                    <h1>Thank you for contacting us!</h1>
+                </div>
+                <div class="content">
+                    <p>Hi ${name},</p>
+                    <p>We have received your message and will get back to you as soon as possible. Below is a copy of your submission for your records.</p>
+                    <div class="details-box">
+                        <h2>Your Message Details:</h2>
+                        <p><strong>Name:</strong> ${name}</p>
+                        <p><strong>Email:</strong> ${email}</p>
+                        <p><strong>Subject:</strong> ${subject}</p>
+                        <h3 style="font-size: 16px; margin-top: 16px; margin-bottom: 8px; color: #4a5568;">Message:</h3>
+                        <p class="message-content">"${message}"</p>
+                    </div>
+                    <p style="margin-top: 24px;">Best Regards,<br><strong>The BabyAura Support Team</strong></p>
+                </div>
+                <div class="footer">
+                    &copy; ${new Date().getFullYear()} BabyAura. All rights reserved.
+                </div>
+            </div>
         </body>
         </html>
     `;

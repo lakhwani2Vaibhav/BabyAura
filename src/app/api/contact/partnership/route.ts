@@ -27,30 +27,67 @@ export async function POST(req: NextRequest) {
     ];
     sendSmtpEmail.subject = `Partnership Application Received: ${hospitalName}`;
     sendSmtpEmail.htmlContent = `
-        <html>
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Partnership Application Received</title>
+            <style>
+                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; line-height: 1.6; color: #333; background-color: #f4f4f7; margin: 0; padding: 0; }
+                .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #e2e8f0; }
+                .header { background-color: #4f46e5; color: #ffffff; padding: 24px; text-align: center; }
+                .header h1 { margin: 0; font-size: 24px; }
+                .content { padding: 24px; }
+                .content h2 { font-size: 20px; color: #4f46e5; margin-top: 0; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+                .content p { margin-bottom: 16px; }
+                .details-grid { display: grid; grid-template-columns: 150px 1fr; gap: 8px 16px; margin-top: 16px; }
+                .details-grid dt { font-weight: 600; color: #4a5568; }
+                .details-grid dd { margin: 0; color: #2d3748; }
+                .comments { background-color: #f7fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; margin-top: 16px; }
+                .footer { text-align: center; font-size: 12px; color: #718096; padding: 20px; }
+            </style>
+        </head>
         <body>
-            <h1>Thank you for your partnership application!</h1>
-            <p>We have received your application and our team will be in touch with you shortly. Below is a summary of the information you submitted.</p>
-            <hr />
-            <h2>Hospital Details</h2>
-            <ul>
-            <li><strong>Name:</strong> ${hospitalName}</li>
-            <li><strong>Address:</strong> ${hospitalAddress}</li>
-            <li><strong>Size:</strong> ${hospitalSize} beds</li>
-            </ul>
-            <h2>Contact Person</h2>
-            <ul>
-            <li><strong>Name:</strong> ${adminName}</li>
-            <li><strong>Email:</strong> ${adminEmail}</li>
-            <li><strong>Phone:</strong> ${adminPhone}</li>
-            </ul>
-            <h2>Partnership Details</h2>
-            <ul>
-            <li><strong>Preferred Model:</strong> ${businessModel}</li>
-            <li><strong>Comments:</strong> ${comments || 'N/A'}</li>
-            </ul>
-            <hr />
-            <p>Best Regards,<br/>The BabyAura Team</p>
+            <div class="container">
+                <div class="header">
+                    <h1>Thank You for Your Partnership Application!</h1>
+                </div>
+                <div class="content">
+                    <p>Dear ${adminName},</p>
+                    <p>We've received your application to partner with BabyAura. Our team will review your information and will be in touch with you shortly. Below is a summary of the details you submitted.</p>
+                    
+                    <h2>Hospital Details</h2>
+                    <dl class="details-grid">
+                        <dt>Name:</dt><dd>${hospitalName}</dd>
+                        <dt>Address:</dt><dd>${hospitalAddress}</dd>
+                        <dt>Size:</dt><dd>${hospitalSize} beds</dd>
+                    </dl>
+
+                    <h2 style="margin-top: 24px;">Contact Person</h2>
+                    <dl class="details-grid">
+                        <dt>Name:</dt><dd>${adminName}</dd>
+                        <dt>Email:</dt><dd>${adminEmail}</dd>
+                        <dt>Phone:</dt><dd>${adminPhone}</dd>
+                    </dl>
+                    
+                    <h2 style="margin-top: 24px;">Partnership Details</h2>
+                    <dl class="details-grid">
+                        <dt>Preferred Model:</dt><dd>${businessModel}</dd>
+                    </dl>
+                    ${comments ? `
+                    <div class="comments">
+                        <h3 style="font-size: 16px; color: #4a5568; margin-top: 0;">Your Comments:</h3>
+                        <p style="white-space: pre-wrap; margin-bottom: 0;">${comments}</p>
+                    </div>
+                    ` : ''}
+
+                    <p style="margin-top: 24px;">Best Regards,<br><strong>The BabyAura Partnership Team</strong></p>
+                </div>
+                <div class="footer">
+                    &copy; ${new Date().getFullYear()} BabyAura. All rights reserved.
+                </div>
+            </div>
         </body>
         </html>
     `;
