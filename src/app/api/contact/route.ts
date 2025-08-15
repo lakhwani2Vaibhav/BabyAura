@@ -1,6 +1,9 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from 'nodemailer';
+import { config } from 'dotenv';
+
+config(); // Load environment variables from .env file
 
 export async function POST(req: NextRequest) {
   try {
