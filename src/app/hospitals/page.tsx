@@ -9,19 +9,22 @@ import { MarketingHeader } from '@/components/layout/MarketingHeader';
 import { AnimatedContent } from '@/components/layout/AnimatedContent';
 import { ScrollAnimationWrapper } from '@/components/layout/ScrollAnimationWrapper';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Heart, Zap, Handshake, Mail, Rocket } from 'lucide-react';
+import { Heart, Zap, Handshake, Mail, Rocket, Video } from 'lucide-react';
 import React, { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { HowItWorksSteps } from '@/components/hospitals/HowItWorksSteps';
 import { PartnershipForm } from '@/components/hospitals/PartnershipForm';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
+import { ScheduleDemoForm } from '@/components/hospitals/ScheduleDemoForm';
 
 
 const Rupee = () => <span className="font-sans h-8 w-8 text-primary flex items-center justify-center text-3xl font-bold">₹</span>;
 
 export default function HospitalsPage() {
   const [partnershipFormOpen, setPartnershipFormOpen] = useState(false);
+  const [demoFormOpen, setDemoFormOpen] = useState(false);
+
   return (
     <div className="flex flex-col min-h-screen bg-muted/20">
       <MarketingHeader />
@@ -43,9 +46,21 @@ export default function HospitalsPage() {
                       <Button size="lg" asChild>
                         <a href="#partner-form">Become a Partner</a>
                       </Button>
-                      <Button size="lg" variant="outline" asChild>
-                        <a href="mailto:contact@babyaura.in?subject=Demo Request">Schedule a Demo</a>
-                      </Button>
+                      <Dialog open={demoFormOpen} onOpenChange={setDemoFormOpen}>
+                        <DialogTrigger asChild>
+                           <Button size="lg" variant="outline">Schedule a Demo</Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-md">
+                           <DialogHeader className="text-center items-center">
+                                <Video className="mx-auto h-10 w-10 text-primary mb-2" />
+                                <DialogTitle className="text-2xl font-bold font-headline">Schedule a Demo</DialogTitle>
+                                <DialogDescription className="text-base text-muted-foreground">See how BabyAura can transform your hospital.</DialogDescription>
+                            </DialogHeader>
+                            <div className="px-6 py-2">
+                                <ScheduleDemoForm onFormSubmit={() => setDemoFormOpen(false)} />
+                            </div>
+                        </DialogContent>
+                      </Dialog>
                     </div>
                   </div>
                 </ScrollAnimationWrapper>
@@ -202,3 +217,4 @@ function BenefitCard({ icon, title, description }: { icon: React.ReactNode, titl
     </ScrollAnimationWrapper>
   );
 }
+
