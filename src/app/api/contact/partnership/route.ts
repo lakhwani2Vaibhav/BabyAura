@@ -7,6 +7,12 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { hospitalName, hospitalAddress, hospitalSize, adminName, adminEmail, adminPhone, businessModel, comments } = body;
 
+    // Explicitly check for environment variables
+    if (!process.env.BREVO_SMTP_USER || !process.env.BREVO_API_KEY) {
+        console.error("Missing Brevo credentials in .env file");
+        return NextResponse.json({ message: "Email service is not configured correctly. Please contact the administrator." }, { status: 500 });
+    }
+
     // 1. Configure the transporter using your Brevo credentials from .env
     const transporter = nodemailer.createTransport({
       host: 'smtp-relay.brevo.com',
@@ -57,6 +63,6 @@ export async function POST(req: NextRequest) {
     if ((error as any).code === 'EAUTH') {
         return NextResponse.json({ message: "Could not send email. Please check server credentials." }, { status: 500 });
     }
-    return NextResponse.json({ message: "An unexpected error occurred." }, { status: 500 });
+    return NextResponse.json({ message: "An unexpected error occurred while sending the email." }, { status: 500 });
   }
 }

@@ -11,6 +11,13 @@ export async function POST(req: NextRequest) {
     if (!name || !email || !subject || !message) {
         return NextResponse.json({ message: "All fields are required." }, { status: 400 });
     }
+    
+    // Explicitly check for environment variables
+    if (!process.env.BREVO_SMTP_USER || !process.env.BREVO_API_KEY) {
+        console.error("Missing Brevo credentials in .env file");
+        return NextResponse.json({ message: "Email service is not configured correctly. Please contact the administrator." }, { status: 500 });
+    }
+
 
     // Configure the transporter using your Brevo credentials
     const transporter = nodemailer.createTransport({
@@ -55,6 +62,6 @@ export async function POST(req: NextRequest) {
     if ((error as any).code === 'EAUTH') {
         return NextResponse.json({ message: "Email server authentication failed. Please check server credentials." }, { status: 500 });
     }
-    return NextResponse.json({ message: "An unexpected error occurred." }, { status: 500 });
+    return NextResponse.json({ message: "An unexpected error occurred while sending the email." }, { status: 500 });
   }
 }
