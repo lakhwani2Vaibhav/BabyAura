@@ -28,11 +28,12 @@ export async function POST(req: NextRequest) {
     const mailOptions = {
       from: `"BabyAura Partnerships" <noreply@babyaura.in>`,
       replyTo: `"${adminName}" <${adminEmail}>`,
-      to: "babyauraindia@gmail.com",
-      subject: `New Hospital Partnership Application: ${hospitalName}`,
+      to: `babyauraindia@gmail.com, ${adminEmail}`,
+      subject: `Partnership Application Received: ${hospitalName}`,
       html: `
-        <h1>New Partnership Application</h1>
-        <p>A new application has been submitted through the website.</p>
+        <h1>Thank you for your partnership application!</h1>
+        <p>We have received your application and our team will be in touch with you shortly. Below is a summary of the information you submitted.</p>
+        <hr />
         <h2>Hospital Details</h2>
         <ul>
           <li><strong>Name:</strong> ${hospitalName}</li>
@@ -50,6 +51,8 @@ export async function POST(req: NextRequest) {
           <li><strong>Preferred Model:</strong> ${businessModel}</li>
           <li><strong>Comments:</strong> ${comments || 'N/A'}</li>
         </ul>
+        <hr />
+        <p>Best Regards,<br/>The BabyAura Team</p>
       `,
     };
 

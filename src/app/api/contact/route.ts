@@ -34,13 +34,13 @@ export async function POST(req: NextRequest) {
     const mailOptions = {
       from: `"BabyAura Contact Form" <noreply@babyaura.in>`,
       replyTo: `"${name}" <${email}>`,
-      to: "contact@babyaura.in", // The primary recipient
-      subject: `New Contact Form Submission: ${subject}`,
+      to: `contact@babyaura.in, ${email}`, // The primary recipient
+      subject: `Message Received: ${subject}`,
       html: `
-        <h1>New Contact Form Submission</h1>
-        <p>You have received a new message from your website's contact form.</p>
+        <h1>Thank you for contacting us!</h1>
+        <p>We have received your message and will get back to you as soon as possible. Below is a copy of your submission.</p>
         <hr />
-        <h2>Details:</h2>
+        <h2>Your Message Details:</h2>
         <ul>
           <li><strong>Name:</strong> ${name}</li>
           <li><strong>Email:</strong> ${email}</li>
@@ -49,6 +49,7 @@ export async function POST(req: NextRequest) {
         <h2>Message:</h2>
         <p style="white-space: pre-wrap;">${message}</p>
         <hr />
+        <p>Best Regards,<br/>The BabyAura Support Team</p>
       `,
     };
 
