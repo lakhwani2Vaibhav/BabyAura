@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     const sendSmtpEmail = new brevo.SendSmtpEmail();
     sendSmtpEmail.sender = { name: 'BabyAura Contact Form', email: 'noreply@babyaura.in' };
     sendSmtpEmail.to = [
-        { email: 'contact@babyaura.in', name: 'BabyAura Support' },
+        { email: 'babyauraindia@gmail.com', name: 'BabyAura Support' },
         { email: email, name: name }
     ];
     sendSmtpEmail.subject = `Message Received: ${subject}`;
