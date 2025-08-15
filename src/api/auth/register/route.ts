@@ -3,21 +3,53 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { findUserByEmail, createUser, getHospitalByDoctorId, findHospitalById, findHospitalByCode } from "@/services/user-service";
+import jwt from 'jsonwebtoken';
+import { jwtDecode } from "jwt-decode";
+import * as brevo from '@getbrevo/brevo';
+import { render } from '@react-email/render';
+import { WelcomeEmail } from "@/components/emails/WelcomeEmail";
+import { OnboardingEmail } from "@/components/emails/OnboardingEmail";
 
-// This is a placeholder for a secure session check.
-const getAuthenticatedProfessionalId = async (req: NextRequest) => {
-    // In a real app, this would come from a decoded JWT in the Authorization header.
-    // For now, we simulate different logged-in users.
-    const userEmail = req.headers.get('X-User-Email');
+interface DecodedToken {
+    userId: string;
+    role: string;
+    [key: string]: any;
+}
 
-    if (userEmail === 'admin@babyaura.in') {
-        return "HOSP-ID-FROM-ADMIN-SESSION";
+let apiInstance: brevo.TransactionalEmailsApi | null = null;
+if (process.env.BREVO_API_KEY) {
+  apiInstance = new brevo.TransactionalEmailsApi();
+  apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
+}
+
+const getAuthenticatedProfessional = async (req: NextRequest) => {
+    const authHeader = req.headers.get('authorization');
+    const userEmailFromHeader = req.headers.get('X-User-Email');
+
+    if (authHeader) {
+        const token = authHeader.split(' ')[1];
+        if (token) {
+            try {
+                const decoded = jwtDecode<DecodedToken>(token);
+                return { id: decoded.userId, role: decoded.role };
+            } catch (e) {
+                console.error("Token decoding failed", e);
+                return null;
+            }
+        }
     }
-    if (userEmail === 'doctor@babyaura.in') {
-        return "d1";
+
+    if (userEmailFromHeader) {
+        console.warn("Using X-User-Email header for auth. This should be deprecated.");
+        if (userEmailFromHeader === 'admin@babyaura.in') {
+            return { id: "HOSP-ID-FROM-ADMIN-SESSION", role: 'Admin' };
+        }
+        if (userEmailFromHeader === 'doctor@babyaura.in') {
+            return { id: "d1", role: 'Doctor' };
+        }
     }
     
-    return null; // No authenticated professional
+    return null; 
 }
 
 
@@ -42,28 +74,31 @@ export async function POST(req: NextRequest) {
     }
 
     let hospitalId;
+    let doctorId;
     let hospitalData;
 
-    // Scenario 1: Registration is initiated by a logged-in professional (Admin or Doctor)
     if (registeredBy === 'Doctor' || registeredBy === 'Admin') {
-        const professionalId = await getAuthenticatedProfessionalId(req);
-        if (!professionalId) {
+        const professional = await getAuthenticatedProfessional(req);
+        if (!professional) {
              return NextResponse.json({ message: "Professional user session not found." }, { status: 403 });
         }
 
-        if(registeredBy === 'Doctor') {
-            hospitalData = await getHospitalByDoctorId(professionalId);
-        } else { // registeredBy is 'Admin'
-            hospitalData = await findHospitalById(professionalId);
+        if(professional.role === 'Doctor') {
+            hospitalData = await getHospitalByDoctorId(professional.id);
+            if (hospitalData) {
+                hospitalId = hospitalData._id;
+                doctorId = professional.id; 
+            }
+        } else { 
+            // If role is Admin, the professional.id from token IS the hospitalId
+            hospitalId = professional.id;
+            hospitalData = await findHospitalById(hospitalId);
         }
 
-        if (hospitalData) {
-            hospitalId = hospitalData._id;
-        } else {
-             return NextResponse.json({ message: "Could not find the hospital associated with this professional." }, { status: 400 });
+        if (!hospitalId) {
+            return NextResponse.json({ message: "Could not find the hospital associated with this professional." }, { status: 400 });
         }
     } 
-    // Scenario 2: A parent self-registers using a hospital code
     else if (role === 'Parent' && hospitalCode) {
         hospitalData = await findHospitalByCode(hospitalCode);
         if(hospitalData) {
@@ -72,7 +107,6 @@ export async function POST(req: NextRequest) {
              return NextResponse.json({ message: "Invalid hospital code provided." }, { status: 400 });
         }
     }
-    // Scenario 3: A parent self-registers independently (requires phone and address)
     else if (role === 'Parent' && !hospitalId) {
         if(!rest.phone || !rest.address) {
              return NextResponse.json(
@@ -82,12 +116,56 @@ export async function POST(req: NextRequest) {
         }
     }
 
+    const newUser = await createUser({ name, email, password, role, hospitalId, doctorId, ...rest });
 
-    const newUser = await createUser({ name, email, password, role, hospitalId, ...rest });
+    // Send Welcome / Onboarding Email
+    if (apiInstance) {
+        let emailHtml: string;
+        const sendSmtpEmail = new brevo.SendSmtpEmail();
+
+        if (registeredBy === 'Admin' || registeredBy === 'Doctor') {
+             emailHtml = render(
+                <OnboardingEmail 
+                    name={newUser.name} 
+                    role={newUser.role} 
+                    hospitalName={hospitalData?.hospitalName || 'your hospital'} 
+                    temporaryPassword={password}
+                />
+            );
+            sendSmtpEmail.subject = `You've been invited to join BabyAura`;
+        } else {
+             emailHtml = render(<WelcomeEmail name={newUser.name} role={newUser.role} />);
+             sendSmtpEmail.subject = `Welcome to BabyAura!`;
+        }
+
+        sendSmtpEmail.sender = { name: 'BabyAura', email: 'noreply@babyaura.in' };
+        sendSmtpEmail.to = [{ email: newUser.email, name: newUser.name }];
+        sendSmtpEmail.htmlContent = emailHtml;
+        
+        try {
+            await apiInstance.sendTransacEmail(sendSmtpEmail);
+        } catch(e) {
+            console.error("Failed to send welcome/onboarding email:", e);
+            // Non-blocking error
+        }
+    }
+
 
     const { password: _, ...userWithoutPassword } = newUser;
 
-    return NextResponse.json(userWithoutPassword, { status: 201 });
+    const token = jwt.sign(
+        { 
+            userId: userWithoutPassword._id, 
+            role: userWithoutPassword.role, 
+            name: userWithoutPassword.name,
+            email: userWithoutPassword.email,
+        }, 
+        process.env.JWT_SECRET!, 
+        { expiresIn: '1h' }
+    );
+
+    return NextResponse.json({ token, user: userWithoutPassword }, { status: 201 });
+
   } catch (error) {
     console.error("Registration error:", error);
     const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred.";
