@@ -51,13 +51,17 @@ const fullFormSchema = hospitalInfoSchema.merge(adminInfoSchema).merge(partnersh
 
 type FormValues = z.infer<typeof fullFormSchema>;
 
+interface PartnershipFormProps {
+  onFormSubmit?: () => void;
+}
+
 const steps = [
   { id: "hospital", fields: Object.keys(hospitalInfoSchema.shape), title: "Hospital Information" },
   { id: "admin", fields: Object.keys(adminInfoSchema.shape), title: "Your Contact Information" },
   { id: "partnership", fields: Object.keys(partnershipSchema.shape), title: "Partnership Details" },
 ];
 
-export function PartnershipForm() {
+export function PartnershipForm({ onFormSubmit }: PartnershipFormProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
@@ -110,6 +114,9 @@ export function PartnershipForm() {
       });
       form.reset();
       setCurrentStep(0);
+      if (onFormSubmit) {
+        onFormSubmit();
+      }
     } catch (error: any) {
       toast({
           variant: "destructive",

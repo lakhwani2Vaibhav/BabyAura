@@ -10,15 +10,18 @@ import { AnimatedContent } from '@/components/layout/AnimatedContent';
 import { ScrollAnimationWrapper } from '@/components/layout/ScrollAnimationWrapper';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Heart, Zap, Handshake, Mail, Rocket } from 'lucide-react';
-import React from 'react';
+import React, { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { HowItWorksSteps } from '@/components/hospitals/HowItWorksSteps';
 import { PartnershipForm } from '@/components/hospitals/PartnershipForm';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
+
 
 const Rupee = () => <span className="font-sans h-8 w-8 text-primary flex items-center justify-center text-3xl font-bold">₹</span>;
 
 export default function HospitalsPage() {
+  const [partnershipFormOpen, setPartnershipFormOpen] = useState(false);
   return (
     <div className="flex flex-col min-h-screen bg-muted/20">
       <MarketingHeader />
@@ -106,19 +109,31 @@ export default function HospitalsPage() {
           <section id="babyaura-360" className="w-full py-12 md:py-24 bg-primary/5">
             <div className="container px-4 md:px-6">
               <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-1000 ease-out">
-                <div className="max-w-4xl mx-auto text-center">
-                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl font-headline text-primary">Explore Our All-Inclusive Partnership Models</h2>
-                  <p className="max-w-3xl mx-auto mt-4 text-muted-foreground md:text-xl">
-                    From licensing fees to our premium BabyAura 360° revenue-share model with an in-house specialist team, we have a partnership that fits your hospital's needs.
-                  </p>
-                  <div className="mt-8">
-                    <Button size="lg" asChild>
-                      <a href="#partner-form">
-                        Talk to our Partnership Team
-                      </a>
-                    </Button>
+                <Dialog open={partnershipFormOpen} onOpenChange={setPartnershipFormOpen}>
+                  <div className="max-w-4xl mx-auto text-center">
+                    <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl font-headline text-primary">Explore Our All-Inclusive Partnership Models</h2>
+                    <p className="max-w-3xl mx-auto mt-4 text-muted-foreground md:text-xl">
+                      From licensing fees to our premium BabyAura 360° revenue-share model with an in-house specialist team, we have a partnership that fits your hospital's needs.
+                    </p>
+                    <div className="mt-8">
+                       <DialogTrigger asChild>
+                          <Button size="lg">
+                            Talk to our Partnership Team
+                          </Button>
+                        </DialogTrigger>
+                    </div>
                   </div>
-                </div>
+                  <DialogContent className="sm:max-w-2xl">
+                     <DialogHeader className="text-center items-center">
+                        <Handshake className="mx-auto h-12 w-12 text-primary mb-2" />
+                        <DialogTitle className="text-2xl font-bold font-headline">Start Your Partnership Journey</DialogTitle>
+                        <DialogDescription className="text-lg text-muted-foreground">Fill out the form below and our team will be in touch shortly.</DialogDescription>
+                    </DialogHeader>
+                    <div className="px-6 py-2 max-h-[70vh] overflow-y-auto">
+                        <PartnershipForm onFormSubmit={() => setPartnershipFormOpen(false)} />
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </ScrollAnimationWrapper>
             </div>
           </section>
