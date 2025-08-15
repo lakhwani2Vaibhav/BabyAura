@@ -1,0 +1,60 @@
+
+import { NextRequest, NextResponse } from "next/server";
+import nodemailer from 'nodemailer';
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { name, email, subject, message } = body;
+
+    // Validate required fields
+    if (!name || !email || !subject || !message) {
+        return NextResponse.json({ message: "All fields are required." }, { status: 400 });
+    }
+
+    // Configure the transporter using your Brevo credentials
+    const transporter = nodemailer.createTransport({
+      host: 'smtp-relay.brevo.com',
+      port: 587,
+      secure: false, 
+      auth: {
+        user: process.env.BREVO_SMTP_USER,
+        pass: process.env.BREVO_API_KEY,
+      },
+    });
+
+    // Define the email options
+    const mailOptions = {
+      from: `"BabyAura Contact Form" <noreply@babyaura.in>`,
+      replyTo: `"${name}" <${email}>`,
+      to: "contact@babyaura.in", // The primary recipient
+      subject: `New Contact Form Submission: ${subject}`,
+      html: `
+        <h1>New Contact Form Submission</h1>
+        <p>You have received a new message from your website's contact form.</p>
+        <hr />
+        <h2>Details:</h2>
+        <ul>
+          <li><strong>Name:</strong> ${name}</li>
+          <li><strong>Email:</strong> ${email}</li>
+          <li><strong>Subject:</strong> ${subject}</li>
+        </ul>
+        <h2>Message:</h2>
+        <p style="white-space: pre-wrap;">${message}</p>
+        <hr />
+      `,
+    };
+
+    // Send the email
+    await transporter.sendMail(mailOptions);
+
+    return NextResponse.json({ message: "Message sent successfully!" }, { status: 200 });
+
+  } catch (error) {
+    console.error("Failed to process contact form:", error);
+    if ((error as any).code === 'EAUTH') {
+        return NextResponse.json({ message: "Email server authentication failed. Please check server credentials." }, { status: 500 });
+    }
+    return NextResponse.json({ message: "An unexpected error occurred." }, { status: 500 });
+  }
+}
