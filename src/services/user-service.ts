@@ -237,7 +237,7 @@ export const seedUsers = async () => {
     const parentEmail = 'parent@babyaura.in';
     const existingParent = await parentsCollection.findOne({email: parentEmail});
     if(!existingParent) {
-        if(hospitalId) {
+        if(hospitalId && doctorId) { // Ensure hospital and doctor exist before creating parent
             const parentId = generateId('parent');
             const hashedPassword = await bcrypt.hash('password', saltRounds);
             await parentsCollection.insertOne({

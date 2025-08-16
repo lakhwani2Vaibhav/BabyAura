@@ -5,9 +5,6 @@ import jwt from 'jsonwebtoken';
 
 export async function POST(req: NextRequest) {
   try {
-    // Seed initial users if they don't exist, for demo purposes.
-    await seedUsers();
-
     const { email, password } = await req.json();
 
     if (!email || !password) {
