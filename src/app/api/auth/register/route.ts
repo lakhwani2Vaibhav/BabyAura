@@ -130,20 +130,18 @@ export async function POST(req: NextRequest) {
         let emailHtml: string;
         const sendSmtpEmail = new brevo.SendSmtpEmail();
 
-        if (registeredBy === 'Admin' || registeredBy === 'Doctor') {
-             emailHtml = render(
-                <OnboardingEmail 
-                    name={newUser.name} 
-                    role={newUser.role} 
-                    hospitalName={hospitalData?.hospitalName || 'your hospital'} 
-                    temporaryPassword={password}
-                    email={newUser.email}
-                />
-            );
+        if ((registeredBy === 'Admin' || registeredBy === 'Doctor') && newUser.role !== 'Admin') {
+             emailHtml = render(OnboardingEmail({
+                name: newUser.name, 
+                role: newUser.role, 
+                hospitalName: hospitalData?.hospitalName || 'your hospital', 
+                temporaryPassword: password,
+                email: newUser.email
+            }));
             sendSmtpEmail.subject = `You've been invited to join BabyAura`;
         } else {
-             emailHtml = render(<WelcomeEmail name={newUser.name} role={newUser.role} />);
-             sendSmtpEmail.subject = `Welcome to BabyAura!`;
+            emailHtml = render(WelcomeEmail({ name: newUser.name, role: newUser.role }));
+            sendSmtpEmail.subject = `Welcome to BabyAura!`;
         }
 
         sendSmtpEmail.sender = { name: 'BabyAura', email: 'noreply@babyaura.in' };

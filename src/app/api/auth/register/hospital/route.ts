@@ -3,6 +3,19 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { findUserByEmail, createUser } from "@/services/user-service";
+import * as brevo from '@getbrevo/brevo';
+import { render } from '@react-email/render';
+import { WelcomeEmail } from "@/components/emails/WelcomeEmail";
+
+let apiInstance: brevo.TransactionalEmailsApi | null = null;
+
+if (process.env.BREVO_API_KEY) {
+  apiInstance = new brevo.TransactionalEmailsApi();
+  apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
+} else {
+  console.warn('BREVO_API_KEY is not set. Email notifications will be disabled.');
+}
+
 
 export async function POST(req: NextRequest) {
   try {
@@ -34,8 +47,22 @@ export async function POST(req: NextRequest) {
         role: 'Admin',
     });
 
-    // In a real app, we would now trigger the KYC process,
-    // like sending an email to the superadmin for verification.
+    if (apiInstance) {
+        const emailHtml = render(WelcomeEmail({ name: ownerName, role: "Admin" }));
+        const sendSmtpEmail = new brevo.SendSmtpEmail();
+        sendSmtpEmail.sender = { name: 'BabyAura', email: 'noreply@babyaura.in' };
+        sendSmtpEmail.to = [{ email, name: ownerName }];
+        sendSmtpEmail.subject = 'Welcome to BabyAura!';
+        sendSmtpEmail.htmlContent = emailHtml;
+        
+        try {
+            await apiInstance.sendTransacEmail(sendSmtpEmail);
+        } catch (e) {
+            console.error("Failed to send welcome email:", e);
+            // Don't block registration if email fails, just log it.
+        }
+    }
+
 
     const { password: _, ...hospitalWithoutPassword } = newHospital;
 
