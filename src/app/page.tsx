@@ -285,7 +285,7 @@ export default function Home() {
                     <div className="flex flex-col gap-4 rounded-xl border bg-card p-6 h-full hover:shadow-lg transition-shadow">
                       <BookImage className="h-8 w-8 text-orange-600" />
                       <div>
-                        <h3 className="text-lg font-bold">AI-Powered Insights</h3>
+                        <h3 className="text-lg font-bold">Analytics</h3>
                         <p className="text-sm text-muted-foreground mt-1">
                           Leverage AI tools for patient timeline management and scrapbook generation, adding value to your care packages.
                         </p>
