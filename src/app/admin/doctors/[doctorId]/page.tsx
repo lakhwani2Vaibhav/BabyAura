@@ -42,7 +42,10 @@ export default function DoctorProfilePage() {
     const fetchDoctor = async () => {
       if (!doctorId) return;
       try {
-        const response = await fetch(`/api/admin/doctors/${doctorId}`);
+        const token = localStorage.getItem('babyaura_token');
+        const response = await fetch(`/api/admin/doctors/${doctorId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
         if (!response.ok) {
           throw new Error('Failed to fetch doctor details');
         }
