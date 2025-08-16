@@ -287,7 +287,7 @@ export default function Home() {
                       <div>
                         <h3 className="text-lg font-bold">Analytics</h3>
                         <p className="text-sm text-muted-foreground mt-1">
-                          Leverage AI tools for patient timeline management and scrapbook generation, adding value to your care packages.
+                         Monitor key metrics like engagement, doctor availability, and revenue all in one place.
                         </p>
                       </div>
                     </div>
