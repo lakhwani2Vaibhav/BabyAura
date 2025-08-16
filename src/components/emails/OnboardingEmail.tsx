@@ -41,44 +41,25 @@ export const OnboardingEmail: React.FC<Readonly<OnboardingEmailProps>> = ({ name
     <html lang="en">
       <head>
         <style>{`
-          body { font-family: 'Poppins', sans-serif; line-height: 1.6; color: #333; background-color: #f0f4f8; margin: 0; padding: 20px; }
-          .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-          .header { text-align: center; padding: 24px; }
-          .content { padding: 24px; text-align: left; }
-          .content h1 { font-size: 24px; color: #1e293b; margin-bottom: 16px; }
-          .content p { font-size: 16px; color: #475569; margin-bottom: 16px; }
-          .credentials { background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 5px; margin: 20px 0; }
-          .button-container { text-align: center; margin: 30px 0; }
-          .button { display: inline-block; padding: 12px 24px; background-color: #4f46e5; color: #ffffff !important; text-decoration: none; border-radius: 5px; font-weight: bold; }
-          .footer { text-align: center; font-size: 12px; color: #64748b; padding: 20px; border-top: 1px solid #e2e8f0;}
+          body { font-family: sans-serif; line-height: 1.6; }
+          .button { padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px; }
+          .credentials { background-color: #f0f0f0; border: 1px solid #ddd; padding: 15px; border-radius: 5px; }
         `}</style>
       </head>
       <body>
-        <div className="container">
-          <div className="header">
-             <img src="https://res.cloudinary.com/dg0qkunjk/image/upload/v1751958248/grok_image_xkp1vgg_f6s9on.jpg" alt="BabyAura Logo" width="120" style={{display: 'inline-block'}} />
-          </div>
-          <div className="content">
-            <h1>You're invited to join BabyAura!</h1>
-            <h2>Hi {name},</h2>
-            <p>{message}</p>
-            <p>Log in with the credentials below. We strongly recommend changing your password after your first login.</p>
-            <div className="credentials">
-              <p><strong>Email:</strong> {email}</p>
-              {temporaryPassword && <p><strong>Temporary Password:</strong> {temporaryPassword}</p>}
-            </div>
-            <div className="button-container">
-              <a href={fullLoginUrl} className="button">
-                {callToAction}
-              </a>
-            </div>
-            <p>If you have any questions, please contact your administrator at {hospitalName} or our support team at <a href="mailto:contact@babyaura.in" style={{color: '#4f46e5'}}>contact@babyaura.in</a>.</p>
-            <p>Best,<br />The BabyAura Team</p>
-          </div>
-          <div className="footer">
-            <p>&copy; {new Date().getFullYear()} BabyAura. All rights reserved.</p>
-          </div>
+        <h1>You're invited to join BabyAura!</h1>
+        <p>Hi {name},</p>
+        <p>{message}</p>
+        <p>Log in with the credentials below. We strongly recommend changing your password after your first login.</p>
+        <div className="credentials">
+          <p><strong>Email:</strong> {email}</p>
+          {temporaryPassword && <p><strong>Temporary Password:</strong> {temporaryPassword}</p>}
         </div>
+        <a href={fullLoginUrl} className="button">
+          {callToAction}
+        </a>
+        <p>If you have any questions, please contact your administrator at {hospitalName}.</p>
+        <p>Best,<br />The BabyAura Team</p>
       </body>
     </html>
   );
