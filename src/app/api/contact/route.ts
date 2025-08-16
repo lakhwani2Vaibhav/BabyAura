@@ -1,8 +1,6 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import * as brevo from '@getbrevo/brevo';
-import { render } from '@react-email/render';
-import { DynamicEmail } from "@/components/emails/DynamicEmail";
 
 let apiInstance: brevo.TransactionalEmailsApi | null = null;
 
@@ -27,21 +25,17 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ message: "All fields are required." }, { status: 400 });
     }
 
-    const emailBody = (
-      <>
-        <p style={{ margin: 0, marginBottom: '16px' }}>Hi {name},</p>
-        <p style={{ margin: 0, marginBottom: '16px' }}>We've received your message and our team will get back to you as soon as possible. Below is a copy of your submission for your records.</p>
-        <div style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', padding: '15px', borderRadius: '5px', margin: '20px 0', textAlign: 'left' }}>
-            <p style={{ margin: 0 }}><strong>Name:</strong> {name}</p>
-            <p style={{ margin: 0, marginTop: '8px' }}><strong>Email:</strong> {email}</p>
-            <p style={{ margin: 0, marginTop: '8px' }}><strong>Phone:</strong> {phone}</p>
-            <p style={{ margin: 0, marginTop: '8px' }}><strong>Subject:</strong> {subject}</p>
-            <p style={{ margin: 0, marginTop: '16px', fontStyle: 'italic' }}>"{message}"</p>
-        </div>
-      </>
-    );
-
-    const emailHtml = render(<DynamicEmail title="Message Received" body={emailBody} />);
+    const emailHtml = `
+      <h1>Message Received</h1>
+      <p>Hi ${name},</p>
+      <p>We've received your message and our team will get back to you as soon as possible. Below is a copy of your submission for your records.</p>
+      <hr />
+      <p><strong>Name:</strong> ${name}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Phone:</strong> ${phone}</p>
+      <p><strong>Subject:</strong> ${subject}</p>
+      <p><strong>Message:</strong> ${message}</p>
+    `;
     
     const sendSmtpEmail = new brevo.SendSmtpEmail();
     sendSmtpEmail.sender = { name: 'BabyAura Contact Form', email: 'noreply@babyaura.in' };

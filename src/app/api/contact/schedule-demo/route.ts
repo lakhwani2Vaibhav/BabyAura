@@ -1,9 +1,6 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import * as brevo from '@getbrevo/brevo';
-import { render } from '@react-email/render';
-import { DynamicEmail } from "@/components/emails/DynamicEmail";
-
 
 let apiInstance: brevo.TransactionalEmailsApi | null = null;
 
@@ -28,26 +25,21 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ message: "Name, hospital name, email, and phone are required." }, { status: 400 });
     }
     
-    const emailBody = (
-       <>
-        <p style={{ margin: 0, marginBottom: '16px' }}>Dear {name},</p>
-        <p style={{ margin: 0, marginBottom: '16px' }}>We've received your request for a demo of BabyAura. Our team will review your information and get in touch with you shortly to schedule a convenient time. Here is a summary of your request:</p>
+    const emailHtml = `
+        <h1>Thank You for Your Interest!</h1>
+        <p>Dear ${name},</p>
+        <p>We've received your request for a demo of BabyAura. Our team will review your information and get in touch with you shortly to schedule a convenient time. Here is a summary of your request:</p>
         
-        <div style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', padding: '15px', borderRadius: '5px', margin: '20px 0', textAlign: 'left' }}>
-            <p style={{ margin: 0 }}><strong>Name:</strong> {name}</p>
-            <p style={{ margin: 0, marginTop: '8px' }}><strong>Hospital:</strong> {hospitalName}</p>
-            <p style={{ margin: 0, marginTop: '8px' }}><strong>Email:</strong> {email}</p>
-            <p style={{ margin: 0, marginTop: '8px' }}><strong>Phone:</strong> {phone}</p>
-            {message && <p style={{ margin: 0, marginTop: '8px' }}><strong>Message:</strong><br/>{message}</p>}
-        </div>
+        <h2>Your Details</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Hospital:</strong> ${hospitalName}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Phone:</strong> ${phone}</p>
+        ${message ? `<p><strong>Message:</strong><br/>${message}</p>` : ''}
 
-        <p style={{ marginTop: '24px' }}>We look forward to speaking with you!</p>
+        <p>We look forward to speaking with you!</p>
         <p>Best Regards,<br/><strong>The BabyAura Partnership Team</strong></p>
-      </>
-    );
-
-    const emailHtml = render(<DynamicEmail title="Thank You for Your Interest!" body={emailBody} />);
-
+    `;
 
     const sendSmtpEmail = new brevo.SendSmtpEmail();
     sendSmtpEmail.sender = { name: 'BabyAura Demo Team', email: 'noreply@babyaura.in' };
