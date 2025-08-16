@@ -66,7 +66,7 @@ export default function HospitalsPage() {
                 </ScrollAnimationWrapper>
                 <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-1000 ease-out delay-200">
                   <Image
-                    src="https://placehold.co/600x450.png"
+                    src="/Doctor.jpg"
                     data-ai-hint="doctor tablet patient"
                     width="600"
                     height="450"
@@ -217,4 +217,3 @@ function BenefitCard({ icon, title, description }: { icon: React.ReactNode, titl
     </ScrollAnimationWrapper>
   );
 }
-
