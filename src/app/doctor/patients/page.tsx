@@ -249,7 +249,7 @@ export default function PatientsPage() {
                     </Link>
                   </TableCell>
                   <TableCell>
-                    {format(new Date(patient.lastVisit), "MMMM d, yyyy")}
+                    {patient.lastVisit ? format(new Date(patient.lastVisit), "MMMM d, yyyy") : 'N/A'}
                   </TableCell>
                   <TableCell>
                     <Badge
