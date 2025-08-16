@@ -66,7 +66,7 @@ export default function HospitalsPage() {
                 </ScrollAnimationWrapper>
                 <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-1000 ease-out delay-200">
                   <Image
-                    src="/Doctor.jpg"
+                    src="/Doctor.png"
                     data-ai-hint="doctor tablet patient"
                     width="600"
                     height="450"
