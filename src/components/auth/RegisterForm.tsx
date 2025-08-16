@@ -43,7 +43,7 @@ type AffiliatedParentValues = z.infer<typeof affiliatedParentSchema>;
 
 
 const validHospitalCode = "GAH789";
-const hospitalName = "General Hospital";
+
 
 type Step = 'initial' | 'enterCode' | 'confirmHospital' | 'affiliatedDetails' | 'independentDetails';
 
@@ -51,25 +51,35 @@ export function RegisterForm() {
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<Step>('initial');
   const [hospitalCode, setHospitalCode] = useState("");
+  const [hospitalName, setHospitalName] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
   const { toast } = useToast();
   const { login } = useAuth();
 
-  const handleCodeVerification = () => {
+  const handleCodeVerification = async () => {
     setError(null);
     if (!hospitalCode) {
       setError("Please enter your hospital code.");
       return;
     }
     setIsVerifying(true);
-    setTimeout(() => {
-      if (hospitalCode.toUpperCase() === validHospitalCode) {
+    try {
+        const response = await fetch('/api/auth/verify-hospital-code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ hospitalCode })
+        });
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.message);
+        }
+        setHospitalName(result.hospitalName);
         setStep('confirmHospital');
-      } else {
-        setError("Invalid hospital code. Please check and try again.");
-      }
-      setIsVerifying(false);
-    }, 1000);
+    } catch (err: any) {
+        setError(err.message || "An error occurred during verification.");
+    } finally {
+        setIsVerifying(false);
+    }
   };
 
   const ParentDetailsForm = ({ isAffiliated }: { isAffiliated: boolean }) => {
