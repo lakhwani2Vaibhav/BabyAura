@@ -27,15 +27,20 @@ const hospitalCodeSchema = z.object({
   hospitalCode: z.string().min(1, { message: "Please enter a hospital code." }),
 });
 
-const independentParentSchema = z.object({
+const baseParentSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   email: z.string().email({ message: "Invalid email address" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+  babyName: z.string().min(1, { message: "Baby's name is required" }),
+  babyDob: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "A valid date of birth is required" }),
+});
+
+const independentParentSchema = baseParentSchema.extend({
   phone: z.string().min(10, { message: "A valid phone number is required" }),
   address: z.string().min(10, { message: "A valid address is required" }),
 });
 
-const affiliatedParentSchema = independentParentSchema; // Same fields for now
+const affiliatedParentSchema = baseParentSchema;
 
 type HospitalCodeValues = z.infer<typeof hospitalCodeSchema>;
 type IndependentParentValues = z.infer<typeof independentParentSchema>;
@@ -142,6 +147,16 @@ export function RegisterForm() {
           <Label htmlFor="name">Full Name</Label>
           <Input id="name" type="text" placeholder="Your Name" {...register("name")} />
           {errors.name && <p className="text-sm text-destructive">{(errors.name as any).message}</p>}
+        </div>
+         <div className="space-y-2">
+          <Label htmlFor="babyName">Baby's Name</Label>
+          <Input id="babyName" type="text" placeholder="Baby's Name" {...register("babyName")} />
+          {errors.babyName && <p className="text-sm text-destructive">{(errors.babyName as any).message}</p>}
+        </div>
+         <div className="space-y-2">
+          <Label htmlFor="babyDob">Baby's Date of Birth</Label>
+          <Input id="babyDob" type="date" {...register("babyDob")} />
+          {errors.babyDob && <p className="text-sm text-destructive">{(errors.babyDob as any).message}</p>}
         </div>
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>

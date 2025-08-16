@@ -5,11 +5,21 @@ import { NextRequest, NextResponse } from "next/server";
 import { findUserByEmail, createUser, getHospitalByDoctorId, findHospitalById, findHospitalByCode } from "@/services/user-service";
 import jwt from 'jsonwebtoken';
 import { jwtDecode } from "jwt-decode";
+import * as brevo from '@getbrevo/brevo';
+import { render } from '@react-email/render';
+import { WelcomeEmail } from "@/components/emails/WelcomeEmail";
+import { OnboardingEmail } from "@/components/emails/OnboardingEmail";
 
 interface DecodedToken {
     userId: string;
     role: string;
     [key: string]: any;
+}
+
+let apiInstance: brevo.TransactionalEmailsApi | null = null;
+if (process.env.BREVO_API_KEY) {
+  apiInstance = new brevo.TransactionalEmailsApi();
+  apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
 }
 
 const getAuthenticatedProfessional = async (req: NextRequest) => {
@@ -55,6 +65,13 @@ export async function POST(req: NextRequest) {
       );
     }
     
+    if (role === 'Parent' && (!rest.babyName || !rest.babyDob)) {
+       return NextResponse.json(
+        { message: "Baby's name and date of birth are required for parent registration." },
+        { status: 400 }
+      );
+    }
+
     const existingUser = await findUserByEmail(email);
     if (existingUser) {
       return NextResponse.json(
@@ -82,6 +99,7 @@ export async function POST(req: NextRequest) {
         } else { 
             // If role is Admin, the professional.id from token IS the hospitalId
             hospitalId = professional.id;
+            hospitalData = await findHospitalById(hospitalId);
         }
 
         if (!hospitalId) {
@@ -106,6 +124,40 @@ export async function POST(req: NextRequest) {
     }
 
     const newUser = await createUser({ name, email, password, role, hospitalId, doctorId, ...rest });
+
+    // Send Welcome / Onboarding Email
+    if (apiInstance) {
+        let emailHtml: string;
+        const sendSmtpEmail = new brevo.SendSmtpEmail();
+
+        if (registeredBy === 'Admin' || registeredBy === 'Doctor') {
+             emailHtml = render(
+                <OnboardingEmail 
+                    name={newUser.name} 
+                    role={newUser.role} 
+                    hospitalName={hospitalData?.hospitalName || 'your hospital'} 
+                    temporaryPassword={password}
+                    email={newUser.email}
+                />
+            );
+            sendSmtpEmail.subject = `You've been invited to join BabyAura`;
+        } else {
+             emailHtml = render(<WelcomeEmail name={newUser.name} role={newUser.role} />);
+             sendSmtpEmail.subject = `Welcome to BabyAura!`;
+        }
+
+        sendSmtpEmail.sender = { name: 'BabyAura', email: 'noreply@babyaura.in' };
+        sendSmtpEmail.to = [{ email: newUser.email, name: newUser.name }];
+        sendSmtpEmail.htmlContent = emailHtml;
+        
+        try {
+            await apiInstance.sendTransacEmail(sendSmtpEmail);
+        } catch(e) {
+            console.error("Failed to send welcome/onboarding email:", e);
+            // Non-blocking error
+        }
+    }
+
 
     const { password: _, ...userWithoutPassword } = newUser;
 
