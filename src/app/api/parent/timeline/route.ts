@@ -29,7 +29,19 @@ interface DecodedToken {
 
 const getAuthenticatedParentId = async (req: NextRequest): Promise<string | null> => {
     const authHeader = req.headers.get('authorization');
-    if (!authHeader) return null;
+    if (!authHeader) {
+        const tokenFromCookie = req.cookies.get('babyaura_token')?.value;
+        if(tokenFromCookie) {
+             try {
+                const decoded = jwtDecode<DecodedToken>(tokenFromCookie);
+                if (decoded.role !== 'Parent') return null;
+                return decoded.userId;
+            } catch (e) {
+                return null;
+            }
+        }
+        return null;
+    }
     
     const token = authHeader.split(' ')[1];
     if (!token) return null;
