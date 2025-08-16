@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { doctorData } from '@/lib/data';
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import { ArrowLeft, Send, Paperclip } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -28,12 +28,9 @@ const allSpecialists = [
   ]},
 ];
 
-export default function SpecialistChatPage({
-  params,
-}: {
-  params: { specialistId: string };
-}) {
-  const { specialistId } = params;
+export default function SpecialistChatPage() {
+  const params = useParams();
+  const { specialistId } = params as { specialistId: string };
   const specialist = allSpecialists.find((p) => p.id === specialistId);
 
   const [message, setMessage] = useState('');
