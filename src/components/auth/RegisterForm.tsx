@@ -27,24 +27,17 @@ const hospitalCodeSchema = z.object({
   hospitalCode: z.string().min(1, { message: "Please enter a hospital code." }),
 });
 
-const baseParentSchema = z.object({
+const parentSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   email: z.string().email({ message: "Invalid email address" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
-  babyName: z.string().min(1, { message: "Baby's name is required" }),
-  babyDob: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "A valid date of birth is required" }),
-});
-
-const independentParentSchema = baseParentSchema.extend({
   phone: z.string().min(10, { message: "A valid phone number is required" }),
   address: z.string().min(10, { message: "A valid address is required" }),
 });
 
-const affiliatedParentSchema = baseParentSchema;
 
 type HospitalCodeValues = z.infer<typeof hospitalCodeSchema>;
-type IndependentParentValues = z.infer<typeof independentParentSchema>;
-type AffiliatedParentValues = z.infer<typeof affiliatedParentSchema>;
+type ParentValues = z.infer<typeof parentSchema>;
 
 
 const validHospitalCode = "GAH789";
@@ -88,18 +81,15 @@ export function RegisterForm() {
   };
 
   const ParentDetailsForm = ({ isAffiliated }: { isAffiliated: boolean }) => {
-    const formSchema = isAffiliated ? affiliatedParentSchema : independentParentSchema;
-    type FormValues = z.infer<typeof formSchema>;
-    
     const {
       register,
       handleSubmit,
       formState: { errors, isSubmitting },
-    } = useForm<FormValues>({
-      resolver: zodResolver(formSchema),
+    } = useForm<ParentValues>({
+      resolver: zodResolver(parentSchema),
     });
 
-    const onSubmit = async (data: FormValues) => {
+    const onSubmit = async (data: ParentValues) => {
       setError(null);
       try {
         const payload: any = {
@@ -148,16 +138,6 @@ export function RegisterForm() {
           <Input id="name" type="text" placeholder="Your Name" {...register("name")} />
           {errors.name && <p className="text-sm text-destructive">{(errors.name as any).message}</p>}
         </div>
-         <div className="space-y-2">
-          <Label htmlFor="babyName">Baby's Name</Label>
-          <Input id="babyName" type="text" placeholder="Baby's Name" {...register("babyName")} />
-          {errors.babyName && <p className="text-sm text-destructive">{(errors.babyName as any).message}</p>}
-        </div>
-         <div className="space-y-2">
-          <Label htmlFor="babyDob">Baby's Date of Birth</Label>
-          <Input id="babyDob" type="date" {...register("babyDob")} />
-          {errors.babyDob && <p className="text-sm text-destructive">{(errors.babyDob as any).message}</p>}
-        </div>
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <Input id="email" type="email" placeholder="you@example.com" {...register("email")} />
@@ -168,20 +148,16 @@ export function RegisterForm() {
           <Input id="password" type="password" {...register("password")} />
           {errors.password && <p className="text-sm text-destructive">{(errors.password as any).message}</p>}
         </div>
-        {!isAffiliated && (
-            <>
-                <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
-                    <Input id="phone" type="tel" placeholder="Your phone number" {...register("phone")} />
-                    {errors.phone && <p className="text-sm text-destructive">{(errors.phone as any).message}</p>}
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="address">Address</Label>
-                    <Textarea id="address" placeholder="Your full address" {...register("address")} />
-                    {errors.address && <p className="text-sm text-destructive">{(errors.address as any).message}</p>}
-                </div>
-            </>
-        )}
+        <div className="space-y-2">
+            <Label htmlFor="phone">Phone Number</Label>
+            <Input id="phone" type="tel" placeholder="Your phone number" {...register("phone")} />
+            {errors.phone && <p className="text-sm text-destructive">{(errors.phone as any).message}</p>}
+        </div>
+        <div className="space-y-2">
+            <Label htmlFor="address">Address</Label>
+            <Textarea id="address" placeholder="Your full address" {...register("address")} />
+            {errors.address && <p className="text-sm text-destructive">{(errors.address as any).message}</p>}
+        </div>
         <Button type="submit" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? "Creating Account..." : "Sign Up & Start Journey"}
         </Button>
@@ -268,35 +244,20 @@ export function RegisterForm() {
         );
 
       case 'affiliatedDetails':
+      case 'independentDetails':
         return (
           <>
             <CardHeader className="text-center relative">
-              <Button variant="ghost" size="sm" className="absolute left-4 top-4" onClick={() => setStep('confirmHospital')}>
+              <Button variant="ghost" size="sm" className="absolute left-4 top-4" onClick={() => setStep(isAffiliated ? 'confirmHospital' : 'initial')}>
                 <ArrowLeft className="h-4 w-4 mr-1" /> Back
               </Button>
               <CardTitle className="text-2xl font-headline pt-8">Create Your Account</CardTitle>
               <CardDescription>Final step! Fill in your details below.</CardDescription>
             </CardHeader>
             <CardContent>
-              <ParentDetailsForm isAffiliated={true} />
+              <ParentDetailsForm isAffiliated={step === 'affiliatedDetails'} />
             </CardContent>
           </>
-        );
-
-      case 'independentDetails':
-        return (
-            <>
-                <CardHeader className="text-center relative">
-                    <Button variant="ghost" size="sm" className="absolute left-4 top-4" onClick={() => setStep('initial')}>
-                        <ArrowLeft className="h-4 w-4 mr-1" /> Back
-                    </Button>
-                    <CardTitle className="text-2xl font-headline pt-8">Create Your Account</CardTitle>
-                    <CardDescription>Welcome! Let's get your details.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <ParentDetailsForm isAffiliated={false} />
-                </CardContent>
-            </>
         );
     }
   };
