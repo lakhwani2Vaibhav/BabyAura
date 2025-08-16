@@ -34,50 +34,56 @@ export async function POST(req: NextRequest) {
     sendSmtpEmail.subject = `Message Received: ${subject}`;
     sendSmtpEmail.htmlContent = `
       <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Contact Form Submission</title>
-            <style>
-                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; line-height: 1.6; color: #333; background-color: #f4f4f7; margin: 0; padding: 0; }
-                .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #e2e8f0; }
-                .header { background-color: #4f46e5; color: #ffffff; padding: 24px; text-align: center; }
-                .header h1 { margin: 0; font-size: 24px; }
-                .content { padding: 24px; }
-                .content p { margin-bottom: 16px; }
-                .details-box { background-color: #f7fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; margin-top: 16px; }
-                .details-box h2 { font-size: 18px; color: #4a5568; margin-top: 0; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;}
-                .details-box p { margin-bottom: 8px; }
-                .message-content { white-space: pre-wrap; font-style: italic; color: #4a5568; }
-                .footer { text-align: center; font-size: 12px; color: #718096; padding: 20px; }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="header">
-                    <h1>Thank you for contacting us!</h1>
-                </div>
-                <div class="content">
-                    <p>Hi ${name},</p>
-                    <p>We have received your message and will get back to you as soon as possible. Below is a copy of your submission for your records.</p>
-                    <div class="details-box">
-                        <h2>Your Message Details:</h2>
-                        <p><strong>Name:</strong> ${name}</p>
-                        <p><strong>Email:</strong> ${email}</p>
-                        <p><strong>Phone:</strong> ${phone}</p>
-                        <p><strong>Subject:</strong> ${subject}</p>
-                        <h3 style="font-size: 16px; margin-top: 16px; margin-bottom: 8px; color: #4a5568;">Message:</h3>
-                        <p class="message-content">"${message}"</p>
-                    </div>
-                    <p style="margin-top: 24px;">Best Regards,<br><strong>The BabyAura Support Team</strong></p>
-                </div>
-                <div class="footer">
-                    &copy; ${new Date().getFullYear()} BabyAura. All rights reserved.
-                </div>
+      <html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en">
+      <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" type="text/css">
+        <style>
+          * { box-sizing: border-box; }
+          body { margin: 0; padding: 0; -webkit-text-size-adjust: none; text-size-adjust: none; background-color: #f0f4f8; }
+          .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #e2e8f0; }
+          .header { padding: 24px; text-align: center; }
+          .content { padding: 24px; }
+          .content h1 { font-family: 'Poppins', sans-serif; font-size: 24px; color: #1e293b; margin: 0 0 16px; }
+          .content p { font-family: 'Poppins', sans-serif; font-size: 16px; color: #475569; line-height: 1.6; margin: 0 0 16px; }
+          .details-box { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; margin-top: 16px; }
+          .details-box h2 { font-size: 18px; color: #1e293b; margin-top: 0; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; }
+          .details-box p { margin-bottom: 8px; }
+          .message-content { font-style: italic; color: #475569; }
+          .button { display: inline-block; padding: 12px 24px; background-color: #4f46e5; color: #ffffff !important; text-decoration: none; border-radius: 5px; font-weight: bold; font-family: 'Poppins', sans-serif; }
+          .footer { text-align: center; font-size: 12px; color: #64748b; padding: 20px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <img src="https://res.cloudinary.com/dg0qkunjk/image/upload/v1751958248/grok_image_xkp1vgg_f6s9on.jpg" alt="BabyAura Logo" width="120" style="display:inline-block;">
+          </div>
+          <div class="content">
+            <h1>Thank you for contacting us!</h1>
+            <p>Hi ${name},</p>
+            <p>We've received your message and our team will get back to you as soon as possible. Below is a copy of your submission for your records.</p>
+            <div class="details-box">
+              <h2>Your Message Details</h2>
+              <p><strong>Name:</strong> ${name}</p>
+              <p><strong>Email:</strong> ${email}</p>
+              <p><strong>Phone:</strong> ${phone}</p>
+              <p><strong>Subject:</strong> ${subject}</p>
+              <h3 style="font-size: 16px; margin-top: 16px; margin-bottom: 8px; color: #1e293b;">Message:</h3>
+              <p class="message-content">"${message}"</p>
             </div>
-        </body>
-        </html>
+            <p style="text-align: center; margin-top: 30px;">
+              <a href="https://babyaura.in/features" class="button">Explore Our Features</a>
+            </p>
+          </div>
+          <div class="footer">
+            &copy; ${new Date().getFullYear()} BabyAura. All rights reserved.
+          </div>
+        </div>
+      </body>
+      </html>
     `;
     sendSmtpEmail.replyTo = { email: email, name: name };
 

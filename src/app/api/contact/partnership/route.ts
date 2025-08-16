@@ -1,3 +1,4 @@
+
 import { NextRequest, NextResponse } from "next/server";
 import * as brevo from '@getbrevo/brevo';
 
@@ -28,66 +29,69 @@ export async function POST(req: NextRequest) {
     sendSmtpEmail.subject = `Partnership Application Received: ${hospitalName}`;
     sendSmtpEmail.htmlContent = `
         <!DOCTYPE html>
-        <html lang="en">
+        <html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en">
         <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Partnership Application Received</title>
-            <style>
-                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; line-height: 1.6; color: #333; background-color: #f4f4f7; margin: 0; padding: 0; }
-                .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #e2e8f0; }
-                .header { background-color: #4f46e5; color: #ffffff; padding: 24px; text-align: center; }
-                .header h1 { margin: 0; font-size: 24px; }
-                .content { padding: 24px; }
-                .content h2 { font-size: 20px; color: #4f46e5; margin-top: 0; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
-                .content p { margin-bottom: 16px; }
-                .details-grid { display: grid; grid-template-columns: 150px 1fr; gap: 8px 16px; margin-top: 16px; }
-                .details-grid dt { font-weight: 600; color: #4a5568; }
-                .details-grid dd { margin: 0; color: #2d3748; }
-                .comments { background-color: #f7fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; margin-top: 16px; }
-                .footer { text-align: center; font-size: 12px; color: #718096; padding: 20px; }
-            </style>
+          <title></title>
+          <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" type="text/css">
+          <style>
+            * { box-sizing: border-box; }
+            body { margin: 0; padding: 0; -webkit-text-size-adjust: none; text-size-adjust: none; background-color: #f0f4f8; }
+            .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #e2e8f0; }
+            .header { padding: 24px; text-align: center; }
+            .content { padding: 24px; }
+            .content h1 { font-family: 'Poppins', sans-serif; font-size: 24px; color: #1e293b; margin: 0 0 16px; }
+            .content h2 { font-family: 'Poppins', sans-serif; font-size: 20px; color: #4f46e5; margin: 24px 0 8px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+            .content p { font-family: 'Poppins', sans-serif; font-size: 16px; color: #475569; line-height: 1.6; margin: 0 0 16px; }
+            .details-grid { display: grid; grid-template-columns: 150px 1fr; gap: 8px 16px; margin-top: 16px; }
+            .details-grid dt { font-weight: 600; color: #475569; }
+            .details-grid dd { margin: 0; color: #1e293b; }
+            .comments-box { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; margin-top: 16px; }
+            .footer { text-align: center; font-size: 12px; color: #64748b; padding: 20px; }
+          </style>
         </head>
         <body>
-            <div class="container">
-                <div class="header">
-                    <h1>Thank You for Your Partnership Application!</h1>
-                </div>
-                <div class="content">
-                    <p>Dear ${adminName},</p>
-                    <p>We've received your application to partner with BabyAura. Our team will review your information and will be in touch with you shortly. Below is a summary of the details you submitted.</p>
-                    
-                    <h2>Hospital Details</h2>
-                    <dl class="details-grid">
-                        <dt>Name:</dt><dd>${hospitalName}</dd>
-                        <dt>Address:</dt><dd>${hospitalAddress}</dd>
-                        <dt>Size:</dt><dd>${hospitalSize} beds</dd>
-                    </dl>
-
-                    <h2 style="margin-top: 24px;">Contact Person</h2>
-                    <dl class="details-grid">
-                        <dt>Name:</dt><dd>${adminName}</dd>
-                        <dt>Email:</dt><dd>${adminEmail}</dd>
-                        <dt>Phone:</dt><dd>${adminPhone}</dd>
-                    </dl>
-                    
-                    <h2 style="margin-top: 24px;">Partnership Details</h2>
-                    <dl class="details-grid">
-                        <dt>Preferred Model:</dt><dd>${businessModel}</dd>
-                    </dl>
-                    ${comments ? `
-                    <div class="comments">
-                        <h3 style="font-size: 16px; color: #4a5568; margin-top: 0;">Your Comments:</h3>
-                        <p style="white-space: pre-wrap; margin-bottom: 0;">${comments}</p>
-                    </div>
-                    ` : ''}
-
-                    <p style="margin-top: 24px;">Best Regards,<br><strong>The BabyAura Partnership Team</strong></p>
-                </div>
-                <div class="footer">
-                    &copy; ${new Date().getFullYear()} BabyAura. All rights reserved.
-                </div>
+          <div class="container">
+            <div class="header">
+              <img src="https://res.cloudinary.com/dg0qkunjk/image/upload/v1751958248/grok_image_xkp1vgg_f6s9on.jpg" alt="BabyAura Logo" width="120" style="display:inline-block;">
             </div>
+            <div class="content">
+              <h1>Thank You for Your Partnership Application!</h1>
+              <p>Dear ${adminName},</p>
+              <p>We've received your application to partner with BabyAura. Our team will review your information and will be in touch with you shortly. Below is a summary of the details you submitted.</p>
+              
+              <h2>Hospital Details</h2>
+              <dl class="details-grid">
+                  <dt>Name:</dt><dd>${hospitalName}</dd>
+                  <dt>Address:</dt><dd>${hospitalAddress}</dd>
+                  <dt>Size:</dt><dd>${hospitalSize} beds</dd>
+              </dl>
+
+              <h2>Contact Person</h2>
+              <dl class="details-grid">
+                  <dt>Name:</dt><dd>${adminName}</dd>
+                  <dt>Email:</dt><dd>${adminEmail}</dd>
+                  <dt>Phone:</dt><dd>${adminPhone}</dd>
+              </dl>
+              
+              <h2>Partnership Details</h2>
+              <dl class="details-grid">
+                  <dt>Preferred Model:</dt><dd>${businessModel}</dd>
+              </dl>
+              ${comments ? `
+              <div class="comments-box">
+                  <h3 style="font-size: 16px; color: #475569; margin-top: 0;">Your Comments:</h3>
+                  <p style="white-space: pre-wrap; margin-bottom: 0;">${comments}</p>
+              </div>
+              ` : ''}
+
+              <p style="margin-top: 24px;">Best Regards,<br><strong>The BabyAura Partnership Team</strong></p>
+            </div>
+            <div class="footer">
+                &copy; ${new Date().getFullYear()} BabyAura. All rights reserved.
+            </div>
+          </div>
         </body>
         </html>
     `;
