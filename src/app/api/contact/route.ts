@@ -1,3 +1,4 @@
+
 import { NextRequest, NextResponse } from "next/server";
 import * as brevo from '@getbrevo/brevo';
 
@@ -17,10 +18,10 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { name, email, subject, message } = body;
+    const { name, email, phone, subject, message } = body;
 
     // Validate required fields
-    if (!name || !email || !subject || !message) {
+    if (!name || !email || !phone || !subject || !message) {
         return NextResponse.json({ message: "All fields are required." }, { status: 400 });
     }
 
@@ -64,6 +65,7 @@ export async function POST(req: NextRequest) {
                         <h2>Your Message Details:</h2>
                         <p><strong>Name:</strong> ${name}</p>
                         <p><strong>Email:</strong> ${email}</p>
+                        <p><strong>Phone:</strong> ${phone}</p>
                         <p><strong>Subject:</strong> ${subject}</p>
                         <h3 style="font-size: 16px; margin-top: 16px; margin-bottom: 8px; color: #4a5568;">Message:</h3>
                         <p class="message-content">"${message}"</p>
@@ -83,8 +85,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ message: "Message sent successfully!" }, { status: 200 });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to process contact form:", error);
-    return NextResponse.json({ message: "An unexpected error occurred while sending the email." }, { status: 500 });
+    const errorMessage = error.response?.body?.message || "An unexpected error occurred while sending the email.";
+    return NextResponse.json({ message: errorMessage }, { status: 500 });
   }
 }

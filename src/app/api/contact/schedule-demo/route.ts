@@ -18,11 +18,11 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { name, hospitalName, email, message } = body;
+    const { name, hospitalName, email, phone, message } = body;
 
     // Validate required fields
-    if (!name || !hospitalName || !email) {
-        return NextResponse.json({ message: "Name, hospital name, and email are required." }, { status: 400 });
+    if (!name || !hospitalName || !email || !phone) {
+        return NextResponse.json({ message: "Name, hospital name, email, and phone are required." }, { status: 400 });
     }
 
     const sendSmtpEmail = new brevo.SendSmtpEmail();
@@ -62,6 +62,7 @@ export async function POST(req: NextRequest) {
                         <p><strong>Name:</strong> ${name}</p>
                         <p><strong>Hospital:</strong> ${hospitalName}</p>
                         <p><strong>Email:</strong> ${email}</p>
+                        <p><strong>Phone:</strong> ${phone}</p>
                         ${message ? `<p><strong>Message:</strong><br/>${message}</p>` : ''}
                     </div>
 
@@ -80,9 +81,9 @@ export async function POST(req: NextRequest) {
     await apiInstance.sendTransacEmail(sendSmtpEmail);
 
     return NextResponse.json({ message: "Demo request received successfully!" }, { status: 200 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to process demo request:", error);
-    const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred.";
+    const errorMessage = error.response?.body?.message || "An unexpected error occurred while sending the email.";
     return NextResponse.json({ message: errorMessage }, { status: 500 });
   }
 }

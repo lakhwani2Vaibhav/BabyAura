@@ -23,6 +23,7 @@ const demoSchema = z.object({
   name: z.string().min(2, "Name is required."),
   hospitalName: z.string().min(3, "Hospital name is required."),
   email: z.string().email("A valid email is required."),
+  phone: z.string().min(10, "A valid phone number is required."),
   message: z.string().optional(),
 });
 
@@ -36,7 +37,7 @@ export function ScheduleDemoForm({ onFormSubmit }: ScheduleDemoFormProps) {
   const { toast } = useToast();
   const form = useForm<DemoFormValues>({
     resolver: zodResolver(demoSchema),
-    defaultValues: { name: "", hospitalName: "", email: "", message: "" },
+    defaultValues: { name: "", hospitalName: "", email: "", phone: "", message: "" },
   });
 
   const onSubmit = async (data: DemoFormValues) => {
@@ -91,17 +92,30 @@ export function ScheduleDemoForm({ onFormSubmit }: ScheduleDemoFormProps) {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Work Email</FormLabel>
-              <FormControl><Input type="email" placeholder="your.email@hospital.com" {...field} /></FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+                <FormItem>
+                <FormLabel>Work Email</FormLabel>
+                <FormControl><Input type="email" placeholder="your.email@hospital.com" {...field} /></FormControl>
+                <FormMessage />
+                </FormItem>
+            )}
+            />
+            <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+                <FormItem>
+                <FormLabel>Phone Number</FormLabel>
+                <FormControl><Input type="tel" placeholder="Your contact number" {...field} /></FormControl>
+                <FormMessage />
+                </FormItem>
+            )}
+            />
+        </div>
         <FormField
           control={form.control}
           name="message"

@@ -21,6 +21,7 @@ import { Loader2 } from "lucide-react";
 const contactSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
   email: z.string().email("Please enter a valid email address."),
+  phone: z.string().min(10, "Please enter a valid phone number."),
   subject: z.string().min(5, "Subject must be at least 5 characters."),
   message: z.string().min(10, "Message must be at least 10 characters."),
 });
@@ -31,7 +32,7 @@ export function ContactForm() {
   const { toast } = useToast();
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactSchema),
-    defaultValues: { name: "", email: "", subject: "", message: "" },
+    defaultValues: { name: "", email: "", phone: "", subject: "", message: "" },
   });
 
   const onSubmit = async (data: ContactFormValues) => {
@@ -63,32 +64,47 @@ export function ContactForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+                <FormItem>
+                <FormLabel>Full Name</FormLabel>
+                <FormControl>
+                    <Input placeholder="Your Name" {...field} />
+                </FormControl>
+                <FormMessage />
+                </FormItem>
+            )}
+            />
+            <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+                <FormItem>
+                <FormLabel>Email Address</FormLabel>
+                <FormControl>
+                    <Input type="email" placeholder="your.email@example.com" {...field} />
+                </FormControl>
+                <FormMessage />
+                </FormItem>
+            )}
+            />
+        </div>
         <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Full Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Your Name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email Address</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="your.email@example.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+                <FormItem>
+                <FormLabel>Phone Number</FormLabel>
+                <FormControl>
+                    <Input type="tel" placeholder="Your contact number" {...field} />
+                </FormControl>
+                <FormMessage />
+                </FormItem>
+            )}
+            />
         <FormField
           control={form.control}
           name="subject"
