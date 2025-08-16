@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
+import { ScrollArea } from "../ui/scroll-area";
 
 type Notification = {
   _id: string;
@@ -116,7 +117,7 @@ export function NotificationBell() {
           {unreadCount > 0 && <Badge variant="secondary">{unreadCount} new</Badge>}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <div className="max-h-80 overflow-y-auto">
+        <ScrollArea className="max-h-80">
           {notifications.length > 0 ? (
             notifications.map((notification) => (
               <NotificationItem key={notification._id} notification={notification} />
@@ -126,7 +127,7 @@ export function NotificationBell() {
                 You're all caught up!
             </div>
           )}
-        </div>
+        </ScrollArea>
         <DropdownMenuSeparator />
         <DropdownMenuItem
             className="flex items-center justify-center gap-2"
