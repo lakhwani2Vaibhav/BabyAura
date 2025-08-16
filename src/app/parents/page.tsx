@@ -65,7 +65,7 @@ export default function ParentsPage() {
                 </ScrollAnimationWrapper>
                 <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-1000 ease-out delay-200">
                   <Image
-                    src="https://placehold.co/600x450.png"
+                    src="/Parent.jpg"
                     data-ai-hint="parent baby video call doctor"
                     width="600"
                     height="450"
