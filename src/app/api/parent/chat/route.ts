@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from "next/server";
-import { createMessage, getMessagesForConversation, generateConversationId } from "@/services/chat-service";
+import { createMessage, getMessagesForConversation } from "@/services/chat-service";
 import { jwtDecode } from "jwt-decode";
 import { findParentById, findDoctorById } from "@/services/user-service";
 
@@ -39,8 +39,7 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ message: "Specialist ID is required." }, { status: 400 });
         }
 
-        const conversationId = generateConversationId(parentId, specialistId);
-        const messages = await getMessagesForConversation(conversationId);
+        const messages = await getMessagesForConversation(parentId, specialistId);
         
         return NextResponse.json(messages);
 
@@ -65,10 +64,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ message: "Content and receiver ID are required." }, { status: 400 });
         }
 
-        const conversationId = generateConversationId(parentId, receiverId);
-
         const newMessage = await createMessage({
-            conversationId,
             senderId: parentId,
             receiverId: receiverId,
             senderRole: 'Parent',
