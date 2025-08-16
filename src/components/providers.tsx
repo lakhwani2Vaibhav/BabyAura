@@ -36,6 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const decodedToken: DecodedToken = jwtDecode(token);
         if (decodedToken.exp * 1000 > Date.now()) {
             setUser({ 
+                userId: decodedToken.userId,
                 role: decodedToken.role, 
                 name: decodedToken.name, 
                 email: decodedToken.email,
@@ -57,6 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     (userInfo: { token: string, user: User }) => {
       localStorage.setItem("babyaura_token", userInfo.token);
       const newUser = { 
+          userId: userInfo.user.userId,
           role: userInfo.user.role, 
           email: userInfo.user.email, 
           name: userInfo.user.name, 

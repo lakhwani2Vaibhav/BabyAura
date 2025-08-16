@@ -1,11 +1,11 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { doctorData } from '@/lib/data';
 import { notFound, useParams } from 'next/navigation';
-import { ArrowLeft, Send, Paperclip } from 'lucide-react';
+import { ArrowLeft, Send, Paperclip, Loader2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,8 +18,19 @@ import {
   CardHeader,
   CardFooter,
 } from '@/components/ui/card';
+import { useAuth } from '@/hooks/use-auth';
+import { useToast } from '@/hooks/use-toast';
+import { Skeleton } from '@/components/ui/skeleton';
 
-// Extend the data fetching to handle the static "nurse-concierge" ID
+// Simulating a database message structure
+type Message = {
+  _id: string;
+  senderId: string;
+  content: string;
+  createdAt: string;
+};
+
+// This combines our mock data with a structure for the new specialist
 const allSpecialists = [
   ...doctorData.patients,
   { id: 'nurse-concierge', name: 'Nurse Concierge', chatHistory: [
@@ -31,9 +42,53 @@ const allSpecialists = [
 export default function SpecialistChatPage() {
   const params = useParams();
   const { specialistId } = params as { specialistId: string };
+  
+  // To keep the page working with mock data while building, we find the mock specialist
+  // A real implementation would fetch specialist details from an API
   const specialist = allSpecialists.find((p) => p.id === specialistId);
 
-  const [message, setMessage] = useState('');
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSending, setIsSending] = useState(false);
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      if (!user || !specialistId) return;
+      setIsLoading(true);
+      try {
+        const token = localStorage.getItem('babyaura_token');
+        const response = await fetch(`/api/parent/chat?specialistId=${specialistId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch messages');
+        }
+        const data = await response.json();
+        setMessages(data);
+      } catch (error) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Could not load chat history.' });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchMessages();
+  }, [user, specialistId, toast]);
+
+  useEffect(() => {
+    // Scroll to bottom when new messages are added
+    if (scrollAreaRef.current) {
+        const viewport = scrollAreaRef.current.querySelector('div');
+        if (viewport) {
+            viewport.scrollTop = viewport.scrollHeight;
+        }
+    }
+  }, [messages]);
+
 
   if (!specialist) {
     return notFound();
@@ -46,12 +101,27 @@ export default function SpecialistChatPage() {
       : name.substring(0, 2);
   };
   
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (message.trim() === '') return;
-    // In a real app, this would send the message to a backend
-    console.log(`Message to ${specialist.name}: ${message}`);
-    setMessage('');
+    if (newMessage.trim() === '' || !user) return;
+
+    setIsSending(true);
+    try {
+        const token = localStorage.getItem('babyaura_token');
+        const response = await fetch('/api/parent/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ content: newMessage, receiverId: specialistId })
+        });
+        if (!response.ok) throw new Error('Failed to send message');
+        const sentMessage = await response.json();
+        setMessages(prev => [...prev, sentMessage]);
+        setNewMessage('');
+    } catch (error) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Could not send message.' });
+    } finally {
+        setIsSending(false);
+    }
   };
 
   return (
@@ -72,45 +142,53 @@ export default function SpecialistChatPage() {
           </Avatar>
           <div>
             <p className="font-bold">{specialist.name}</p>
-            <p className="text-xs text-muted-foreground">Active now</p>
+            <p className="text-xs text-muted-foreground">Online</p>
           </div>
         </CardHeader>
         <CardContent className="flex-1 p-0 overflow-hidden">
-            <ScrollArea className="h-full p-4">
-            <div className="space-y-4">
-                {specialist.chatHistory?.map((chat, index) => (
-                <div
-                    key={index}
-                    className={cn(
-                    'flex items-end gap-2',
-                    chat.from === 'parent' ? 'justify-end' : 'justify-start'
-                    )}
-                >
-                    {chat.from === 'doctor' && (
-                        <Avatar className="h-8 w-8">
-                            <AvatarImage src={`https://placehold.co/100x100.png`} data-ai-hint="specialist portrait" />
-                            <AvatarFallback>{getInitials(specialist.name)}</AvatarFallback>
-                        </Avatar>
-                    )}
+            <ScrollArea className="h-full p-4" ref={scrollAreaRef}>
+             {isLoading ? (
+                 <div className="space-y-4">
+                     <Skeleton className="h-16 w-3/4" />
+                     <Skeleton className="h-16 w-3/4 ml-auto" />
+                     <Skeleton className="h-12 w-1/2" />
+                 </div>
+             ) : (
+                <div className="space-y-4">
+                    {messages.map((message) => (
                     <div
-                    className={cn(
-                        'max-w-xs md:max-w-md lg:max-w-lg rounded-lg p-3 text-sm',
-                        chat.from === 'parent'
-                        ? 'bg-primary text-primary-foreground rounded-br-none'
-                        : 'bg-muted rounded-bl-none'
-                    )}
+                        key={message._id}
+                        className={cn(
+                        'flex items-end gap-2',
+                        message.senderId === user?.userId ? 'justify-end' : 'justify-start'
+                        )}
                     >
-                        <p>{chat.message}</p>
-                         <p className={cn(
-                             "text-xs mt-1 text-right",
-                             chat.from === 'parent' ? 'text-primary-foreground/70' : 'text-muted-foreground'
-                         )}>
-                            {formatDistanceToNow(new Date(chat.timestamp), { addSuffix: true })}
-                        </p>
+                        {message.senderId !== user?.userId && (
+                            <Avatar className="h-8 w-8">
+                                <AvatarImage src={`https://placehold.co/100x100.png`} data-ai-hint="specialist portrait" />
+                                <AvatarFallback>{getInitials(specialist.name)}</AvatarFallback>
+                            </Avatar>
+                        )}
+                        <div
+                        className={cn(
+                            'max-w-xs md:max-w-md lg:max-w-lg rounded-lg p-3 text-sm',
+                            message.senderId === user?.userId
+                            ? 'bg-primary text-primary-foreground rounded-br-none'
+                            : 'bg-muted rounded-bl-none'
+                        )}
+                        >
+                            <p>{message.content}</p>
+                            <p className={cn(
+                                "text-xs mt-1 text-right",
+                                message.senderId === user?.userId ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                            )}>
+                                {formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })}
+                            </p>
+                        </div>
                     </div>
+                    ))}
                 </div>
-                ))}
-            </div>
+             )}
             </ScrollArea>
         </CardContent>
         <CardFooter className="p-4 border-t">
@@ -119,13 +197,14 @@ export default function SpecialistChatPage() {
                 <Paperclip className="h-5 w-5" />
             </Button>
             <Input
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
               placeholder="Type your message..."
               autoComplete="off"
+              disabled={isSending}
             />
-            <Button type="submit">
-              <Send className="h-5 w-5" />
+            <Button type="submit" disabled={isSending}>
+              {isSending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
             </Button>
           </form>
         </CardFooter>
@@ -133,3 +212,4 @@ export default function SpecialistChatPage() {
     </div>
   );
 }
+

@@ -9,6 +9,7 @@ export type UserRole = "Parent" | "Doctor" | "Admin" | "Superadmin" | null;
 
 // Add a user object to store more than just the role
 export interface User {
+  userId: string;
   role: UserRole;
   email?: string;
   name?: string;
