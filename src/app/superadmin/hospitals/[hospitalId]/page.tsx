@@ -245,13 +245,13 @@ export default function HospitalDetailsPage() {
                             {hospital.doctors.map(doctor => (
                                 <TableRow key={doctor._id}>
                                     <TableCell className="font-medium">
-                                        <div className="flex items-center gap-3">
+                                        <Link href={`/admin/doctors/${doctor._id}`} className="flex items-center gap-3 hover:underline">
                                             <Avatar className="h-8 w-8">
                                                 <AvatarImage src={doctor.avatarUrl} />
                                                 <AvatarFallback>{getInitials(doctor.name)}</AvatarFallback>
                                             </Avatar>
                                             {doctor.name}
-                                        </div>
+                                        </Link>
                                     </TableCell>
                                     <TableCell>{doctor.specialty}</TableCell>
                                     <TableCell>
