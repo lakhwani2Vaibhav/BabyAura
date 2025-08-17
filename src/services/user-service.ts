@@ -473,6 +473,13 @@ export const updateTimelineTasks = async (parentId: string, tasks: any[]) => {
     );
 };
 
+export const updateLastLogin = async (userId: string, role: string) => {
+    if (!db) await init();
+    const collection = getCollectionByRole(role);
+    await collection.updateOne({ _id: userId }, { $set: { lastLogin: new Date() } });
+};
+
+
 // Superadmin services
 export const getSuperAdminDashboardData = async () => {
     if (!db) await init();
@@ -480,6 +487,11 @@ export const getSuperAdminDashboardData = async () => {
     const activeHospitals = await hospitalsCollection.countDocuments({ status: 'verified' });
     const totalParents = await parentsCollection.countDocuments();
     const totalDoctors = await doctorsCollection.countDocuments();
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+    const dauParents = await parentsCollection.countDocuments({ lastLogin: { $gte: twentyFourHoursAgo } });
+    const dauDoctors = await doctorsCollection.countDocuments({ lastLogin: { $gte: twentyFourHoursAgo } });
+    const dauAdmins = await hospitalsCollection.countDocuments({ lastLogin: { $gte: twentyFourHoursAgo } });
 
     // Placeholder for MRR calculation
     const totalMRR = activeHospitals * 5000;
@@ -495,6 +507,7 @@ export const getSuperAdminDashboardData = async () => {
             totalUsers: totalParents + totalDoctors,
             totalMRR,
             churnRate: "1.2%", // Placeholder
+            userActivity: dauParents + dauDoctors + dauAdmins,
         },
         onboardingRequests,
     }

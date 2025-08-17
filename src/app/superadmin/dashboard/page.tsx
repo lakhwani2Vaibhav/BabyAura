@@ -42,6 +42,7 @@ type DashboardData = {
         totalUsers: number;
         totalMRR: number;
         churnRate: string;
+        userActivity: number;
     },
     onboardingRequests: OnboardingRequest[];
 }
@@ -126,7 +127,7 @@ export default function SuperAdminDashboardPage() {
           Platform-wide overview and management tools.
         </p>
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <MetricCard
           title="Active Hospitals"
           value={data.metrics.activeHospitals}
@@ -136,6 +137,11 @@ export default function SuperAdminDashboardPage() {
           title="Total Users"
           value={data.metrics.totalUsers.toLocaleString()}
           icon={<Users className="h-5 w-5 text-muted-foreground" />}
+        />
+        <MetricCard
+          title="User Activity (24h)"
+          value={data.metrics.userActivity.toLocaleString()}
+          icon={<Activity className="h-5 w-5 text-muted-foreground" />}
         />
         <MetricCard
           title="Total MRR"

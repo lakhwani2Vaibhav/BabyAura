@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { findUserByEmail, seedUsers } from "@/services/user-service";
+import { findUserByEmail, seedUsers, updateLastLogin } from "@/services/user-service";
 import bcrypt from "bcrypt";
 import jwt from 'jsonwebtoken';
 
@@ -40,6 +40,8 @@ export async function POST(req: NextRequest) {
       );
     }
     
+    await updateLastLogin(user._id, user.role);
+
     const { password: _, ...userWithoutPassword } = user;
 
     const token = jwt.sign(
