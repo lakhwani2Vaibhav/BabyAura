@@ -18,13 +18,21 @@ const hasPermission = async (req: NextRequest, doctorId: string): Promise<boolea
 
     try {
         const decoded: { userId: string, role: string } = jwtDecode(token);
-        if (decoded.role !== 'Admin') return false;
 
-        const doctor = await findDoctorById(doctorId);
-        if (!doctor) return false; // Or allow if admin wants to see a doctor not in their hospital? For now, no.
+        // Superadmin can view any doctor
+        if (decoded.role === 'Superadmin') {
+            return true;
+        }
 
-        // Admin's userId is their hospitalId
-        return doctor.hospitalId === decoded.userId;
+        // Admin can only view doctors in their own hospital
+        if (decoded.role === 'Admin') {
+            const doctor = await findDoctorById(doctorId);
+            if (!doctor) return false;
+            // Admin's userId is their hospitalId
+            return doctor.hospitalId === decoded.userId;
+        }
+        
+        return false;
     } catch(e) {
         return false;
     }
