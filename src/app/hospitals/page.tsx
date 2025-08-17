@@ -9,7 +9,7 @@ import { MarketingHeader } from '@/components/layout/MarketingHeader';
 import { AnimatedContent } from '@/components/layout/AnimatedContent';
 import { ScrollAnimationWrapper } from '@/components/layout/ScrollAnimationWrapper';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Heart, Zap, Handshake, Mail, Rocket, Video } from 'lucide-react';
+import { Heart, Zap, Handshake, Mail, Rocket, Video, CheckCircle, Brain, Utensils, Stethoscope } from 'lucide-react';
 import React, { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -107,9 +107,50 @@ export default function HospitalsPage() {
               </div>
             </div>
           </section>
+
+          {/* BabyAura 360 Section */}
+          <section id="babyaura-360" className="w-full py-12 md:py-24 bg-muted/40">
+            <div className="container px-4 md:px-6">
+              <div className="grid items-center gap-12 lg:grid-cols-2">
+                <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-1000 ease-out">
+                  <Image
+                    src="https://placehold.co/600x450.png"
+                    data-ai-hint="team doctors collaborating"
+                    width="600"
+                    height="450"
+                    alt="BabyAura 360"
+                    className="mx-auto aspect-[4/3] overflow-hidden rounded-xl object-cover shadow-lg"
+                  />
+                </ScrollAnimationWrapper>
+                <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-right-8 duration-1000 ease-out">
+                  <div className="space-y-4">
+                    <Badge variant="secondary" className="py-1 px-3 text-base">BabyAura 360°</Badge>
+                    <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl font-headline">The All-Inclusive Care Partnership</h2>
+                    <p className="text-muted-foreground md:text-lg">
+                      Our premium revenue-share model where we become a true extension of your team. BabyAura provides an in-house team of specialists—nutritionists, therapists, and more—to deliver comprehensive, wrap-around care under your hospital's trusted brand.
+                    </p>
+                    <ul className="space-y-3 pt-2">
+                      <li className="flex items-start gap-3">
+                        <CheckCircle className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
+                        <span><strong>Dedicated Specialist Team:</strong> We provide and manage nutritionists, mind therapists, and a nurse concierge service.</span>
+                      </li>
+                       <li className="flex items-start gap-3">
+                        <CheckCircle className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
+                        <span><strong>Zero Upfront Cost:</strong> A pure revenue-share model means we only succeed when you succeed.</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <CheckCircle className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
+                        <span><strong>Enhanced Patient Experience:</strong> Offer a complete, holistic care journey that significantly boosts patient satisfaction and loyalty.</span>
+                      </li>
+                    </ul>
+                  </div>
+                </ScrollAnimationWrapper>
+              </div>
+            </div>
+          </section>
           
           {/* How It Works Section */}
-          <section id="how-it-works" className="w-full py-12 md:py-24 bg-muted/40">
+          <section id="how-it-works" className="w-full py-12 md:py-24 bg-background">
             <div className="container px-4 md:px-6">
                  <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
                     <div className="text-center space-y-4 mb-16">
@@ -120,15 +161,15 @@ export default function HospitalsPage() {
             </div>
           </section>
           
-          {/* BabyAura 360 CTA */}
-          <section id="babyaura-360" className="w-full py-12 md:py-24 bg-primary/5">
+          {/* Partnership Models CTA */}
+          <section id="partnership-models" className="w-full py-12 md:py-24 bg-primary/5">
             <div className="container px-4 md:px-6">
               <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-1000 ease-out">
                 <Dialog open={partnershipFormOpen} onOpenChange={setPartnershipFormOpen}>
                   <div className="max-w-4xl mx-auto text-center">
                     <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl font-headline text-primary">Explore Our All-Inclusive Partnership Models</h2>
                     <p className="max-w-3xl mx-auto mt-4 text-muted-foreground md:text-xl">
-                      From licensing fees to our premium BabyAura 360° revenue-share model with an in-house specialist team, we have a partnership that fits your hospital's needs.
+                      From fixed licensing fees to our premium BabyAura 360° revenue-share model, we have a partnership that fits your hospital's needs.
                     </p>
                     <div className="mt-8">
                        <DialogTrigger asChild>

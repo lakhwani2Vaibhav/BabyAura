@@ -48,19 +48,12 @@ export function HowItWorksSteps() {
                 <div className="relative grid grid-cols-3 gap-8">
                     {steps.map((item, index) => (
                         <div key={item.step} className="text-center relative">
-                            <motion.div
-                                className="absolute -top-1 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full bg-primary/20"
-                                style={{
-                                    scale: scrollYProgress,
-                                    opacity: scrollYProgress
-                                }}
-                            />
-                            <ScrollAnimationWrapper
+                             <ScrollAnimationWrapper
                                 key={item.title}
                                 animationClasses={`animate-in fade-in zoom-in-95 duration-700 ease-out delay-${100 + (index * 200)}`}
                             >
                                 <div className="relative z-10">
-                                    <div className="mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-2xl border-4 border-muted/40 mb-4">
+                                    <div className="mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-2xl border-4 border-background mb-4">
                                         {item.step}
                                     </div>
                                     <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
@@ -74,19 +67,19 @@ export function HowItWorksSteps() {
 
             {/* Mobile view (Vertical timeline) */}
             <div className="md:hidden relative pl-8">
-                <div className="absolute left-8 top-0 h-full w-1 bg-border -translate-x-1/2" />
-                <div className="space-y-12">
+                <div className="absolute left-4 top-8 h-[calc(100%-4rem)] w-0.5 bg-border" />
+                <div className="space-y-16">
                     {steps.map((item, index) => (
                         <ScrollAnimationWrapper
                             key={item.title}
                             animationClasses={`animate-in fade-in slide-in-from-left-8 duration-700 ease-out delay-${100 + (index * 100)}`}
                         >
-                            <div className="relative">
-                                <div className="absolute -left-0 top-0 h-16 w-16 flex items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-2xl border-4 border-muted/40 -translate-x-1/2">
+                            <div className="relative flex items-start gap-4">
+                                <div className="absolute left-4 top-0 h-16 w-16 flex items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-2xl border-4 border-background -translate-x-1/2">
                                     {item.step}
                                 </div>
-                                <div className="ml-12 pl-4">
-                                    <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
+                                <div className="ml-12 pl-4 pt-1">
+                                    <h3 className="text-xl font-semibold mb-1">{item.title}</h3>
                                     <p className="text-muted-foreground">{item.description}</p>
                                 </div>
                             </div>
