@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import { Db, Collection, ObjectId } from "mongodb";
 import { initializeHospitalDocuments } from "@/services/document-service";
 import { createNotification } from "./notification-service";
+import { capitalize } from "@/lib/utils";
 
 let client;
 let db: Db;
@@ -526,11 +527,33 @@ export const updateHospitalStatus = async (hospitalId: string, status: string) =
         { $set: { status: status } }
     );
 
+    let title;
+    let description;
+
+    switch (status) {
+        case 'verified':
+            title = 'Your Hospital Account is Approved!';
+            description = 'Your hospital is now active on the BabyAura platform.';
+            break;
+        case 'suspended':
+            title = 'Your Hospital Account has been Suspended';
+            description = 'Access to your admin dashboard has been temporarily restricted.';
+            break;
+        case 'rejected':
+             title = 'Your Hospital Application Update';
+             description = 'Unfortunately, your application to join BabyAura has been rejected at this time.';
+             break;
+        default:
+            title = 'Your Hospital Account Status has been Updated';
+            description = `Your account status is now: ${capitalize(status)}`;
+    }
+
+
     // Notify the admin of the hospital about the status change
     await createNotification({
         userId: hospitalId,
-        title: `Your Hospital Status is Updated`,
-        description: `Your hospital has been ${status}.`,
+        title: title,
+        description: description,
         href: '/admin/dashboard'
     });
 

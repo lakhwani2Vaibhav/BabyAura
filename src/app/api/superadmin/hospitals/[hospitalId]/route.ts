@@ -1,12 +1,21 @@
 
 import { NextRequest, NextResponse } from "next/server";
-import { updateHospitalStatus, getHospitalDetails } from "@/services/user-service";
+import { updateHospitalStatus, findHospitalById } from "@/services/user-service";
 import { findUserByEmail } from "@/services/user-service";
+import * as brevo from '@getbrevo/brevo';
+import { render } from '@react-email/render';
+import { AccountStatusUpdateEmail } from "@/components/emails/AccountStatusUpdateEmail";
 
 type RouteParams = {
     params: {
         hospitalId: string
     }
+}
+
+let apiInstance: brevo.TransactionalEmailsApi | null = null;
+if (process.env.BREVO_API_KEY) {
+  apiInstance = new brevo.TransactionalEmailsApi();
+  apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
 }
 
 const checkSuperAdmin = async (req: NextRequest) => {
@@ -26,7 +35,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
         }
 
         const { hospitalId } = params;
-        const hospitalDetails = await getHospitalDetails(hospitalId);
+        const hospitalDetails = await findHospitalById(hospitalId);
 
         if (!hospitalDetails) {
             return NextResponse.json({ message: "Hospital not found." }, { status: 404 });
@@ -59,6 +68,33 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
         if (result.modifiedCount === 0) {
             return NextResponse.json({ message: "Hospital not found or status is already set." }, { status: 404 });
         }
+
+        // Send notification email
+        if (apiInstance) {
+            const hospital = await findHospitalById(hospitalId);
+            if (hospital) {
+                const emailHtml = render(<AccountStatusUpdateEmail 
+                    name={hospital.ownerName}
+                    hospitalName={hospital.hospitalName}
+                    status={status}
+                    supportEmail="babyauraindia@gmail.com"
+                />);
+
+                const sendSmtpEmail = new brevo.SendSmtpEmail();
+                sendSmtpEmail.sender = { name: 'BabyAura Platform Support', email: 'noreply@babyaura.in' };
+                sendSmtpEmail.to = [{ email: hospital.email, name: hospital.ownerName }];
+                sendSmtpEmail.subject = `Your BabyAura Account Status Update: ${hospital.hospitalName}`;
+                sendSmtpEmail.htmlContent = emailHtml;
+
+                try {
+                    await apiInstance.sendTransacEmail(sendSmtpEmail);
+                } catch(e) {
+                    console.error("Failed to send status update email:", e);
+                    // Don't fail the request if email sending fails, just log it.
+                }
+            }
+        }
+
 
         return NextResponse.json({ message: "Hospital status updated successfully." });
 
