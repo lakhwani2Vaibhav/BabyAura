@@ -157,7 +157,7 @@ export default function SuperadminParentProfilePage() {
                     </CardHeader>
                     <CardContent>
                         <p><strong>Name:</strong> {parent.babyName}</p>
-                        <p><strong>DOB:</strong> {format(new Date(parent.babyDob), 'MMMM d, yyyy')}</p>
+                        <p><strong>DOB:</strong> {parent.babyDob ? format(new Date(parent.babyDob), 'MMMM d, yyyy') : 'N/A'}</p>
                     </CardContent>
                 </Card>
                 <Card>
