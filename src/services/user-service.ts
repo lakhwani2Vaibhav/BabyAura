@@ -1,5 +1,4 @@
 
-
 import clientPromise from "@/lib/mongodb";
 import bcrypt from 'bcrypt';
 import { Db, Collection, ObjectId } from "mongodb";
@@ -39,6 +38,16 @@ const generateId = (type: string) => {
     const timestamp = Date.now();
     const random = Math.random().toString(36).substring(2, 8);
     return `${type}-${timestamp}-${random}`;
+}
+
+const getCollectionByRole = (role: string): Collection => {
+    switch (role) {
+        case 'Parent': return parentsCollection;
+        case 'Doctor': return doctorsCollection;
+        case 'Admin': return hospitalsCollection;
+        case 'Superadmin': return superadminsCollection;
+        default: throw new Error("Invalid user role specified.");
+    }
 }
 
 export const findUserByEmail = async (email: string) => {
@@ -655,3 +664,42 @@ export const getDoctorDashboardData = async (doctorId: string) => {
         todaysConsultations: todaysConsultations, // Keeping this static for now
     };
 };
+
+// Password Reset Services
+export const setPasswordResetToken = async (userId: string, role: string, tokens: { passwordResetToken: string, passwordResetExpires: Date }) => {
+    if (!db) await init();
+    const collection = getCollectionByRole(role);
+    await collection.updateOne(
+        { _id: userId },
+        { $set: tokens }
+    );
+};
+
+export const findUserByResetToken = async (token: string) => {
+    if (!db) await init();
+    const collections = [parentsCollection, doctorsCollection, hospitalsCollection, superadminsCollection];
+
+    for (const collection of collections) {
+        const user = await collection.findOne({
+            passwordResetToken: token,
+            passwordResetExpires: { $gt: new Date() },
+        });
+        if (user) return user;
+    }
+    return null;
+}
+
+export const resetUserPassword = async (userId: string, role: string, newPassword: string) => {
+    if (!db) await init();
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    const collection = getCollectionByRole(role);
+    await collection.updateOne(
+        { _id: userId },
+        {
+            $set: { password: hashedPassword },
+            $unset: { passwordResetToken: "", passwordResetExpires: "" },
+        }
+    );
+}
