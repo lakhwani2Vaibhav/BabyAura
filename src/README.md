@@ -52,6 +52,29 @@ The platform is built around four key user roles, each with a dedicated portal a
 - **Authentication**: JWT-based authentication with role-based access control.
 - **Email**: [Brevo](https://www.brevo.com/) for transactional emails (welcome, password reset, notifications).
 
+## Code Structure
+
+The project follows a standard Next.js App Router structure. Here's a breakdown of the key directories:
+
+-   `src/app`: Contains all the application's routes. Each folder represents a URL segment.
+    -   `src/app/api`: All server-side API routes are defined here.
+    -   `src/app/(marketing)`: Routes for the public-facing marketing pages like the landing page, about, contact, etc.
+    -   `src/app/(auth)`: Authentication-related pages (login, register).
+    -   `src/app/(roles)`: Each user role (parent, doctor, admin, superadmin) has its own directory containing its specific dashboard, pages, and layout.
+-   `src/components`: Home to all reusable React components.
+    -   `src/components/ui`: Core UI components from the shadcn/ui library.
+    -   `src/components/layout`: Components responsible for page structure (headers, footers, etc.).
+    -   `src/components/auth`: Authentication-related components (login forms, registration forms).
+-   `src/services`: Contains modules responsible for direct interaction with the database (MongoDB) and other external services.
+-   `src/ai`: Houses all Genkit-related code.
+    -   `src/ai/flows`: Defines the Genkit flows that power the AI features.
+-   `src/lib`: A collection of utilities, constants, and shared logic.
+    -   `src/lib/data.ts`: Contains mock data used for development and testing.
+    -   `src/lib/utils.ts`: General utility functions.
+    -   `src/lib/constants.ts`: Application-wide constants like navigation items.
+-   `src/hooks`: Custom React hooks, such as `useAuth` for managing authentication state.
+-   `src/types`: Holds TypeScript type definitions for various data structures used in the app.
+
 ## Getting Started
 
 1.  Clone the repository.
