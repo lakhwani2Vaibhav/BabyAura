@@ -493,7 +493,8 @@ export const getSuperAdminDashboardData = async () => {
     const dauDoctors = await doctorsCollection.countDocuments({ lastLogin: { $gte: twentyFourHoursAgo } });
     const dauAdmins = await hospitalsCollection.countDocuments({ lastLogin: { $gte: twentyFourHoursAgo } });
 
-    // Placeholder for MRR calculation
+    // A basic MRR calculation. In a real app, this would be more complex.
+    // For now, we'll assume a flat fee per hospital.
     const totalMRR = activeHospitals * 5000;
 
     const onboardingRequests = await hospitalsCollection.find({ status: 'pending_verification' })
