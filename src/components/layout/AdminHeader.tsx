@@ -31,7 +31,7 @@ import { NotificationBell } from "./NotificationBell";
 export function AdminHeader() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, logout, isSuspended } = useAuth();
 
   const getInitials = (name?: string) => {
     if (!name) return "A";
@@ -60,7 +60,8 @@ export function AdminHeader() {
                   "transition-colors hover:text-foreground/80",
                   pathname === item.href
                     ? "text-foreground"
-                    : "text-foreground/60"
+                    : "text-foreground/60",
+                  isSuspended && "pointer-events-none opacity-50"
                 )}
               >
                 {item.label}
@@ -141,7 +142,7 @@ export function AdminHeader() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => router.push("/admin/profile")}>
+              <DropdownMenuItem onClick={() => router.push("/admin/profile")} disabled={isSuspended}>
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </DropdownMenuItem>

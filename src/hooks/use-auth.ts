@@ -14,6 +14,7 @@ export interface User {
   email?: string;
   name?: string;
   hospitalName?: string;
+  status?: 'active' | 'suspended' | 'rejected' | 'pending_verification';
 }
 
 export interface AuthContextType {
@@ -21,6 +22,7 @@ export interface AuthContextType {
   login: (userInfo: { token: string, user: User }) => void;
   logout: () => void;
   loading: boolean;
+  isSuspended: boolean;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);

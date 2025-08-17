@@ -8,10 +8,11 @@ import {
   ReactNode,
   ComponentType,
 } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AuthContext, useAuth, UserRole, User } from "@/hooks/use-auth";
 import { jwtDecode } from 'jwt-decode';
+import { SuspendedAccountOverlay } from "./auth/SuspendedAccountOverlay";
 
 const roleRedirects: Record<NonNullable<UserRole>, string> = {
   Parent: "/parent/dashboard",
@@ -27,7 +28,33 @@ interface DecodedToken extends User {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isSuspended, setIsSuspended] = useState(false);
   const router = useRouter();
+
+  const checkUserStatus = useCallback(async (token: string, userRole: UserRole) => {
+    if (userRole === 'Parent' || userRole === 'Superadmin') {
+      // Parents and Superadmins are not suspended based on hospital status
+      setIsSuspended(false);
+      return;
+    }
+
+    // Admins and Doctors need their hospital's status checked
+    try {
+        const response = await fetch('/api/auth/status', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.status === 403) {
+            setIsSuspended(true);
+        } else {
+            setIsSuspended(false);
+        }
+    } catch (e) {
+        console.error("Failed to verify user status", e);
+        // Default to not suspended if status check fails, to avoid locking out users due to network issues
+        setIsSuspended(false);
+    }
+  }, []);
+
 
   useEffect(() => {
     try {
@@ -35,13 +62,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (token) {
         const decodedToken: DecodedToken = jwtDecode(token);
         if (decodedToken.exp * 1000 > Date.now()) {
-            setUser({ 
+            const currentUser = { 
                 userId: decodedToken.userId,
                 role: decodedToken.role, 
                 name: decodedToken.name, 
                 email: decodedToken.email,
                 hospitalName: decodedToken.hospitalName
-            });
+            };
+            setUser(currentUser);
+            // Check status for authenticated users
+            checkUserStatus(token, currentUser.role);
         } else {
              localStorage.removeItem("babyaura_token");
         }
@@ -52,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [checkUserStatus]);
 
   const login = useCallback(
     (userInfo: { token: string, user: User }) => {
@@ -65,6 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           hospitalName: userInfo.user.hospitalName 
       };
       setUser(newUser);
+      setIsSuspended(false); // Assume not suspended on fresh login
       if(newUser.role) {
         router.push(roleRedirects[newUser.role]);
       }
@@ -75,11 +106,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => {
     localStorage.removeItem("babyaura_token");
     setUser(null);
+    setIsSuspended(false);
     router.push("/");
   }, [router]);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, loading, isSuspended }}>
       {children}
     </AuthContext.Provider>
   );
@@ -91,8 +123,9 @@ export function withAuth<P extends object>(
   options?: { loginPath?: string }
 ) {
   const WithAuthComponent = (props: P) => {
-    const { user, loading } = useAuth();
+    const { user, loading, isSuspended } = useAuth();
     const router = useRouter();
+    const pathname = usePathname();
     const loginPath = options?.loginPath || '/auth/login';
 
     useEffect(() => {
@@ -108,13 +141,13 @@ export function withAuth<P extends object>(
       if (!allowedRoles.includes(user.role)) {
         // If user is logged in but with a wrong role, redirect to their own dashboard
         const userDashboard = roleRedirects[user.role];
-        if (userDashboard) {
+        if (userDashboard && pathname !== userDashboard) {
            router.push(userDashboard);
-        } else {
+        } else if (!userDashboard) {
            router.push(loginPath);
         }
       }
-    }, [user, loading, allowedRoles, loginPath, router]);
+    }, [user, loading, allowedRoles, loginPath, router, pathname]);
 
     if (loading || !user || !user.role || !allowedRoles.includes(user.role)) {
       return (
@@ -128,6 +161,10 @@ export function withAuth<P extends object>(
             </div>
         </div>
       );
+    }
+    
+    if (isSuspended) {
+        return <SuspendedAccountOverlay />;
     }
 
     return <WrappedComponent {...props} />;

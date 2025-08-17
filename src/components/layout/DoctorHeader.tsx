@@ -33,7 +33,7 @@ const Rupee = () => <span className="font-sans">₹</span>;
 export function DoctorHeader() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, logout, isSuspended } = useAuth();
 
   const getInitials = (name?: string) => {
     if (!name) return "D";
@@ -71,7 +71,8 @@ export function DoctorHeader() {
                       "transition-colors hover:text-foreground/80 flex items-center gap-1",
                       isNavItemActive(item.href, item.match)
                         ? "text-foreground"
-                        : "text-foreground/60"
+                        : "text-foreground/60",
+                      isSuspended && "pointer-events-none opacity-50"
                     )}
                   >
                     {item.label !== 'Earnings' && <Icon className="h-4 w-4" />}
@@ -156,6 +157,7 @@ export function DoctorHeader() {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => router.push("/doctor/settings")}
+                disabled={isSuspended}
               >
                 <User className="mr-2 h-4 w-4" />
                 <span>Settings & Profile</span>
