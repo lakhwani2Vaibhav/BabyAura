@@ -29,6 +29,7 @@ const hospitalCodeSchema = z.object({
 
 const parentSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
+  babyName: z.string().min(1, { message: "Baby's name is required" }),
   email: z.string().email({ message: "Invalid email address" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
   phone: z.string().min(10, { message: "A valid phone number is required" }),
@@ -138,6 +139,11 @@ export function RegisterForm() {
           <Input id="name" type="text" placeholder="Your Name" {...register("name")} />
           {errors.name && <p className="text-sm text-destructive">{(errors.name as any).message}</p>}
         </div>
+         <div className="space-y-2">
+          <Label htmlFor="babyName">Baby's Name</Label>
+          <Input id="babyName" type="text" placeholder="Your Baby's Name" {...register("babyName")} />
+          {errors.babyName && <p className="text-sm text-destructive">{(errors.babyName as any).message}</p>}
+        </div>
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <Input id="email" type="email" placeholder="you@example.com" {...register("email")} />
@@ -245,6 +251,7 @@ export function RegisterForm() {
 
       case 'affiliatedDetails':
       case 'independentDetails':
+        const isAffiliated = step === 'affiliatedDetails';
         return (
           <>
             <CardHeader className="text-center relative">
@@ -255,7 +262,7 @@ export function RegisterForm() {
               <CardDescription>Final step! Fill in your details below.</CardDescription>
             </CardHeader>
             <CardContent>
-              <ParentDetailsForm isAffiliated={step === 'affiliatedDetails'} />
+              <ParentDetailsForm isAffiliated={isAffiliated} />
             </CardContent>
           </>
         );

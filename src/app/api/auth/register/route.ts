@@ -64,6 +64,13 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    
+    if(role === 'Parent' && !rest.babyName) {
+         return NextResponse.json(
+            { message: "Baby's name is required for parent registration." },
+            { status: 400 }
+        );
+    }
 
     const existingUser = await findUserByEmail(email);
     if (existingUser) {
