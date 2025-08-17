@@ -743,3 +743,21 @@ export const resetUserPassword = async (userId: string, role: string, newPasswor
         }
     );
 }
+
+export const getParentDetailsForAdmin = async (parentId: string) => {
+    if (!db) await init();
+    const parent = await parentsCollection.findOne({ _id: parentId }, { projection: { password: 0 } });
+    if (!parent) return null;
+
+    if (parent.hospitalId) {
+        const hospital = await hospitalsCollection.findOne({ _id: parent.hospitalId });
+        parent.hospitalName = hospital?.hospitalName || "N/A";
+    }
+
+    if (parent.doctorId) {
+        const doctor = await doctorsCollection.findOne({ _id: parent.doctorId });
+        parent.doctorName = doctor?.name || "Unassigned";
+    }
+
+    return parent;
+}

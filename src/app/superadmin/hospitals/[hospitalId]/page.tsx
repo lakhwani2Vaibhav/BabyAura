@@ -37,6 +37,7 @@ type Doctor = {
 type Parent = {
     _id: string;
     name: string;
+    babyName: string;
     assignedDoctor: string;
 }
 
@@ -279,7 +280,11 @@ export default function HospitalDetailsPage() {
                         <TableBody>
                             {hospital.parents.map(parent => (
                                 <TableRow key={parent._id}>
-                                    <TableCell className="font-medium">{parent.name}</TableCell>
+                                    <TableCell className="font-medium">
+                                        <Link href={`/superadmin/parents/${parent._id}`} className="hover:underline">
+                                            {parent.name} ({parent.babyName})
+                                        </Link>
+                                    </TableCell>
                                     <TableCell>
                                         <Badge variant="secondary">{parent.assignedDoctor}</Badge>
                                     </TableCell>
