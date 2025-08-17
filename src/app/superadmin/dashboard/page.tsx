@@ -2,7 +2,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { superAdminData } from "@/lib/data";
 import {
   Card,
   CardContent,
@@ -15,8 +14,7 @@ import {
   Activity,
   TrendingDown,
   Hospital,
-  UserPlus,
-  CheckCircle,
+  Users,
 } from "lucide-react";
 import {
   Table,
@@ -29,45 +27,94 @@ import {
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
-import Link from 'next/link';
 import { useRouter } from "next/navigation";
-
+import { Skeleton } from "@/components/ui/skeleton";
 
 type OnboardingRequest = {
   _id: string;
   hospitalName: string;
   createdAt: string;
-  status: string;
 };
+
+type DashboardData = {
+    metrics: {
+        activeHospitals: number;
+        totalUsers: number;
+        totalMRR: number;
+        churnRate: string;
+    },
+    onboardingRequests: OnboardingRequest[];
+}
 
 const Rupee = () => <span className="font-sans">₹</span>;
 
 export default function SuperAdminDashboardPage() {
-  const [requests, setRequests] = useState<OnboardingRequest[]>([]);
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const router = useRouter();
 
-  const fetchOnboardingRequests = async () => {
-    try {
-      const token = localStorage.getItem('babyaura_token');
-      const response = await fetch('/api/superadmin/hospitals', {
-          headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (!response.ok) throw new Error("Failed to fetch requests.");
-      const allHospitals = await response.json();
-      setRequests(allHospitals.filter((h: OnboardingRequest) => h.status === 'pending_verification'));
-    } catch(e) {
-      toast({ variant: 'destructive', title: 'Error', description: "Could not fetch onboarding requests."})
-    }
-  }
-
   useEffect(() => {
-    fetchOnboardingRequests();
-  }, []);
+    const fetchDashboardData = async () => {
+        try {
+            const token = localStorage.getItem('babyaura_token');
+            const response = await fetch('/api/superadmin/dashboard', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) throw new Error("Failed to fetch dashboard data.");
+            const dashboardData = await response.json();
+            setData(dashboardData);
+        } catch (error) {
+            toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: "Could not fetch dashboard data."
+            });
+        } finally {
+            setLoading(false);
+        }
+    }
+    fetchDashboardData();
+  }, [toast]);
+
 
   const handleReviewRequest = (hospitalId: string) => {
     router.push(`/superadmin/hospitals/${hospitalId}`);
   };
+
+  if (loading) {
+      return (
+          <div className="space-y-8">
+              <div>
+                  <Skeleton className="h-8 w-72" />
+                  <Skeleton className="h-4 w-96 mt-2" />
+              </div>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                  <Skeleton className="h-28" />
+                  <Skeleton className="h-28" />
+                  <Skeleton className="h-28" />
+                  <Skeleton className="h-28" />
+              </div>
+               <Card>
+                  <CardHeader>
+                      <Skeleton className="h-6 w-64" />
+                      <Skeleton className="h-4 w-80 mt-1" />
+                  </CardHeader>
+                  <CardContent>
+                      <div className="space-y-4">
+                          <Skeleton className="h-12 w-full" />
+                          <Skeleton className="h-12 w-full" />
+                      </div>
+                  </CardContent>
+              </Card>
+          </div>
+      )
+  }
+
+  if (!data) {
+      return <div className="text-center">Failed to load dashboard data.</div>
+  }
+
 
   return (
     <div className="space-y-8">
@@ -82,23 +129,23 @@ export default function SuperAdminDashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <MetricCard
           title="Active Hospitals"
-          value={superAdminData.metrics.activeHospitals}
+          value={data.metrics.activeHospitals}
           icon={<Hospital className="h-5 w-5 text-muted-foreground" />}
+        />
+         <MetricCard
+          title="Total Users"
+          value={data.metrics.totalUsers.toLocaleString()}
+          icon={<Users className="h-5 w-5 text-muted-foreground" />}
         />
         <MetricCard
           title="Total MRR"
-          value={`₹${superAdminData.metrics.totalMRR.toLocaleString()}`}
+          value={`₹${data.metrics.totalMRR.toLocaleString()}`}
           icon={<Rupee />}
         />
         <MetricCard
           title="Churn Rate"
-          value={superAdminData.metrics.churnRate}
+          value={data.metrics.churnRate}
           icon={<TrendingDown className="h-5 w-5 text-muted-foreground" />}
-        />
-        <MetricCard
-          title="Daily Active Users"
-          value={superAdminData.metrics.userActivity.toLocaleString()}
-          icon={<Activity className="h-5 w-5 text-muted-foreground" />}
         />
       </div>
 
@@ -119,8 +166,8 @@ export default function SuperAdminDashboardPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {requests.length > 0 ? (
-                requests.map((request) => (
+              {data.onboardingRequests.length > 0 ? (
+                data.onboardingRequests.map((request) => (
                   <TableRow key={request._id}>
                     <TableCell className="font-medium">{request.hospitalName}</TableCell>
                     <TableCell>

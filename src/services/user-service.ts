@@ -454,7 +454,7 @@ export const changeParentPassword = async (parentId: string, currentPassword: st
     const saltRounds = 10;
     const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
 
-    return parentsCollection.updateOne({ _id: parentId }, { $set: { password: hashedNewPassword } });
+    return parentsCollection.updateOne({ _id: parentId }, { $set: { password: hashedPassword } });
 };
 
 
@@ -474,6 +474,32 @@ export const updateTimelineTasks = async (parentId: string, tasks: any[]) => {
 };
 
 // Superadmin services
+export const getSuperAdminDashboardData = async () => {
+    if (!db) await init();
+    
+    const activeHospitals = await hospitalsCollection.countDocuments({ status: 'verified' });
+    const totalParents = await parentsCollection.countDocuments();
+    const totalDoctors = await doctorsCollection.countDocuments();
+
+    // Placeholder for MRR calculation
+    const totalMRR = activeHospitals * 5000;
+
+    const onboardingRequests = await hospitalsCollection.find({ status: 'pending_verification' })
+        .project({ hospitalName: 1, createdAt: 1 })
+        .sort({ createdAt: -1 })
+        .toArray();
+    
+    return {
+        metrics: {
+            activeHospitals,
+            totalUsers: totalParents + totalDoctors,
+            totalMRR,
+            churnRate: "1.2%", // Placeholder
+        },
+        onboardingRequests,
+    }
+}
+
 export const getAllHospitals = async () => {
     if (!db) await init();
     return await hospitalsCollection.find({}).project({ password: 0 }).toArray();
