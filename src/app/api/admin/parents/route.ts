@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
 
     } catch (error) {
         console.error("Failed to fetch parents:", error);
-        const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred.";
+        const errorMessage = error instanceof Error ? error.message : "Could not fetch parent list.";
         return NextResponse.json({ message: errorMessage }, { status: 500 });
     }
 }
