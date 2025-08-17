@@ -2,7 +2,7 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
-import { ShieldAlert, LifeBuoy } from "lucide-react";
+import { ShieldAlert, LifeBuoy, Mail, Phone } from "lucide-react";
 import { Button } from "../ui/button";
 
 const suspensionReasons = [
@@ -20,7 +20,7 @@ const suspensionReasons = [
 
 export function SuspendedAccountOverlay() {
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
             <Card className="max-w-2xl w-full mx-4 shadow-2xl border-destructive">
                 <CardHeader className="text-center items-center">
                     <div className="p-3 bg-destructive/10 rounded-full w-fit mb-2">
@@ -44,11 +44,18 @@ export function SuspendedAccountOverlay() {
                     <p className="text-sm text-muted-foreground text-center">
                         To resolve this and reactivate your account, please contact our administrative team for further details and assistance.
                     </p>
-                    <Button asChild>
-                        <a href="mailto:babyauraindia@gmail.com">
-                           <LifeBuoy className="mr-2 h-4 w-4" /> Contact Support Team
-                        </a>
-                    </Button>
+                    <div className="flex flex-col sm:flex-row gap-4">
+                        <Button asChild>
+                            <a href="mailto:babyauraindia@gmail.com">
+                               <Mail className="mr-2 h-4 w-4" /> Email Support
+                            </a>
+                        </Button>
+                        <Button asChild variant="outline">
+                            <a href="tel:+919876543210">
+                               <Phone className="mr-2 h-4 w-4" /> Call Support
+                            </a>
+                        </Button>
+                    </div>
                 </CardFooter>
             </Card>
         </div>

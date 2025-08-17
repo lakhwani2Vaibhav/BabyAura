@@ -24,10 +24,10 @@ export async function POST(req: NextRequest) {
       );
     }
     
-    // Check if user account is suspended or rejected
-    if (user.status === 'suspended' || user.status === 'rejected') {
+    // Allow login even if suspended. The frontend will handle the UI lock.
+    if (user.status === 'rejected') {
         return NextResponse.json(
-            { message: "Your account is suspended. Please contact support.", suspended: true },
+            { message: "Your account application has been rejected. Please contact support.", suspended: true },
             { status: 403 }
         );
     }

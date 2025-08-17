@@ -32,13 +32,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   const checkUserStatus = useCallback(async (token: string, userRole: UserRole) => {
-    if (userRole === 'Parent' || userRole === 'Superadmin') {
-      // Parents and Superadmins are not suspended based on hospital status
+    // Only admins and doctors can be suspended based on hospital status.
+    // Parents and superadmins have their own independent status.
+    if (userRole !== 'Admin' && userRole !== 'Doctor') {
       setIsSuspended(false);
       return;
     }
 
-    // Admins and Doctors need their hospital's status checked
     try {
         const response = await fetch('/api/auth/status', {
             headers: { 'Authorization': `Bearer ${token}` }
@@ -57,32 +57,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 
   useEffect(() => {
-    try {
-      const token = localStorage.getItem("babyaura_token");
-      if (token) {
-        const decodedToken: DecodedToken = jwtDecode(token);
-        if (decodedToken.exp * 1000 > Date.now()) {
-            const currentUser = { 
-                userId: decodedToken.userId,
-                role: decodedToken.role, 
-                name: decodedToken.name, 
-                email: decodedToken.email,
-                hospitalName: decodedToken.hospitalName
-            };
-            setUser(currentUser);
-            // Check status for authenticated users
-            checkUserStatus(token, currentUser.role);
-        } else {
-             localStorage.removeItem("babyaura_token");
+    const initializeAuth = async () => {
+      try {
+        const token = localStorage.getItem("babyaura_token");
+        if (token) {
+          const decodedToken: DecodedToken = jwtDecode(token);
+          if (decodedToken.exp * 1000 > Date.now()) {
+              const currentUser = { 
+                  userId: decodedToken.userId,
+                  role: decodedToken.role, 
+                  name: decodedToken.name, 
+                  email: decodedToken.email,
+                  hospitalName: decodedToken.hospitalName
+              };
+              setUser(currentUser);
+              // Check status for authenticated users
+              await checkUserStatus(token, currentUser.role);
+          } else {
+               logout();
+          }
         }
+      } catch (e) {
+        console.error("Could not access localStorage or decode token", e);
+        logout();
+      } finally {
+        setLoading(false);
       }
-    } catch (e) {
-      console.error("Could not access localStorage or decode token", e);
-      localStorage.removeItem("babyaura_token");
-    } finally {
-      setLoading(false);
-    }
-  }, [checkUserStatus]);
+    };
+    initializeAuth();
+  }, []);
 
   const login = useCallback(
     (userInfo: { token: string, user: User }) => {
@@ -95,12 +98,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           hospitalName: userInfo.user.hospitalName 
       };
       setUser(newUser);
-      setIsSuspended(false); // Assume not suspended on fresh login
+      checkUserStatus(userInfo.token, newUser.role);
       if(newUser.role) {
         router.push(roleRedirects[newUser.role]);
       }
     },
-    [router]
+    [router, checkUserStatus]
   );
 
   const logout = useCallback(() => {
@@ -149,7 +152,7 @@ export function withAuth<P extends object>(
       }
     }, [user, loading, allowedRoles, loginPath, router, pathname]);
 
-    if (loading || !user || !user.role || !allowedRoles.includes(user.role)) {
+    if (loading || !user || !user.role) {
       return (
         <div className="w-full h-screen flex items-center justify-center">
             <div className="flex flex-col items-center gap-4">
@@ -163,9 +166,16 @@ export function withAuth<P extends object>(
       );
     }
     
-    if (isSuspended) {
-        return <SuspendedAccountOverlay />;
+    // The SuspendedAccountOverlay is now handled inside the layout components
+    // to allow the header to render while the main content is blocked.
+    if (isSuspended && (user.role === 'Admin' || user.role === 'Doctor')) {
+        return <WrappedComponent {...props} />;
     }
+
+    if (!allowedRoles.includes(user.role)) {
+        return null; // or a loading spinner
+    }
+
 
     return <WrappedComponent {...props} />;
   };
