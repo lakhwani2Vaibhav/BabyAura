@@ -1,11 +1,12 @@
 
+import { render } from '@react-email/render';
 import { capitalize } from '@/lib/utils';
 import * as React from 'react';
 
 interface AccountStatusUpdateEmailProps {
   name: string;
   hospitalName: string;
-  status: 'verified' | 'suspended' | 'rejected' | 'pending_verification' | string;
+  status: 'verified' | 'suspended' | 'rejected' | 'pending_verification' | 'reactivated' | string;
   supportEmail: string;
 }
 
@@ -37,8 +38,8 @@ const statusContent = {
 }
 
 export const AccountStatusUpdateEmail: React.FC<Readonly<AccountStatusUpdateEmailProps>> = ({ name, hospitalName, status, supportEmail }) => {
-  const contentKey = status === 'verified' && name.includes('Welcome') ? 'verified' : status;
-  const content = statusContent[contentKey as keyof typeof statusContent] || {
+  const contentKey = status as keyof typeof statusContent;
+  const content = statusContent[contentKey] || {
       title: `Account Status Update: ${capitalize(status)}`,
       greeting: `Hi ${name},`,
       message: `This is to notify you that the status of your hospital, ${hospitalName}, has been updated to "${capitalize(status)}".`,
@@ -96,3 +97,8 @@ export const AccountStatusUpdateEmail: React.FC<Readonly<AccountStatusUpdateEmai
     </html>
   );
 };
+
+
+export function renderAccountStatusUpdateEmail(props: AccountStatusUpdateEmailProps): string {
+    return render(<AccountStatusUpdateEmail {...props} />);
+}

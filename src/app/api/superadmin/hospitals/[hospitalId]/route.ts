@@ -1,10 +1,9 @@
 
 import { NextRequest, NextResponse } from "next/server";
-import { updateHospitalStatus, findHospitalById } from "@/services/user-service";
+import { updateHospitalStatus, findHospitalById, getHospitalDetails } from "@/services/user-service";
 import { findUserByEmail } from "@/services/user-service";
 import * as brevo from '@getbrevo/brevo';
-import { render } from '@react-email/render';
-import { AccountStatusUpdateEmail } from "@/components/emails/AccountStatusUpdateEmail";
+import { renderAccountStatusUpdateEmail } from "@/components/emails/AccountStatusUpdateEmail";
 
 type RouteParams = {
     params: {
@@ -35,7 +34,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
         }
 
         const { hospitalId } = params;
-        const hospitalDetails = await findHospitalById(hospitalId);
+        const hospitalDetails = await getHospitalDetails(hospitalId);
 
         if (!hospitalDetails) {
             return NextResponse.json({ message: "Hospital not found." }, { status: 404 });
@@ -73,12 +72,12 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
         if (apiInstance) {
             const hospital = await findHospitalById(hospitalId);
             if (hospital) {
-                const emailHtml = render(<AccountStatusUpdateEmail 
-                    name={hospital.ownerName}
-                    hospitalName={hospital.hospitalName}
-                    status={status}
-                    supportEmail="babyauraindia@gmail.com"
-                />);
+                const emailHtml = renderAccountStatusUpdateEmail({
+                    name: hospital.ownerName,
+                    hospitalName: hospital.hospitalName,
+                    status: status,
+                    supportEmail: "babyauraindia@gmail.com"
+                });
 
                 const sendSmtpEmail = new brevo.SendSmtpEmail();
                 sendSmtpEmail.sender = { name: 'BabyAura Platform Support', email: 'noreply@babyaura.in' };
