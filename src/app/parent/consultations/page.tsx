@@ -57,7 +57,7 @@ export default function ConsultationsPage() {
             <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="upcoming">
                     <Calendar className="mr-2 h-4 w-4" />
-                    Upcoming Appointments
+                    Upcoming
                 </TabsTrigger>
                 <TabsTrigger value="team">
                     <Users className="mr-2 h-4 w-4" />
