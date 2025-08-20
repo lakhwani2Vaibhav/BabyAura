@@ -838,3 +838,11 @@ export const addMemberToTeam = async (teamId: string, doctorId: string, role: st
         { $push: { members: newMember } }
     );
 };
+
+export const removeMemberFromTeam = async (teamId: string, memberId: string) => {
+    if (!db) await init();
+    return teamsCollection.updateOne(
+        { _id: teamId },
+        { $pull: { members: { doctorId: memberId } } }
+    );
+};

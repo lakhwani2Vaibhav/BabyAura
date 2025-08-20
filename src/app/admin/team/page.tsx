@@ -92,10 +92,13 @@ export default function ManageTeamPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
+  const [memberToDelete, setMemberToDelete] = useState<{ teamId: string, member: TeamMember } | null>(null);
   
   const [createTeamOpen, setCreateTeamOpen] = useState(false);
   const [newTeamName, setNewTeamName] = useState("");
   const [addMemberOpen, setAddMemberOpen] = useState(false);
+  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
+
 
   const { toast } = useToast();
   const { user } = useAuth();
@@ -179,6 +182,28 @@ export default function ManageTeamPage() {
         toast({ variant: "destructive", title: "Error adding member", description: error.message });
     }
   }
+
+  const handleDeleteMember = async () => {
+    if (!memberToDelete) return;
+
+    try {
+        const { teamId, member } = memberToDelete;
+        const token = localStorage.getItem('babyaura_token');
+        const response = await fetch(`/api/admin/team/${teamId}/members/${member.doctorId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) throw new Error((await response.json()).message);
+        
+        await fetchTeams();
+        toast({ title: "Member Removed", description: `${member.name} has been removed from the team.` });
+    } catch(error: any) {
+        toast({ variant: "destructive", title: "Error removing member", description: error.message });
+    } finally {
+        setDeleteAlertOpen(false);
+        setMemberToDelete(null);
+    }
+  }
   
   const getInitials = (name: string) => {
     const parts = name.split(" ");
@@ -257,7 +282,14 @@ export default function ManageTeamPage() {
                                         <Badge variant="secondary">{member.role}</Badge>
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        <Button variant="ghost" size="icon">
+                                        <Button 
+                                            variant="ghost" 
+                                            size="icon"
+                                            onClick={() => {
+                                                setMemberToDelete({ teamId: team._id, member });
+                                                setDeleteAlertOpen(true);
+                                            }}
+                                        >
                                             <Trash2 className="h-4 w-4 text-destructive" />
                                         </Button>
                                     </TableCell>
@@ -324,6 +356,24 @@ export default function ManageTeamPage() {
           </Form>
         </DialogContent>
       </Dialog>
+      
+      {/* Delete Member Alert */}
+       <AlertDialog open={deleteAlertOpen} onOpenChange={setDeleteAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action will remove <strong>{memberToDelete?.member.name}</strong> from the team. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteMember} className="bg-destructive hover:bg-destructive/90">
+                Yes, Remove Member
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
