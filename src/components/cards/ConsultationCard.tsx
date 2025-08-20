@@ -39,6 +39,7 @@ import { Calendar as CalendarPicker } from "@/components/ui/calendar";
 import { useToast } from "@/hooks/use-toast";
 import { ScheduleAppointmentDialog } from "../consultations/ScheduleAppointmentDialog";
 import { Separator } from "../ui/separator";
+import { ScrollArea } from "../ui/scroll-area";
 
 type Consultation = {
   id: number;
@@ -147,53 +148,55 @@ export function ConsultationCard({
             Manage your upcoming appointment with {consultation.doctor}.
           </DialogDescription>
         </DialogHeader>
-        <div className="py-4 space-y-4">
-            <Button variant="outline" className="w-full justify-start gap-2">
-                <User className="h-4 w-4" /> View Doctor's Profile
-            </Button>
-             <ScheduleAppointmentDialog triggerButton={
-                 <Button variant="outline" className="w-full justify-start gap-2">
-                    <Plus className="h-4 w-4" /> Schedule Another Appointment
+        <ScrollArea className="max-h-[60vh] -mr-6 pr-6">
+            <div className="space-y-4 pr-6">
+                <Button variant="outline" className="w-full justify-start gap-2">
+                    <User className="h-4 w-4" /> View Doctor's Profile
                 </Button>
-             }/>
-            <Separator />
-            <h4 className="font-semibold">Reschedule Appointment</h4>
-             <div className="grid md:grid-cols-2 gap-6">
-                <div className="flex justify-center">
-                    <CalendarPicker
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={setSelectedDate}
-                    disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
-                    className="rounded-md border"
-                    />
-                </div>
-                <div>
-                    <p className="text-sm font-medium mb-2">
-                    Available Slots for {selectedDate ? format(selectedDate, "MMMM d") : '...'}
-                    </p>
-                    {/* In a real app, this would be dynamic */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                        {["09:00 AM", "10:00 AM", "11:00 AM", "02:00 PM", "03:00 PM", "04:00 PM"].map((time) => (
-                            <Button
-                            key={time}
-                            variant={selectedTime === time ? "default" : "outline"}
-                            onClick={() => setSelectedTime(time)}
-                            >
-                            {time}
-                            </Button>
-                        ))}
+                <ScheduleAppointmentDialog triggerButton={
+                    <Button variant="outline" className="w-full justify-start gap-2">
+                        <Plus className="h-4 w-4" /> Schedule Another Appointment
+                    </Button>
+                }/>
+                <Separator />
+                <h4 className="font-semibold">Reschedule Appointment</h4>
+                <div className="grid md:grid-cols-2 gap-6">
+                    <div className="flex justify-center">
+                        <CalendarPicker
+                        mode="single"
+                        selected={selectedDate}
+                        onSelect={setSelectedDate}
+                        disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
+                        className="rounded-md border"
+                        />
+                    </div>
+                    <div>
+                        <p className="text-sm font-medium mb-2">
+                        Available Slots for {selectedDate ? format(selectedDate, "MMMM d") : '...'}
+                        </p>
+                        {/* In a real app, this would be dynamic */}
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            {["09:00 AM", "10:00 AM", "11:00 AM", "02:00 PM", "03:00 PM", "04:00 PM"].map((time) => (
+                                <Button
+                                key={time}
+                                variant={selectedTime === time ? "default" : "outline"}
+                                onClick={() => setSelectedTime(time)}
+                                >
+                                {time}
+                                </Button>
+                            ))}
+                        </div>
                     </div>
                 </div>
+                <Button
+                className="w-full"
+                onClick={handleReschedule}
+                disabled={!selectedDate || !selectedTime}
+                >
+                Confirm New Time
+                </Button>
             </div>
-             <Button
-              className="w-full"
-              onClick={handleReschedule}
-              disabled={!selectedDate || !selectedTime}
-            >
-              Confirm New Time
-            </Button>
-        </div>
+        </ScrollArea>
         <DialogFooter className="pt-4 border-t !justify-start">
              <AlertDialog>
              <AlertDialogTrigger asChild>
