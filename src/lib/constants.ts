@@ -1,4 +1,3 @@
-
 import {
   LayoutDashboard,
   Stethoscope,
@@ -17,6 +16,7 @@ import {
   type LucideIcon,
   ListChecks,
   MessageSquare,
+  Users2,
 } from "lucide-react";
 
 export interface NavItem {
@@ -96,9 +96,9 @@ export const adminHeaderNav: NavItem[] = [
     icon: LayoutDashboard,
   },
   {
-    href: "/admin/doctors",
-    label: "Manage Doctors",
-    icon: Stethoscope,
+    href: "/admin/team",
+    label: "Manage Team",
+    icon: Users2,
   },
   {
     href: "/admin/parents",

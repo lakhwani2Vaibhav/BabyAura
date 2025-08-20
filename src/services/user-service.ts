@@ -1,4 +1,3 @@
-
 import clientPromise from "@/lib/mongodb";
 import bcrypt from 'bcrypt';
 import { Db, Collection, ObjectId } from "mongodb";
@@ -13,6 +12,7 @@ let doctorsCollection: Collection;
 let hospitalsCollection: Collection;
 let superadminsCollection: Collection;
 let timelinesCollection: Collection;
+let teamsCollection: Collection;
 
 
 async function init() {
@@ -25,6 +25,7 @@ async function init() {
     hospitalsCollection = db.collection('hospitals');
     superadminsCollection = db.collection('superadmins');
     timelinesCollection = db.collection('timelines');
+    teamsCollection = db.collection('teams');
 
   } catch (error) {
     throw new Error('Failed to connect to the database.');
@@ -121,7 +122,7 @@ export const createUser = async (userData: any) => {
                 userId: hospitalId, // Notify the hospital admin
                 title: 'New Doctor Added',
                 description: `${userDocument.name} has been added to your hospital's team.`,
-                href: `/admin/doctors`
+                href: `/admin/team`
             })
         }
         break;
@@ -348,13 +349,13 @@ export const getParentsByHospital = async (hospitalId: string) => {
     if (!db) await init();
     const parents = await parentsCollection.find({ hospitalId: hospitalId }).toArray();
     
-    // Create a map of doctors in the hospital for efficient lookup
-    const doctors = await doctorsCollection.find({ hospitalId }).toArray();
-    const doctorMap = new Map(doctors.map(doc => [doc._id, doc.name]));
+    // Create a map of teams in the hospital for efficient lookup
+    const teams = await teamsCollection.find({ hospitalId }).toArray();
+    const teamMap = new Map(teams.map(team => [team._id, team.name]));
 
     return parents.map(parent => ({
         ...parent,
-        assignedDoctor: parent.doctorId ? doctorMap.get(parent.doctorId) || "Unassigned" : "Unassigned",
+        assignedTeam: parent.teamId ? teamMap.get(parent.teamId) || "Unassigned" : "Unassigned",
     }));
 }
 
@@ -364,27 +365,30 @@ export const deleteParent = async (parentId: string) => {
     return parentsCollection.deleteOne({ _id: parentId });
 }
 
-export const assignDoctorToParent = async (parentId: string, doctorId: string) => {
+export const assignTeamToParent = async (parentId: string, teamId: string) => {
     if (!db) await init();
     const parent = await findParentById(parentId);
-    const doctor = await findDoctorById(doctorId);
-    if (!parent || !doctor) throw new Error("Parent or doctor not found");
+    const team = await findTeamById(teamId);
+    if (!parent || !team) throw new Error("Parent or team not found");
 
-    // Create notifications for parent and doctor
+    // Create notifications for parent and all team members
     await createNotification({
         userId: parent._id,
-        title: "New Doctor Assigned",
-        description: `${doctor.name} has been assigned as your primary pediatrician.`,
-        href: "/parent/contact"
+        title: "New Care Team Assigned",
+        description: `You have been assigned to the ${team.name}.`,
+        href: "/parent/consultations"
     });
-    await createNotification({
-        userId: doctor._id,
-        title: "New Patient Assigned",
-        description: `${parent.name} (Baby: ${parent.babyName}) has been assigned to you.`,
-        href: `/doctor/patients/${parent._id}`
-    });
+    
+    for (const member of team.members) {
+        await createNotification({
+            userId: member.doctorId,
+            title: "New Patient Assigned",
+            description: `${parent.name} (Baby: ${parent.babyName}) has been assigned to your team, "${team.name}".`,
+            href: `/doctor/patients/${parent._id}`
+        });
+    }
 
-    return parentsCollection.updateOne({ _id: parentId }, { $set: { doctorId: doctorId, updatedAt: new Date() } });
+    return parentsCollection.updateOne({ _id: parentId }, { $set: { teamId: teamId, doctorId: null, updatedAt: new Date() } });
 }
 
 
@@ -411,7 +415,7 @@ export const changeAdminPassword = async (adminId: string, currentPassword: stri
     }
     const saltRounds = 10;
     const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
-    return hospitalsCollection.updateOne({ _id: adminId }, { $set: { password: hashedNewPassword } });
+    return hospitalsCollection.updateOne({ _id: adminId }, { $set: { password: hashedPassword } });
 };
 
 
@@ -509,7 +513,7 @@ export const getSuperAdminDashboardData = async () => {
             totalUsers: totalParents + totalDoctors,
             totalMRR,
             churnRate: "1.2%", // Placeholder
-            userActivity: dauParents + dauDoctors + dauAdmins,
+            userActivity: dauParents + dauAdmins,
         },
         onboardingRequests,
     }
@@ -784,3 +788,53 @@ export const getParentDetailsForAdmin = async (parentId: string) => {
 
     return parent;
 }
+
+
+// Team Management Services
+export const createTeam = async (hospitalId: string, name: string) => {
+    if (!db) await init();
+    const newTeam = {
+        _id: generateId('team'),
+        hospitalId,
+        name,
+        members: [],
+        createdAt: new Date(),
+    };
+    await teamsCollection.insertOne(newTeam);
+    return newTeam;
+};
+
+export const getTeamsByHospital = async (hospitalId: string) => {
+    if (!db) await init();
+    return teamsCollection.find({ hospitalId }).toArray();
+};
+
+export const findTeamById = async (teamId: string) => {
+    if (!db) await init();
+    return teamsCollection.findOne({ _id: teamId });
+}
+
+export const addMemberToTeam = async (teamId: string, doctorId: string, role: string) => {
+    if (!db) await init();
+    const doctor = await findDoctorById(doctorId);
+    if (!doctor) {
+        throw new Error("Doctor not found.");
+    }
+    
+    const team = await findTeamById(teamId);
+    if (team && team.members.some((m: any) => m.doctorId === doctorId)) {
+        throw new Error("Doctor is already in this team.");
+    }
+    
+    const newMember = {
+        doctorId,
+        name: doctor.name,
+        role: role,
+        addedAt: new Date(),
+    };
+
+    return teamsCollection.updateOne(
+        { _id: teamId },
+        { $push: { members: newMember } }
+    );
+};

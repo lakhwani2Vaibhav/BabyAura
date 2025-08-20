@@ -23,7 +23,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, MoreHorizontal, UserPlus, UserCheck } from "lucide-react";
+import { Search, MoreHorizontal, UserPlus, UserCheck, Users2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
@@ -70,7 +70,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 
-type Doctor = {
+type Team = {
   _id: string;
   name: string;
 };
@@ -81,7 +81,7 @@ type Parent = {
   email: string;
   babyName: string;
   status: 'Active' | 'Inactive';
-  assignedDoctor: string; 
+  assignedTeam: string; 
   createdAt: string;
   avatarUrl?: string;
 };
@@ -99,14 +99,14 @@ type AddParentFormValues = z.infer<typeof addParentSchema>;
 
 export default function ParentsPage() {
   const [allParents, setAllParents] = useState<Parent[]>([]);
-  const [allDoctors, setAllDoctors] = useState<Doctor[]>([]);
+  const [allTeams, setAllTeams] = useState<Team[]>([]);
   const [filteredParents, setFilteredParents] = useState<Parent[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
   const [addParentOpen, setAddParentOpen] = useState(false);
-  const [assignDoctorOpen, setAssignDoctorOpen] = useState(false);
+  const [assignTeamOpen, setAssignTeamOpen] = useState(false);
   const [selectedParent, setSelectedParent] = useState<Parent | null>(null);
-  const [selectedDoctorId, setSelectedDoctorId] = useState<string>('');
+  const [selectedTeamId, setSelectedTeamId] = useState<string>('');
   const { toast } = useToast();
   const { user } = useAuth();
   
@@ -139,24 +139,24 @@ export default function ParentsPage() {
       }
   }
 
-  const fetchDoctors = async () => {
+  const fetchTeams = async () => {
     try {
       const token = localStorage.getItem('babyaura_token');
       if (!token) throw new Error("Authentication token not found.");
-       const response = await fetch('/api/admin/doctors', {
+       const response = await fetch('/api/admin/team', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        if (!response.ok) throw new Error("Failed to fetch doctors");
+        if (!response.ok) throw new Error("Failed to fetch teams");
         const data = await response.json();
-        setAllDoctors(data);
+        setAllTeams(data);
     } catch (error) {
-         toast({ variant: "destructive", title: "Error fetching doctors", description: "Could not fetch the doctor list for assignment." });
+         toast({ variant: "destructive", title: "Error fetching teams", description: "Could not fetch the team list for assignment." });
     }
   }
 
   useEffect(() => {
     fetchParents();
-    fetchDoctors();
+    fetchTeams();
   }, []);
 
 
@@ -165,7 +165,7 @@ export default function ParentsPage() {
       (parent) =>
         parent.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         parent.babyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        parent.assignedDoctor.toLowerCase().includes(searchTerm.toLowerCase())
+        parent.assignedTeam.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredParents(results);
   }, [searchTerm, allParents]);
@@ -238,31 +238,31 @@ export default function ParentsPage() {
       }
   }
 
-  const handleAssignDoctor = async () => {
-    if (!selectedParent || !selectedDoctorId) {
-        toast({ variant: "destructive", title: "Error", description: "Parent or doctor not selected." });
+  const handleAssignTeam = async () => {
+    if (!selectedParent || !selectedTeamId) {
+        toast({ variant: "destructive", title: "Error", description: "Parent or team not selected." });
         return;
     }
     try {
         const token = localStorage.getItem('babyaura_token');
-        const response = await fetch(`/api/admin/parents/${selectedParent._id}/assign-doctor`, {
+        const response = await fetch(`/api/admin/parents/${selectedParent._id}/assign-team`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({ doctorId: selectedDoctorId })
+            body: JSON.stringify({ teamId: selectedTeamId })
         });
-        if (!response.ok) throw new Error((await response.json()).message || "Failed to assign doctor.");
+        if (!response.ok) throw new Error((await response.json()).message || "Failed to assign team.");
         
         await fetchParents();
-        toast({ title: "Doctor Assigned!", description: "The parent has been assigned a new doctor." });
+        toast({ title: "Team Assigned!", description: "The parent has been assigned a new care team." });
     } catch(error: any) {
         toast({ variant: "destructive", title: "Assignment Failed", description: error.message });
     } finally {
-        setAssignDoctorOpen(false);
+        setAssignTeamOpen(false);
         setSelectedParent(null);
-        setSelectedDoctorId('');
+        setSelectedTeamId('');
     }
   }
 
@@ -369,7 +369,7 @@ export default function ParentsPage() {
           <TableHeader>
             <TableRow>
               <TableHead>Parent & Baby</TableHead>
-              <TableHead>Assigned Doctor</TableHead>
+              <TableHead>Assigned Team</TableHead>
               <TableHead>Joined On</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -394,8 +394,8 @@ export default function ParentsPage() {
                     </div>
                   </TableCell>
                   <TableCell>
-                      <Badge variant={parent.assignedDoctor === "Unassigned" ? "destructive" : "secondary"}>
-                          {parent.assignedDoctor}
+                      <Badge variant={parent.assignedTeam === "Unassigned" ? "destructive" : "secondary"}>
+                          {parent.assignedTeam}
                       </Badge>
                   </TableCell>
                   <TableCell>
@@ -421,9 +421,9 @@ export default function ParentsPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onSelect={() => { setSelectedParent(parent); setAssignDoctorOpen(true);}}>
-                            <UserCheck className="mr-2 h-4 w-4" />
-                            Assign Doctor
+                        <DropdownMenuItem onSelect={() => { setSelectedParent(parent); setAssignTeamOpen(true);}}>
+                            <Users2 className="mr-2 h-4 w-4" />
+                            Assign Team
                         </DropdownMenuItem>
                          <DropdownMenuItem onSelect={() => toast({title: "Coming Soon", description: "Parent edit functionality is in development."})}>
                             Edit Parent
@@ -464,27 +464,25 @@ export default function ParentsPage() {
         </AlertDialogContent>
     </AlertDialog>
     
-    <Dialog open={assignDoctorOpen} onOpenChange={setAssignDoctorOpen}>
+    <Dialog open={assignTeamOpen} onOpenChange={setAssignTeamOpen}>
         <DialogContent>
             <DialogHeader>
-                <DialogTitle>Assign Doctor to {selectedParent?.name}</DialogTitle>
+                <DialogTitle>Assign Team to {selectedParent?.name}</DialogTitle>
                 <DialogDescription>
-                    Select an active doctor to be the primary point of contact for this parent.
+                    Select a care team to be the primary point of contact for this parent.
                 </DialogDescription>
             </DialogHeader>
             <div className="py-4">
-                <Select onValueChange={setSelectedDoctorId} defaultValue={selectedDoctorId}>
+                <Select onValueChange={setSelectedTeamId} defaultValue={selectedTeamId}>
                     <SelectTrigger>
-                        <SelectValue placeholder="Select a doctor" />
+                        <SelectValue placeholder="Select a care team" />
                     </SelectTrigger>
                     <SelectContent>
-                        {allDoctors
-                            .filter((doc: any) => doc.status === 'Active')
-                            .map(doctor => (
-                                <SelectItem key={doctor._id} value={doctor._id}>
-                                    {doctor.name}
-                                </SelectItem>
-                            ))}
+                        {allTeams.map(team => (
+                            <SelectItem key={team._id} value={team._id}>
+                                {team.name}
+                            </SelectItem>
+                        ))}
                     </SelectContent>
                 </Select>
             </div>
@@ -492,7 +490,7 @@ export default function ParentsPage() {
                 <DialogClose asChild>
                     <Button type="button" variant="secondary">Cancel</Button>
                 </DialogClose>
-                <Button type="button" onClick={handleAssignDoctor} disabled={!selectedDoctorId}>Assign Doctor</Button>
+                <Button type="button" onClick={handleAssignTeam} disabled={!selectedTeamId}>Assign Team</Button>
             </DialogFooter>
         </DialogContent>
     </Dialog>

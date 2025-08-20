@@ -121,12 +121,19 @@ export default function ConsultationsPage() {
                         <Skeleton className="h-48" />
                         <Skeleton className="h-48" />
                     </div>
-                 ) : (
+                 ) : data && data.careTeam.length > 0 ? (
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {data?.careTeam.map(member => (
                             <CareTeamMemberCard key={member.id} member={member} />
                         ))}
                     </div>
+                 ) : (
+                    <Card className="flex flex-col items-center justify-center p-12">
+                        <CardTitle>No Care Team Assigned</CardTitle>
+                        <CardDescription className="mt-2">
+                        Your hospital has not assigned a care team to you yet.
+                        </CardDescription>
+                    </Card>
                  )}
             </TabsContent>
         </Tabs>
