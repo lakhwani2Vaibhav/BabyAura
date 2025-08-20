@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import clientPromise from "@/lib/mongodb";
@@ -130,7 +131,7 @@ export const createUser = async (userData: any) => {
             await createNotification({
                 userId: hospitalId, // Notify the hospital admin
                 title: 'New Doctor Added',
-                description: `${userDocument.name} has been added to your hospital's team.`,
+                description: `${userDocument.name} has been added to your hospital\'s team.`,
                 href: `/admin/team`
             })
         }
