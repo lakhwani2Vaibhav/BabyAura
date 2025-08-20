@@ -15,6 +15,7 @@ let superadminsCollection: Collection;
 let timelinesCollection: Collection;
 let teamsCollection: Collection;
 let plansCollection: Collection;
+let subscriptionsCollection: Collection;
 
 
 async function init() {
@@ -29,6 +30,7 @@ async function init() {
     timelinesCollection = db.collection('timelines');
     teamsCollection = db.collection('teams');
     plansCollection = db.collection('plans');
+    subscriptionsCollection = db.collection('subscriptions');
 
   } catch (error) {
     throw new Error('Failed to connect to the database.');
@@ -104,8 +106,9 @@ export const createUser = async (userData: any) => {
         customId = generateId('parent');
         userDocument.status = 'Active';
         if (hospitalId) userDocument.hospitalId = hospitalId;
-        if (doctorId) userDocument.doctorId = doctorId;
-        if (planId) userDocument.planId = planId;
+        if (planId) {
+            await createSubscription({ parentId: customId, hospitalId, planId });
+        }
         if(hospitalId) {
             await createNotification({
                 userId: hospitalId, // Notify the hospital admin
@@ -313,7 +316,7 @@ export const changeAdminPassword = async (adminId: string, currentPassword: stri
         throw err;
     }
     const saltRounds = 10;
-    const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
     return hospitalsCollection.updateOne({ _id: adminId }, { $set: { password: hashedPassword } });
 };
 
@@ -439,13 +442,54 @@ export const getParentDetailsForAdmin = async (parentId: string) => {
 }
 
 
-// Team Management Services (omitted for brevity, no changes needed)
-export const createTeam = async (hospitalId: string, name: string) => { /* ... */ };
-export const getTeamsByHospital = async (hospitalId: string) => { /* ... */ };
-export const findTeamById = async (teamId: string) => { /* ... */ };
-export const addMemberToTeam = async (teamId: string, doctorId: string, role: string) => { /* ... */ };
-export const removeMemberFromTeam = async (teamId: string, memberId: string) => { /* ... */ };
-export const deleteTeam = async (teamId: string) => { /* ... */ };
+// Team Management Services
+export const createTeam = async (hospitalId: string, name: string) => {
+    if (!db) await init();
+    const newTeam = {
+        _id: generateId('team'),
+        hospitalId,
+        name,
+        members: [],
+        createdAt: new Date(),
+    };
+    await teamsCollection.insertOne(newTeam);
+    return newTeam;
+};
+
+export const getTeamsByHospital = async (hospitalId: string) => {
+    if (!db) await init();
+    return teamsCollection.find({ hospitalId }).toArray();
+};
+
+export const findTeamById = async (teamId: string) => {
+    if (!db) await init();
+    return teamsCollection.findOne({ _id: teamId });
+};
+
+export const addMemberToTeam = async (teamId: string, doctorId: string, role: string) => {
+    if (!db) await init();
+    const doctor = await findDoctorById(doctorId);
+    if (!doctor) throw new Error("Doctor to be added not found.");
+
+    const newMember = {
+        doctorId,
+        name: doctor.name,
+        role: role || doctor.specialty,
+    };
+    return teamsCollection.updateOne({ _id: teamId }, { $addToSet: { members: newMember } });
+};
+
+export const removeMemberFromTeam = async (teamId: string, memberId: string) => {
+    if (!db) await init();
+    return teamsCollection.updateOne({ _id: teamId }, { $pull: { members: { doctorId: memberId } } });
+};
+
+export const deleteTeam = async (teamId: string) => {
+    if (!db) await init();
+    // Also unassign parents from this team
+    await parentsCollection.updateMany({ teamId: teamId }, { $set: { teamId: null } });
+    return teamsCollection.deleteOne({ _id: teamId });
+};
 
 // Plan Management Services
 export const getPlansByHospital = async (hospitalId: string) => {
@@ -467,7 +511,6 @@ export const createOrUpdatePlan = async (hospitalId: string, planData: any) => {
 
 export const createSubscription = async (subscriptionData: { parentId: string, hospitalId: string, planId: string }) => {
     if (!db) await init();
-    const subscriptionsCollection = db.collection('subscriptions');
     
     const newSubscription = {
         ...subscriptionData,
@@ -480,4 +523,57 @@ export const createSubscription = async (subscriptionData: { parentId: string, h
     
     await subscriptionsCollection.insertOne(newSubscription);
     return newSubscription;
-}
+};
+
+
+export const getAdminDashboardData = async (hospitalId: string) => {
+    if (!db) await init();
+
+    const doctorCount = await doctorsCollection.countDocuments({ hospitalId });
+    const parentCount = await parentsCollection.countDocuments({ hospitalId });
+
+    // Mock data, as subscriptions and revenue are not fully implemented
+    const activeSubscriptions = await subscriptionsCollection.countDocuments({ hospitalId, status: 'Active' });
+    
+    const subscriptions = await subscriptionsCollection.find({ hospitalId, status: 'Active' }).toArray();
+    const planIds = subscriptions.map(s => s.planId);
+    const plans = await plansCollection.find({ _id: { $in: planIds } }).toArray();
+    const planPriceMap = new Map(plans.map(p => [p._id, p.monthlyPrice]));
+    
+    const monthlyRevenue = subscriptions.reduce((total, sub) => {
+        return total + (planPriceMap.get(sub.planId) || 0);
+    }, 0);
+
+
+    const doctors = await doctorsCollection.find(
+        { hospitalId }, 
+        { projection: { name: 1, specialty: 1, avatarUrl: 1 } }
+    ).limit(3).toArray();
+    
+    const doctorsSnapshot = await Promise.all(doctors.map(async (doctor) => {
+        const patientCount = await parentsCollection.countDocuments({
+            $or: [{ doctorId: doctor._id }, { teamId: { $in: (await teamsCollection.find({ hospitalId, "members.doctorId": doctor._id }).toArray()).map(t => t._id) } }]
+        });
+        return {
+            ...doctor,
+            patientCount,
+            // These are mocked for now
+            consultationsThisMonth: Math.floor(Math.random() * 50) + 10,
+            satisfaction: (4.5 + Math.random() * 0.5).toFixed(1),
+        };
+    }));
+
+
+    return {
+        metrics: {
+            doctors: doctorCount,
+            parents: parentCount,
+            activeSubscriptions: activeSubscriptions,
+            monthlyRevenue: monthlyRevenue,
+            churnRate: "2.1%", // Mock data
+        },
+        doctors: doctorsSnapshot,
+    };
+};
+
+    
