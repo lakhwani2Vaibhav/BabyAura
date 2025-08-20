@@ -103,3 +103,7 @@ body {
     background-size: 400% 400%;
     @apply animate-gradient-move;
 }
+
+.warm-gradient-text {
+    @apply bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 bg-clip-text text-transparent;
+}

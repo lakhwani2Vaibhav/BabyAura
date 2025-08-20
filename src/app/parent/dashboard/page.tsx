@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import Link from 'next/link';
 import { MessageSquare, Calendar, Utensils, Brain, Zap, CheckCircle2, ListChecks, BookImage } from "lucide-react";
@@ -12,7 +12,10 @@ import { parentData, scrapbookMemories } from '@/lib/data';
 import { JourneyTimeline } from '@/components/timeline/JourneyTimeline';
 import { Progress } from '@/components/ui/progress';
 import Image from 'next/image';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, differenceInMonths, differenceInDays } from 'date-fns';
+import { useAuth } from '@/hooks/use-auth';
+import { useToast } from '@/hooks/use-toast';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const initialJourneyItems = [
     {
@@ -54,12 +57,40 @@ const initialJourneyItems = [
 ];
 
 export type JourneyItemData = (typeof initialJourneyItems)[0];
-
+type ParentProfile = {
+  name: string;
+  babyName: string;
+  babyDob: string;
+}
 
 export default function ParentDashboardPage() {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const { vaccinationStatus } = parentData;
   const [journeyItems, setJourneyItems] = useState(initialJourneyItems);
+  const [profile, setProfile] = useState<ParentProfile | null>(null);
+  const [loading, setLoading] = useState(true);
   const latestMemory = scrapbookMemories[0];
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+      try {
+        const token = localStorage.getItem('babyaura_token');
+        const response = await fetch('/api/parent/profile', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) throw new Error("Failed to fetch profile");
+        const data = await response.json();
+        setProfile(data);
+      } catch (error) {
+         toast({ variant: 'destructive', title: 'Error', description: 'Could not load your profile data.' });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, [user, toast]);
 
   const handleToggleItem = (title: string) => {
     setJourneyItems(items => 
@@ -68,6 +99,15 @@ export default function ParentDashboardPage() {
         )
     );
   };
+
+  const calculateAge = (dob: string) => {
+      if (!dob) return "";
+      const birthDate = parseISO(dob);
+      const now = new Date();
+      const months = differenceInMonths(now, birthDate);
+      const days = differenceInDays(now, birthDate) % 30; // Approximation
+      return `${months} months and ${days} days old`;
+  }
   
   const completedCount = journeyItems.filter(item => item.completed).length;
   const totalCount = journeyItems.filter(item => item.action !== 'none').length;
@@ -75,16 +115,33 @@ export default function ParentDashboardPage() {
 
   return (
     <div className="space-y-6">
+      <div className="text-center">
+        {loading ? <Skeleton className="h-8 w-3/4 mx-auto" /> : (
+            <h1 className="text-xl md:text-2xl font-bold font-headline tracking-tight">
+                Hey Mumma, <span className="warm-gradient-text">{profile?.babyName}</span> is {calculateAge(profile?.babyDob || '')} now!
+            </h1>
+        )}
+      </div>
+
        <ScrollAnimationWrapper animationClasses="animate-in fade-in zoom-in-95 duration-700 ease-out">
         <Card className="bg-primary/5 border-primary/20">
             <CardHeader className="sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <CardTitle className="text-2xl font-bold font-headline">
-                Welcome Back Mrs. CRO
-                </CardTitle>
-                <CardDescription>
-                Chief Responsible Officer
-                </CardDescription>
+              {loading ? (
+                <>
+                  <Skeleton className="h-7 w-48 mb-2" />
+                  <Skeleton className="h-4 w-32" />
+                </>
+              ) : (
+                <>
+                  <CardTitle className="text-2xl font-bold font-headline">
+                    Welcome Back, {profile?.name}
+                  </CardTitle>
+                  <CardDescription>
+                    Chief Responsible Officer
+                  </CardDescription>
+                </>
+              )}
             </div>
             <Button size="lg" className="w-full sm:w-auto mt-4 sm:mt-0" asChild>
                 <Link href="/parent/contact">
