@@ -23,7 +23,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, MoreHorizontal, UserPlus, UserCheck, Users2 } from "lucide-react";
+import { Search, MoreHorizontal, UserPlus, UserCheck, Users2, Loader2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
@@ -107,6 +107,8 @@ export default function ParentsPage() {
   const [assignTeamOpen, setAssignTeamOpen] = useState(false);
   const [selectedParent, setSelectedParent] = useState<Parent | null>(null);
   const [selectedTeamId, setSelectedTeamId] = useState<string>('');
+  const [isAssigning, setIsAssigning] = useState(false);
+
   const { toast } = useToast();
   const { user } = useAuth();
   
@@ -243,6 +245,7 @@ export default function ParentsPage() {
         toast({ variant: "destructive", title: "Error", description: "Parent or team not selected." });
         return;
     }
+    setIsAssigning(true);
     try {
         const token = localStorage.getItem('babyaura_token');
         const response = await fetch(`/api/admin/parents/${selectedParent._id}/assign-team`, {
@@ -260,6 +263,7 @@ export default function ParentsPage() {
     } catch(error: any) {
         toast({ variant: "destructive", title: "Assignment Failed", description: error.message });
     } finally {
+        setIsAssigning(false);
         setAssignTeamOpen(false);
         setSelectedParent(null);
         setSelectedTeamId('');
@@ -490,7 +494,10 @@ export default function ParentsPage() {
                 <DialogClose asChild>
                     <Button type="button" variant="secondary">Cancel</Button>
                 </DialogClose>
-                <Button type="button" onClick={handleAssignTeam} disabled={!selectedTeamId}>Assign Team</Button>
+                <Button type="button" onClick={handleAssignTeam} disabled={!selectedTeamId || isAssigning}>
+                  {isAssigning && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Assign Team
+                </Button>
             </DialogFooter>
         </DialogContent>
     </Dialog>
