@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Calendar, Clock, Video, FileText, Trash2, Edit } from "lucide-react";
+import { Calendar, Clock, Video, FileText, Trash2, Edit, User, Plus } from "lucide-react";
 import { format } from "date-fns";
 import {
   Dialog,
@@ -37,6 +37,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Calendar as CalendarPicker } from "@/components/ui/calendar";
 import { useToast } from "@/hooks/use-toast";
+import { ScheduleAppointmentDialog } from "../consultations/ScheduleAppointmentDialog";
+import { Separator } from "../ui/separator";
 
 type Consultation = {
   id: number;
@@ -52,22 +54,11 @@ interface ConsultationCardProps {
   isPast?: boolean;
 }
 
-const availableTimeSlots = [
-  "09:00 AM",
-  "09:30 AM",
-  "10:00 AM",
-  "10:30 AM",
-  "11:00 AM",
-  "02:00 PM",
-  "02:30 PM",
-  "03:00 PM",
-];
-
 export function ConsultationCard({
   consultation,
   isPast = false,
 }: ConsultationCardProps) {
-  const [rescheduleOpen, setRescheduleOpen] = useState(false);
+  const [manageOpen, setManageOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     new Date(consultation.date)
   );
@@ -90,7 +81,7 @@ export function ConsultationCard({
         consultation.doctor
       } is now on ${format(selectedDate!, "MMMM d, yyyy")} at ${selectedTime}.`,
     });
-    setRescheduleOpen(false);
+    setManageOpen(false);
   };
   
   const handleCancelAppointment = () => {
@@ -99,11 +90,11 @@ export function ConsultationCard({
         title: "Appointment Cancelled",
         description: `Your appointment with ${consultation.doctor} has been cancelled.`
     })
-    // In a real app, you would also update state here to remove the card
+    setManageOpen(false);
   }
 
   return (
-    <Dialog open={rescheduleOpen} onOpenChange={setRescheduleOpen}>
+    <Dialog open={manageOpen} onOpenChange={setManageOpen}>
       <Card>
         <CardHeader className="flex flex-row items-center gap-4">
           <Avatar className="h-12 w-12">
@@ -138,7 +129,7 @@ export function ConsultationCard({
               <DialogTrigger asChild>
                 <Button variant="outline" className="w-full">
                   <Edit className="mr-2 h-4 w-4" />
-                  Reschedule
+                  Manage
                 </Button>
               </DialogTrigger>
               <Button className="w-full">
@@ -149,43 +140,62 @@ export function ConsultationCard({
           )}
         </CardFooter>
       </Card>
-      <DialogContent className="sm:max-w-xl">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Reschedule Appointment</DialogTitle>
+          <DialogTitle>Manage Appointment</DialogTitle>
           <DialogDescription>
-            Select a new date and time for your consultation with{" "}
-            {consultation.doctor}.
+            Manage your upcoming appointment with {consultation.doctor}.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid md:grid-cols-2 gap-6 py-4">
-          <div className="flex justify-center">
-            <CalendarPicker
-              mode="single"
-              selected={selectedDate}
-              onSelect={setSelectedDate}
-              disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
-              className="rounded-md border"
-            />
-          </div>
-          <div>
-            <p className="text-sm font-medium mb-2">
-              Available Slots for {selectedDate ? format(selectedDate, "MMMM d") : '...'}
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {availableTimeSlots.map((time) => (
-                <Button
-                  key={time}
-                  variant={selectedTime === time ? "default" : "outline"}
-                  onClick={() => setSelectedTime(time)}
-                >
-                  {time}
+        <div className="py-4 space-y-4">
+            <Button variant="outline" className="w-full justify-start gap-2">
+                <User className="h-4 w-4" /> View Doctor's Profile
+            </Button>
+             <ScheduleAppointmentDialog triggerButton={
+                 <Button variant="outline" className="w-full justify-start gap-2">
+                    <Plus className="h-4 w-4" /> Schedule Another Appointment
                 </Button>
-              ))}
+             }/>
+            <Separator />
+            <h4 className="font-semibold">Reschedule Appointment</h4>
+             <div className="grid md:grid-cols-2 gap-6">
+                <div className="flex justify-center">
+                    <CalendarPicker
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                    disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
+                    className="rounded-md border"
+                    />
+                </div>
+                <div>
+                    <p className="text-sm font-medium mb-2">
+                    Available Slots for {selectedDate ? format(selectedDate, "MMMM d") : '...'}
+                    </p>
+                    {/* In a real app, this would be dynamic */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {["09:00 AM", "10:00 AM", "11:00 AM", "02:00 PM", "03:00 PM", "04:00 PM"].map((time) => (
+                            <Button
+                            key={time}
+                            variant={selectedTime === time ? "default" : "outline"}
+                            onClick={() => setSelectedTime(time)}
+                            >
+                            {time}
+                            </Button>
+                        ))}
+                    </div>
+                </div>
             </div>
-          </div>
+             <Button
+              className="w-full"
+              onClick={handleReschedule}
+              disabled={!selectedDate || !selectedTime}
+            >
+              Confirm New Time
+            </Button>
         </div>
-        <DialogFooter className="justify-between pt-4 gap-2">
-          <AlertDialog>
+        <DialogFooter className="pt-4 border-t !justify-start">
+             <AlertDialog>
              <AlertDialogTrigger asChild>
                 <Button variant="destructive">
                     <Trash2 className="mr-2 h-4 w-4" />
@@ -205,20 +215,6 @@ export function ConsultationCard({
                 </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-          <div className="flex gap-2">
-            <DialogClose asChild>
-              <Button type="button" variant="ghost">
-                Close
-              </Button>
-            </DialogClose>
-            <Button
-              type="button"
-              onClick={handleReschedule}
-              disabled={!selectedDate || !selectedTime}
-            >
-              Confirm Reschedule
-            </Button>
-          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

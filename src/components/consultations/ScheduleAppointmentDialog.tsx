@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, cloneElement, ReactElement } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +10,6 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogFooter,
-  DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,7 +41,11 @@ const availableTimeSlots = [
   "03:00 PM",
 ];
 
-export function ScheduleAppointmentDialog() {
+interface ScheduleAppointmentDialogProps {
+  triggerButton?: ReactElement;
+}
+
+export function ScheduleAppointmentDialog({ triggerButton }: ScheduleAppointmentDialogProps) {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>("select_doctor");
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
@@ -99,6 +102,15 @@ export function ScheduleAppointmentDialog() {
         description: "Live chat with doctors will be available in a future update.",
     })
   }
+  
+  const DialogTriggerButton = triggerButton ? (
+    cloneElement(triggerButton, { onClick: () => setOpen(true) })
+  ) : (
+    <Button onClick={() => setOpen(true)}>
+      <Plus className="mr-2 h-4 w-4" />
+      New Appointment
+    </Button>
+  );
 
   const renderStepContent = () => {
     switch (step) {
@@ -251,11 +263,9 @@ export function ScheduleAppointmentDialog() {
                     </div>
                 </ScrollArea>
                  <DialogFooter className="pt-4">
-                    <DialogClose asChild>
-                        <Button type="button" variant="ghost">
-                            Cancel
-                        </Button>
-                    </DialogClose>
+                    <Button onClick={() => setOpen(false)} variant="ghost">
+                        Cancel
+                    </Button>
                     <Button onClick={handleConfirmSchedule}>Confirm & Schedule</Button>
                 </DialogFooter>
             </>
@@ -269,10 +279,7 @@ export function ScheduleAppointmentDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button onClick={() => setOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          New Appointment
-        </Button>
+        {DialogTriggerButton}
       </DialogTrigger>
       <DialogContent className="max-w-md md:max-w-2xl" onInteractOutside={(e) => {
           if(!open) return;

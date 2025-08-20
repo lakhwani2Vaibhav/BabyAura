@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -8,7 +9,6 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { parentData } from "@/lib/data";
 import { ConsultationCard } from "@/components/cards/ConsultationCard";
-import { ScheduleAppointmentDialog } from "@/components/consultations/ScheduleAppointmentDialog";
 
 export default function ConsultationsPage() {
   const { upcomingConsultations, pastConsultations } = parentData;
@@ -22,7 +22,6 @@ export default function ConsultationsPage() {
             View past and upcoming consultations. Schedule new appointments.
           </p>
         </div>
-        <ScheduleAppointmentDialog />
       </div>
 
       <Tabs defaultValue="upcoming">
