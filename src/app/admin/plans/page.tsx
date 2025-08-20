@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -448,7 +447,6 @@ export default function ManagePlansPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {plans.map((plan, index) => (
                         <Card key={index} className={cn("flex flex-col", plan.isMostPopular && "border-2 border-primary")}>
-                            {plan.isMostPopular && <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">Most Popular</Badge>}
                             <CardHeader>
                                 <CardTitle>{plan.planName}</CardTitle>
                                 <CardDescription>{plan.description}</CardDescription>
