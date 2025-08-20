@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import clientPromise from "@/lib/mongodb";
@@ -613,3 +612,5 @@ export const getAdminAnalytics = async (hospitalId: string) => {
 
     return { metrics, analytics };
 };
+
+    
