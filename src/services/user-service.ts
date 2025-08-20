@@ -1,3 +1,4 @@
+
 import clientPromise from "@/lib/mongodb";
 import bcrypt from 'bcrypt';
 import { Db, Collection, ObjectId } from "mongodb";
@@ -846,3 +847,11 @@ export const removeMemberFromTeam = async (teamId: string, memberId: string) => 
         { $pull: { members: { doctorId: memberId } } }
     );
 };
+
+
+export const deleteTeam = async (teamId: string) => {
+    if (!db) await init();
+    // Optional: Find parents assigned to this team and set their teamId to null
+    await parentsCollection.updateMany({ teamId: teamId }, { $set: { teamId: null } });
+    return teamsCollection.deleteOne({ _id: teamId });
+}

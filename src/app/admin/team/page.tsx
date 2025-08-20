@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -30,7 +31,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, UserPlus, Users2, PlusCircle, Trash2, Edit } from "lucide-react";
+import { MoreHorizontal, UserPlus, Users2, PlusCircle, Trash2, Edit, Loader2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Dialog,
@@ -93,11 +94,14 @@ export default function ManageTeamPage() {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const [memberToDelete, setMemberToDelete] = useState<{ teamId: string, member: TeamMember } | null>(null);
+  const [teamToDelete, setTeamToDelete] = useState<Team | null>(null);
   
   const [createTeamOpen, setCreateTeamOpen] = useState(false);
   const [newTeamName, setNewTeamName] = useState("");
   const [addMemberOpen, setAddMemberOpen] = useState(false);
-  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
+  const [deleteMemberAlertOpen, setDeleteMemberAlertOpen] = useState(false);
+  const [deleteTeamAlertOpen, setDeleteTeamAlertOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
 
   const { toast } = useToast();
@@ -136,7 +140,7 @@ export default function ManageTeamPage() {
         fetchTeams();
         fetchDoctors();
     }
-  }, [user]);
+  }, [user, toast]);
   
   // Handlers
   const handleCreateTeam = async () => {
@@ -185,7 +189,7 @@ export default function ManageTeamPage() {
 
   const handleDeleteMember = async () => {
     if (!memberToDelete) return;
-
+    setIsDeleting(true);
     try {
         const { teamId, member } = memberToDelete;
         const token = localStorage.getItem('babyaura_token');
@@ -200,9 +204,31 @@ export default function ManageTeamPage() {
     } catch(error: any) {
         toast({ variant: "destructive", title: "Error removing member", description: error.message });
     } finally {
-        setDeleteAlertOpen(false);
+        setDeleteMemberAlertOpen(false);
         setMemberToDelete(null);
+        setIsDeleting(false);
     }
+  }
+
+  const handleDeleteTeam = async () => {
+    if (!teamToDelete) return;
+    setIsDeleting(true);
+     try {
+        const token = localStorage.getItem('babyaura_token');
+        const response = await fetch(`/api/admin/team/${teamToDelete._id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+         if (!response.ok) throw new Error((await response.json()).message);
+         await fetchTeams();
+         toast({ title: "Team Deleted", description: `The team "${teamToDelete.name}" has been removed.` });
+     } catch (error: any) {
+        toast({ variant: "destructive", title: "Error deleting team", description: error.message });
+     } finally {
+        setDeleteTeamAlertOpen(false);
+        setTeamToDelete(null);
+        setIsDeleting(false);
+     }
   }
   
   const getInitials = (name: string) => {
@@ -253,9 +279,14 @@ export default function ManageTeamPage() {
                         </CardTitle>
                         <CardDescription>{team.members.length} members</CardDescription>
                     </div>
-                    <Button variant="outline" size="sm" onClick={() => { setSelectedTeam(team); setAddMemberOpen(true) }}>
-                        <UserPlus className="mr-2 h-4 w-4" /> Add Member
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button variant="outline" size="sm" onClick={() => { setSelectedTeam(team); setAddMemberOpen(true) }}>
+                            <UserPlus className="mr-2 h-4 w-4" /> Add Member
+                        </Button>
+                        <Button variant="destructive-outline" size="sm" onClick={() => { setTeamToDelete(team); setDeleteTeamAlertOpen(true); }}>
+                            <Trash2 className="mr-2 h-4 w-4" /> Delete Team
+                        </Button>
+                    </div>
                 </CardHeader>
                 <CardContent>
                    <Table>
@@ -287,7 +318,7 @@ export default function ManageTeamPage() {
                                             size="icon"
                                             onClick={() => {
                                                 setMemberToDelete({ teamId: team._id, member });
-                                                setDeleteAlertOpen(true);
+                                                setDeleteMemberAlertOpen(true);
                                             }}
                                         >
                                             <Trash2 className="h-4 w-4 text-destructive" />
@@ -350,7 +381,10 @@ export default function ManageTeamPage() {
               />
               <DialogFooter>
                 <DialogClose asChild><Button type="button" variant="ghost">Cancel</Button></DialogClose>
-                <Button type="submit">Add Member</Button>
+                <Button type="submit" disabled={addMemberForm.formState.isSubmitting}>
+                    {addMemberForm.formState.isSubmitting ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : null}
+                    Add Member
+                </Button>
               </DialogFooter>
             </form>
           </Form>
@@ -358,7 +392,7 @@ export default function ManageTeamPage() {
       </Dialog>
       
       {/* Delete Member Alert */}
-       <AlertDialog open={deleteAlertOpen} onOpenChange={setDeleteAlertOpen}>
+       <AlertDialog open={deleteMemberAlertOpen} onOpenChange={setDeleteMemberAlertOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
@@ -368,8 +402,28 @@ export default function ManageTeamPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteMember} className="bg-destructive hover:bg-destructive/90">
+            <AlertDialogAction onClick={handleDeleteMember} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
+                {isDeleting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 Yes, Remove Member
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      
+       {/* Delete Team Alert */}
+       <AlertDialog open={deleteTeamAlertOpen} onOpenChange={setDeleteTeamAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete "{teamToDelete?.name}"?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the team. Any parents assigned to this team will become unassigned. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteTeam} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
+                 {isDeleting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                Yes, Delete Team
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
