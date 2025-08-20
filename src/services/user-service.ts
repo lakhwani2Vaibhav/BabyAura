@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import clientPromise from "@/lib/mongodb";
@@ -405,7 +406,26 @@ export const getPatientsByDoctorId = async (doctorId: string) => {
 
 export const getDoctorDashboardData = async (doctorId: string) => {
     if (!db) await init();
-    const activePatientsCount = await parentsCollection.countDocuments({ doctorId, status: 'Active' });
+
+    const doctor = await findDoctorById(doctorId);
+    if (!doctor) throw new Error("Doctor not found");
+
+    // Find all teams this doctor is a part of
+    const teams = await teamsCollection.find({
+        hospitalId: doctor.hospitalId,
+        "members.doctorId": doctorId
+    }).toArray();
+    const teamIds = teams.map(t => t._id);
+
+    // Find all parents assigned directly to the doctor OR to one of the doctor's teams
+    const activePatientsCount = await parentsCollection.countDocuments({
+        hospitalId: doctor.hospitalId,
+        status: 'Active',
+        $or: [
+            { doctorId: doctorId },
+            { teamId: { $in: teamIds } }
+        ]
+    });
     
     // Placeholder data for consultations. A real implementation would query a consultations collection.
     const todaysConsultations = [
