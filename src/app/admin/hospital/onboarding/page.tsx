@@ -2,6 +2,9 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import {
   Card,
   CardContent,
@@ -9,17 +12,41 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Copy, Building, User, Pencil, ArrowRight, MapPin, Users } from "lucide-react";
+import { Copy, Building, User, Pencil, ArrowRight, MapPin, Users, Loader2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from '@/hooks/use-auth';
 import { Skeleton } from '@/components/ui/skeleton';
+
+const specialtiesList = [
+  { id: 'pediatrics', label: 'General Pediatrics' },
+  { id: 'nutrition', label: 'Pediatric Nutrition' },
+  { id: 'emergency', label: 'Emergency Care' },
+  { id: 'cardiology', label: 'Pediatric Cardiology' },
+] as const;
+
+
+const profileSchema = z.object({
+    hospitalName: z.string().min(3, "Hospital name is required."),
+    mobile: z.string().min(10, "A valid phone number is required."),
+    email: z.string().email("Invalid email address."),
+    address: z.object({
+        street: z.string().min(3, "Street address is required."),
+        city: z.string().min(2, "City is required."),
+        state: z.string().min(2, "State is required."),
+        zip: z.string().min(5, "Postal code is required."),
+    }),
+    specialties: z.array(z.string()),
+    emergencyContact: z.string().min(3, "Emergency contact is required."),
+});
+
+type ProfileFormValues = z.infer<typeof profileSchema>;
 
 type Doctor = {
   _id: string;
@@ -41,13 +68,28 @@ type HospitalProfile = {
   };
   doctors: Doctor[];
   specialties: string[];
+  emergencyContact: string;
 };
 
 export default function HospitalOnboardingPage() {
   const { toast } = useToast();
   const { user } = useAuth();
-  const [profile, setProfile] = useState<HospitalProfile | null>(null);
+  const [profileData, setProfileData] = useState<{ doctors: Doctor[], hospitalCode: string } | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const form = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+        hospitalName: "",
+        mobile: "",
+        email: "",
+        address: { street: "", city: "", state: "", zip: ""},
+        specialties: [],
+        emergencyContact: ""
+    }
+  });
+  
+  const { formState: { isSubmitting }} = form;
 
   useEffect(() => {
     const fetchHospitalProfile = async () => {
@@ -55,25 +97,28 @@ export default function HospitalOnboardingPage() {
       setLoading(true);
       try {
         const token = localStorage.getItem('babyaura_token');
-        const response = await fetch('/api/admin/dashboard', { // Reusing dashboard API as it has most info
-           headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (!response.ok) throw new Error("Failed to fetch profile");
-        
-        const data = await response.json();
-        const hospitalData = await fetch('/api/admin/profile', { // Get hospital specific info
-             headers: { 'Authorization': `Bearer ${token}` }
-        })
-        const hospitalProfile = await hospitalData.json();
+        const [dashboardRes, profileRes] = await Promise.all([
+             fetch('/api/admin/dashboard', { headers: { 'Authorization': `Bearer ${token}` } }),
+             fetch('/api/admin/profile', { headers: { 'Authorization': `Bearer ${token}` } })
+        ]);
 
-        setProfile({
-          hospitalName: hospitalProfile.hospitalName,
-          hospitalCode: hospitalProfile.hospitalCode,
-          email: hospitalProfile.email,
-          mobile: hospitalProfile.mobile,
-          address: hospitalProfile.address || { street: '', city: '', state: '', zip: '' },
-          doctors: data.doctors,
-          specialties: hospitalProfile.specialties || []
+        if (!dashboardRes.ok || !profileRes.ok) throw new Error("Failed to fetch profile");
+        
+        const dashboardData = await dashboardRes.json();
+        const profileData = await profileRes.json();
+
+        setProfileData({
+            doctors: dashboardData.doctors,
+            hospitalCode: profileData.hospitalCode
+        });
+
+        form.reset({
+            hospitalName: profileData.hospitalName || "",
+            mobile: profileData.mobile || "",
+            email: profileData.email || "",
+            address: profileData.address || { street: "", city: "", state: "", zip: "" },
+            specialties: profileData.specialties || [],
+            emergencyContact: profileData.emergencyContact || "",
         });
 
       } catch (error) {
@@ -87,19 +132,34 @@ export default function HospitalOnboardingPage() {
       }
     };
     fetchHospitalProfile();
-  }, [user, toast]);
+  }, [user, toast, form]);
   
+  const onSubmit = async (data: ProfileFormValues) => {
+    try {
+        const token = localStorage.getItem('babyaura_token');
+        const response = await fetch('/api/admin/profile', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify(data)
+        });
+        if(!response.ok) throw new Error("Failed to save changes.");
 
-  const handleSaveChanges = () => {
-    toast({
-      title: "Changes Saved",
-      description: "Hospital information has been successfully updated.",
-    });
+        toast({
+          title: "Changes Saved",
+          description: "Hospital information has been successfully updated.",
+        });
+    } catch(error) {
+         toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: 'Could not save your changes. Please try again.'
+        });
+    }
   };
 
   const handleCopyCode = () => {
-    if (!profile) return;
-    navigator.clipboard.writeText(profile.hospitalCode);
+    if (!profileData) return;
+    navigator.clipboard.writeText(profileData.hospitalCode);
     toast({
         title: "Code Copied!",
         description: "The hospital code has been copied to your clipboard."
@@ -137,178 +197,131 @@ export default function HospitalOnboardingPage() {
       </div>
   }
 
-  if (!profile) {
-      return <div>Could not load hospital profile.</div>
-  }
-
-
   return (
-    <div className="space-y-6">
-       <div className="flex items-center justify-between">
-            <div>
-                <h1 className="text-3xl font-bold font-headline">Hospital Profile</h1>
-                <p className="text-muted-foreground">
-                    Manage your hospital's public profile, contact details, and specialties.
-                </p>
-            </div>
-            <Button onClick={handleSaveChanges}>
-                <Pencil className="mr-2 h-4 w-4" />
-                Save All Changes
-            </Button>
-       </div>
-       
-       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><Building className="h-5 w-5" /> Basic Information</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="hospital-name">Hospital Name</Label>
-                            <Input id="hospital-name" defaultValue={profile.hospitalName} />
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="hospital-phone">Main Phone Number</Label>
-                                <Input id="hospital-phone" type="tel" defaultValue={profile.mobile} />
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-bold font-headline">Hospital Profile</h1>
+                    <p className="text-muted-foreground">
+                        Manage your hospital's public profile, contact details, and specialties.
+                    </p>
+                </div>
+                <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Pencil className="mr-2 h-4 w-4" />}
+                    Save All Changes
+                </Button>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 space-y-6">
+                    <Card>
+                        <CardHeader><CardTitle className="flex items-center gap-2"><Building className="h-5 w-5" /> Basic Information</CardTitle></CardHeader>
+                        <CardContent className="space-y-4">
+                             <FormField control={form.control} name="hospitalName" render={({ field }) => (
+                                <FormItem><FormLabel>Hospital Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                               <FormField control={form.control} name="mobile" render={({ field }) => (
+                                    <FormItem><FormLabel>Main Phone Number</FormLabel><FormControl><Input type="tel" {...field} /></FormControl><FormMessage /></FormItem>
+                                )}/>
+                                 <FormField control={form.control} name="email" render={({ field }) => (
+                                    <FormItem><FormLabel>Public Email Address</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
+                                )}/>
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="hospital-email">Public Email Address</Label>
-                                <Input id="hospital-email" type="email" defaultValue={profile.email} />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader><CardTitle className="flex items-center gap-2"><MapPin className="h-5 w-5" /> Address</CardTitle></CardHeader>
+                        <CardContent className="space-y-4">
+                             <FormField control={form.control} name="address.street" render={({ field }) => (
+                                <FormItem><FormLabel>Street Address</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <FormField control={form.control} name="address.city" render={({ field }) => (
+                                    <FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                )}/>
+                                <FormField control={form.control} name="address.state" render={({ field }) => (
+                                    <FormItem><FormLabel>State</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                )}/>
+                                 <FormField control={form.control} name="address.zip" render={({ field }) => (
+                                    <FormItem><FormLabel>Postal Code</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                )}/>
                             </div>
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><MapPin className="h-5 w-5" /> Address</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="hospital-street">Street Address</Label>
-                            <Input id="hospital-street" defaultValue={profile.address.street} />
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="hospital-city">City</Label>
-                                <Input id="hospital-city" defaultValue={profile.address.city} />
-                            </div>
-                             <div className="space-y-2">
-                                <Label htmlFor="hospital-state">State</Label>
-                                <Input id="hospital-state" defaultValue={profile.address.state} />
-                            </div>
-                             <div className="space-y-2">
-                                <Label htmlFor="hospital-zip">Postal Code</Label>
-                                <Input id="hospital-zip" defaultValue={profile.address.zip} />
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-                 <Card>
-                    <CardHeader>
-                        <CardTitle>Specialties</CardTitle>
-                        <CardDescription>Select the pediatric specialties your hospital offers.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                         <div className="grid sm:grid-cols-2 gap-4">
-                            <div className="flex items-center space-x-2">
-                                <Checkbox id="pediatrics" defaultChecked />
-                                <Label
-                                htmlFor="pediatrics"
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                >
-                                General Pediatrics
-                                </Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <Checkbox id="nutrition" defaultChecked />
-                                <Label
-                                htmlFor="nutrition"
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                >
-                                Pediatric Nutrition
-                                </Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <Checkbox id="emergency" defaultChecked />
-                                <Label
-                                htmlFor="emergency"
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                >
-                                Emergency Care
-                                </Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <Checkbox id="cardiology" />
-                                <Label
-                                htmlFor="cardiology"
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                >
-                                Pediatric Cardiology
-                                </Label>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-            <div className="space-y-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><User className="h-5 w-5" /> Parent Onboarding</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div>
-                            <Label htmlFor="hospital-code">Unique Hospital Code</Label>
-                            <div className="flex items-center gap-2 mt-2">
-                                <Input id="hospital-code" value={profile.hospitalCode} readOnly />
-                                <Button variant="outline" size="icon" onClick={handleCopyCode}>
-                                    <Copy className="h-4 w-4" />
-                                </Button>
-                            </div>
-                            <p className="text-xs text-muted-foreground mt-2">
-                                Parents will use this code to connect with your hospital.
-                            </p>
-                        </div>
-                         <Separator />
-                        <div>
-                            <Label>Emergency Contact</Label>
-                            <Input className="mt-2" defaultValue="911" placeholder="e.g., Hospital Emergency Line" />
-                            <p className="text-xs text-muted-foreground mt-2">
-                                The number displayed in the app for immediate help.
-                            </p>
-                        </div>
-                    </CardContent>
-                </Card>
-                 <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5" /> Our Doctors</CardTitle>
-                        <CardDescription>Key medical staff on the platform.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        {profile.doctors.map((doctor) => (
-                            <div key={doctor._id} className="flex items-center gap-3">
-                                <Avatar className="h-10 w-10">
-                                    <AvatarImage src={doctor.avatarUrl} />
-                                    <AvatarFallback>{getInitials(doctor.name)}</AvatarFallback>
-                                </Avatar>
-                                <div className="flex-grow">
-                                    <p className="font-semibold text-sm">{doctor.name}</p>
-                                    <p className="text-xs text-muted-foreground">{doctor.specialty}</p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader><CardTitle>Specialties</CardTitle><CardDescription>Select the pediatric specialties your hospital offers.</CardDescription></CardHeader>
+                        <CardContent>
+                             <FormField control={form.control} name="specialties" render={() => (
+                                <FormItem>
+                                    <div className="grid sm:grid-cols-2 gap-4">
+                                    {specialtiesList.map((item) => (
+                                        <FormField key={item.id} control={form.control} name="specialties" render={({ field }) => {
+                                            return (
+                                                <FormItem key={item.id} className="flex flex-row items-start space-x-3 space-y-0">
+                                                    <FormControl>
+                                                        <Checkbox
+                                                            checked={field.value?.includes(item.id)}
+                                                            onCheckedChange={(checked) => {
+                                                                return checked
+                                                                ? field.onChange([...(field.value || []), item.id])
+                                                                : field.onChange(field.value?.filter((value) => value !== item.id))
+                                                            }}
+                                                        />
+                                                    </FormControl>
+                                                    <FormLabel className="font-normal">{item.label}</FormLabel>
+                                                </FormItem>
+                                            )
+                                        }} />
+                                    ))}
+                                    </div>
+                                    <FormMessage />
+                                </FormItem>
+                             )} />
+                        </CardContent>
+                    </Card>
+                </div>
+                <div className="space-y-6">
+                    <Card>
+                        <CardHeader><CardTitle className="flex items-center gap-2"><User className="h-5 w-5" /> Parent Onboarding</CardTitle></CardHeader>
+                        <CardContent className="space-y-4">
+                            <div>
+                                <FormLabel>Unique Hospital Code</FormLabel>
+                                <div className="flex items-center gap-2 mt-2">
+                                    <Input value={profileData?.hospitalCode || "N/A"} readOnly />
+                                    <Button type="button" variant="outline" size="icon" onClick={handleCopyCode}>
+                                        <Copy className="h-4 w-4" />
+                                    </Button>
                                 </div>
+                                <p className="text-xs text-muted-foreground mt-2">Parents will use this code to connect with your hospital.</p>
                             </div>
-                        ))}
-                    </CardContent>
-                    <CardContent>
-                        <Button variant="outline" asChild className="w-full">
-                           <Link href="/admin/doctors">
-                                Manage Team <ArrowRight className="h-4 w-4 ml-2" />
-                           </Link>
-                        </Button>
-                    </CardContent>
-                </Card>
-            </div>
-       </div>
-    </div>
+                            <Separator />
+                            <FormField control={form.control} name="emergencyContact" render={({ field }) => (
+                                <FormItem><FormLabel>Emergency Contact Number</FormLabel><FormControl><Input {...field} /></FormControl>
+                                <FormMessage />
+                                <FormDescription className="text-xs">The number displayed in the app for immediate help.</FormDescription>
+                                </FormItem>
+                            )}/>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader><CardTitle className="flex items-center gap-2"><Users className="h-5 w-5" /> Our Doctors</CardTitle><CardDescription>Key medical staff on the platform.</CardDescription></CardHeader>
+                        <CardContent className="space-y-4">
+                            {profileData?.doctors.map((doctor) => (
+                                <div key={doctor._id} className="flex items-center gap-3">
+                                    <Avatar className="h-10 w-10"><AvatarImage src={doctor.avatarUrl} /><AvatarFallback>{getInitials(doctor.name)}</AvatarFallback></Avatar>
+                                    <div className="flex-grow"><p className="font-semibold text-sm">{doctor.name}</p><p className="text-xs text-muted-foreground">{doctor.specialty}</p></div>
+                                </div>
+                            ))}
+                        </CardContent>
+                        <CardContent><Button type="button" variant="outline" asChild className="w-full"><Link href="/admin/doctors">Manage Team <ArrowRight className="h-4 w-4 ml-2" /></Link></Button></CardContent>
+                    </Card>
+                </div>
+          </div>
+        </div>
+      </form>
+    </Form>
   );
 }

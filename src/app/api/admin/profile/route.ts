@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from "next/server";
-import { updateAdminProfile, findUserByEmail, findHospitalById } from "@/services/user-service";
+import { updateAdminProfile, findHospitalById } from "@/services/user-service";
 import { jwtDecode } from "jwt-decode";
 
 interface DecodedToken {
@@ -51,13 +51,29 @@ export async function PUT(req: NextRequest) {
         }
 
         const body = await req.json();
-        const { name } = body;
+        
+        // We can update more fields now
+        const allowedUpdates = [
+            'hospitalName', 'mobile', 'email', 'address', 'specialties', 'emergencyContact', 'name'
+        ];
+        
+        const updates: { [key: string]: any } = {};
 
-        if (!name) {
-            return NextResponse.json({ message: "Name is a required field." }, { status: 400 });
+        // Special handling for the owner's name which is in the `name` field in the form
+        // but needs to be saved as `ownerName` in the database.
+        if (body.name) {
+            updates.ownerName = body.name;
+        }
+
+        for (const key of allowedUpdates) {
+            if (body[key] !== undefined && key !== 'name') {
+                updates[key] = body[key];
+            }
         }
         
-        const updates: { name: string } = { name };
+        if (Object.keys(updates).length === 0) {
+            return NextResponse.json({ message: "No valid fields to update." }, { status: 400 });
+        }
 
         await updateAdminProfile(admin._id, updates);
         
@@ -74,5 +90,3 @@ export async function PUT(req: NextRequest) {
         return NextResponse.json({ message: errorMessage }, { status: 500 });
     }
 }
-
-    
