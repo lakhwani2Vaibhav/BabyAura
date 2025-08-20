@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, ArrowLeft, Mail } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Loader2, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { BabyAuraLogo } from '@/components/icons/BabyAuraLogo';
@@ -107,6 +107,7 @@ export default function ForgotPasswordPage() {
                     )}
                   </div>
                   <Button type="submit" className="w-full" disabled={isSubmitting}>
+                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     {isSubmitting ? 'Sending...' : 'Send Reset Link'}
                   </Button>
                 </form>
