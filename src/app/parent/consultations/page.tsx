@@ -1,48 +1,74 @@
 
 "use client";
 
-import {
-  Card,
-  CardDescription,
-  CardTitle,
-  CardHeader
-} from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { parentData } from "@/lib/data";
 import { ConsultationCard } from "@/components/cards/ConsultationCard";
 import { CareTeamMemberCard } from "@/components/cards/CareTeamMemberCard";
 import { Calendar, Users } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
+
+type Consultation = {
+  id: number;
+  doctor: string;
+  specialty: string;
+  date: string;
+  time: string;
+  status: "Upcoming" | "Past";
+};
+
+type CareTeamMember = {
+    id: string;
+    name: string;
+    type: string;
+    avatarUrl: string;
+    languages: string[];
+    experience: string;
+    notes: string;
+    pastAppointments: { date: string; notes: string; prescription: string | null; }[];
+}
+
+type ConsultationData = {
+    upcomingConsultations: Consultation[];
+    careTeam: CareTeamMember[];
+}
+
 
 export default function ConsultationsPage() {
-  const { upcomingConsultations } = parentData;
+  const [data, setData] = useState<ConsultationData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const { toast } = useToast();
 
-  const careTeam = [
-      {
-          id: '1',
-          name: 'Dr. Emily Carter',
-          type: 'Pediatrician',
-          avatarUrl: 'https://placehold.co/100x100.png',
-          languages: ['English', 'Hindi'],
-          experience: '12 years',
-          notes: 'Specializes in newborn care and developmental milestones.',
-          pastAppointments: [
-              { date: '2024-07-15', notes: "Routine check-up. Baby is healthy.", prescription: "Vitamin D drops" },
-              { date: '2024-06-10', notes: "Discussed feeding schedule.", prescription: null },
-          ]
-      },
-      {
-          id: '2',
-          name: 'Dr. Ben Adams',
-          type: 'Nutritionist',
-          avatarUrl: 'https://placehold.co/100x100.png',
-          languages: ['English'],
-          experience: '8 years',
-          notes: 'Focuses on infant and maternal nutrition.',
-          pastAppointments: [
-              { date: '2024-07-01', notes: "Introduced solid foods plan.", prescription: null }
-          ]
+  useEffect(() => {
+    const fetchConsultations = async () => {
+      if (!user) return;
+      try {
+        const token = localStorage.getItem('babyaura_token');
+        const response = await fetch('/api/parent/consultations', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch consultation data');
+        }
+        const consultationData = await response.json();
+        setData(consultationData);
+      } catch (error) {
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: 'Could not load your appointment data.',
+        });
+      } finally {
+        setLoading(false);
       }
-  ]
+    };
+    fetchConsultations();
+  }, [user, toast]);
+
 
   return (
     <div className="space-y-8">
@@ -65,16 +91,21 @@ export default function ConsultationsPage() {
                 </TabsTrigger>
             </TabsList>
             <TabsContent value="upcoming" className="mt-6">
-                 {upcomingConsultations.length > 0 ? (
+                {loading ? (
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                        {upcomingConsultations.map((consultation) => (
-                        <ConsultationCard
-                            key={consultation.id}
-                            consultation={consultation}
-                        />
+                        <Skeleton className="h-48" />
+                        <Skeleton className="h-48" />
+                    </div>
+                ) : data && data.upcomingConsultations.length > 0 ? (
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        {data.upcomingConsultations.map((consultation) => (
+                            <ConsultationCard
+                                key={consultation.id}
+                                consultation={consultation}
+                            />
                         ))}
                     </div>
-                    ) : (
+                ) : (
                     <Card className="flex flex-col items-center justify-center p-12">
                         <CardTitle>No Upcoming Consultations</CardTitle>
                         <CardDescription className="mt-2">
@@ -84,11 +115,19 @@ export default function ConsultationsPage() {
                 )}
             </TabsContent>
             <TabsContent value="team" className="mt-6">
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {careTeam.map(member => (
-                        <CareTeamMemberCard key={member.id} member={member} />
-                    ))}
-                </div>
+                 {loading ? (
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        <Skeleton className="h-48" />
+                        <Skeleton className="h-48" />
+                        <Skeleton className="h-48" />
+                    </div>
+                 ) : (
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        {data?.careTeam.map(member => (
+                            <CareTeamMemberCard key={member.id} member={member} />
+                        ))}
+                    </div>
+                 )}
             </TabsContent>
         </Tabs>
     </div>

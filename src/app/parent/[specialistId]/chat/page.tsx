@@ -3,7 +3,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { doctorData } from '@/lib/data';
 import { notFound, useParams } from 'next/navigation';
 import { ArrowLeft, Send, Paperclip, Loader2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -22,7 +21,6 @@ import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 
-// Simulating a database message structure
 type Message = {
   _id: string;
   senderId: string;
@@ -30,23 +28,17 @@ type Message = {
   createdAt: string;
 };
 
-// This combines our mock data with a structure for the new specialist
-const allSpecialists = [
-  ...doctorData.patients,
-  { id: 'nurse-concierge', name: 'Nurse Concierge', chatHistory: [
-       { from: 'parent', message: "Hi, I had a question about introducing solid foods.", timestamp: new Date().toISOString() },
-       { from: 'doctor', message: "Of course! I can help with that. How old is your baby now?", timestamp: new Date().toISOString() },
-  ]},
-];
+type Specialist = {
+  id: string;
+  name: string;
+  avatarUrl?: string;
+}
 
 export default function SpecialistChatPage() {
   const params = useParams();
   const { specialistId } = params as { specialistId: string };
   
-  // To keep the page working with mock data while building, we find the mock specialist
-  // A real implementation would fetch specialist details from an API
-  const specialist = allSpecialists.find((p) => p.id === specialistId);
-
+  const [specialist, setSpecialist] = useState<Specialist | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -57,30 +49,41 @@ export default function SpecialistChatPage() {
 
 
   useEffect(() => {
-    const fetchMessages = async () => {
+    const fetchChatData = async () => {
       if (!user || !specialistId) return;
       setIsLoading(true);
       try {
         const token = localStorage.getItem('babyaura_token');
-        const response = await fetch(`/api/parent/chat?specialistId=${specialistId}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (!response.ok) {
-          throw new Error('Failed to fetch messages');
-        }
-        const data = await response.json();
-        setMessages(data);
+        
+        // Fetch specialist details and messages concurrently
+        const [specialistRes, messagesRes] = await Promise.all([
+            fetch(`/api/specialists/${specialistId}`, { headers: { 'Authorization': `Bearer ${token}` } }),
+            fetch(`/api/parent/chat?specialistId=${specialistId}`, { headers: { 'Authorization': `Bearer ${token}` } })
+        ]);
+
+        if (!specialistRes.ok) throw new Error('Failed to fetch specialist details');
+        if (!messagesRes.ok) throw new Error('Failed to fetch messages');
+
+        const specialistData = await specialistRes.json();
+        const messagesData = await messagesRes.json();
+
+        setSpecialist(specialistData);
+        setMessages(messagesData);
+
       } catch (error) {
         toast({ variant: 'destructive', title: 'Error', description: 'Could not load chat history.' });
+        // Redirect or show an error state if specialist not found
+        if ((error as Error).message.includes('specialist')) {
+            notFound();
+        }
       } finally {
         setIsLoading(false);
       }
     };
-    fetchMessages();
+    fetchChatData();
   }, [user, specialistId, toast]);
 
   useEffect(() => {
-    // Scroll to bottom when new messages are added
     if (scrollAreaRef.current) {
         const viewport = scrollAreaRef.current.querySelector('div');
         if (viewport) {
@@ -89,6 +92,28 @@ export default function SpecialistChatPage() {
     }
   }, [messages]);
 
+
+  if (isLoading) {
+       return (
+         <Card className="flex flex-col flex-1 h-[calc(100vh-10rem)]">
+            <CardHeader className="flex flex-row items-center gap-4 p-4 border-b">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <div className="space-y-2">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-3 w-16" />
+                </div>
+            </CardHeader>
+            <CardContent className="flex-1 p-4 space-y-4">
+                <Skeleton className="h-16 w-3/4" />
+                <Skeleton className="h-16 w-3/4 ml-auto" />
+                <Skeleton className="h-12 w-1/2" />
+            </CardContent>
+             <CardFooter className="p-4 border-t">
+                 <Skeleton className="h-10 w-full" />
+             </CardFooter>
+        </Card>
+       )
+  }
 
   if (!specialist) {
     return notFound();
@@ -135,7 +160,7 @@ export default function SpecialistChatPage() {
           </Button>
           <Avatar>
             <AvatarImage
-              src={`https://placehold.co/100x100.png`}
+              src={specialist.avatarUrl}
               data-ai-hint="specialist portrait"
             />
             <AvatarFallback>{getInitials(specialist.name)}</AvatarFallback>
@@ -147,13 +172,6 @@ export default function SpecialistChatPage() {
         </CardHeader>
         <CardContent className="flex-1 p-0 overflow-hidden">
             <ScrollArea className="h-full p-4" ref={scrollAreaRef}>
-             {isLoading ? (
-                 <div className="space-y-4">
-                     <Skeleton className="h-16 w-3/4" />
-                     <Skeleton className="h-16 w-3/4 ml-auto" />
-                     <Skeleton className="h-12 w-1/2" />
-                 </div>
-             ) : (
                 <div className="space-y-4">
                     {messages.map((message) => (
                     <div
@@ -165,7 +183,7 @@ export default function SpecialistChatPage() {
                     >
                         {message.senderId !== user?.userId && (
                             <Avatar className="h-8 w-8">
-                                <AvatarImage src={`https://placehold.co/100x100.png`} data-ai-hint="specialist portrait" />
+                                <AvatarImage src={specialist.avatarUrl} data-ai-hint="specialist portrait" />
                                 <AvatarFallback>{getInitials(specialist.name)}</AvatarFallback>
                             </Avatar>
                         )}
@@ -188,7 +206,6 @@ export default function SpecialistChatPage() {
                     </div>
                     ))}
                 </div>
-             )}
             </ScrollArea>
         </CardContent>
         <CardFooter className="p-4 border-t">
@@ -212,4 +229,3 @@ export default function SpecialistChatPage() {
     </div>
   );
 }
-
