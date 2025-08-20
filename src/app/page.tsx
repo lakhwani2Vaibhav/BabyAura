@@ -92,7 +92,7 @@ export default function Home() {
       'Dedicated Dietician Support': true,
       'Automated Essentials Delivery': true,
       'AI Assistance': true,
-      'Dedicated Nurse Conceirge': false,
+      'Dedicated Nurse Conceirge': true,
     }
   };
 
@@ -414,13 +414,13 @@ export default function Home() {
                     <Card className="relative flex flex-col h-full border-2 border-primary shadow-lg">
                         <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground">MOST POPULAR</Badge>
                         <div className={cn("rounded-t-lg", "bg-primary/5")}>
-                            <CardHeader className="opacity-60">
+                            <CardHeader>
                                 <CardTitle className="text-2xl">Premium Plan</CardTitle>
                                 <p className="text-3xl font-bold">₹{currentPlan.premium.price.toLocaleString()}<span className="text-sm font-normal text-muted-foreground">{currentPlan.premium.period}</span></p>
                                 <p className="text-sm text-muted-foreground">Complete care for your baby's journey</p>
                             </CardHeader>
                         </div>
-                        <CardContent className="pt-6 flex-grow opacity-60">
+                        <CardContent className="pt-6 flex-grow">
                            <ul className="space-y-4">
                                 {featuresList.map(feature => {
                                     const value = planFeatures.premium[feature.name as keyof typeof planFeatures.premium];
