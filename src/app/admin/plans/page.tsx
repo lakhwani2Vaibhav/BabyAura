@@ -33,6 +33,7 @@ import { CostBreakdown } from "@/components/hospitals/CostBreakdown";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 const offerSchema = z.object({
   text: z.string().min(3, "Offer text is too short."),
