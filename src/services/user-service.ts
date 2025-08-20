@@ -426,66 +426,30 @@ export const getDoctorDashboardData = async (doctorId: string) => {
     };
 };
 
-export const getAdminDashboardData = async (hospitalId: string) => {
+
+export const getPatientsByDoctorId = async (doctorId: string) => {
     if (!db) await init();
 
-    const doctorCount = await doctorsCollection.countDocuments({ hospitalId });
-    const parentCount = await parentsCollection.countDocuments({ hospitalId });
+    const doctor = await findDoctorById(doctorId);
+    if (!doctor) throw new Error("Doctor not found");
 
-    // Mock data, as subscriptions and revenue are not fully implemented
-    const activeSubscriptions = await subscriptionsCollection.countDocuments({ hospitalId, status: 'Active' });
-    
-    const subscriptions = await subscriptionsCollection.find({ hospitalId, status: 'Active' }).toArray();
-    const planIds = subscriptions.map(s => s.planId);
-    const plans = await plansCollection.find({ _id: { $in: planIds } }).toArray();
-    const planPriceMap = new Map(plans.map(p => [p._id, p.monthlyPrice]));
-    
-    const monthlyRevenue = subscriptions.reduce((total, sub) => {
-        return total + (planPriceMap.get(sub.planId) || 0);
-    }, 0);
+    const teams = await teamsCollection.find({
+        hospitalId: doctor.hospitalId,
+        "members.doctorId": doctorId
+    }).toArray();
+    const teamIds = teams.map(t => t._id);
 
+    const patients = await parentsCollection.find({
+        hospitalId: doctor.hospitalId,
+        $or: [
+            { doctorId: doctorId },
+            { teamId: { $in: teamIds } }
+        ]
+    }).project({ name: 1, lastVisit: 1, status: 1, _id: 1 }).toArray();
 
-    const doctors = await doctorsCollection.find(
-        { hospitalId }, 
-        { projection: { name: 1, specialty: 1, avatarUrl: 1, _id: 1 } }
-    ).limit(3).toArray();
-    
-    const doctorsSnapshot = await Promise.all(doctors.map(async (doctor) => {
-        const doctorTeams = await teamsCollection.find({ hospitalId, "members.doctorId": doctor._id }).toArray();
-        const teamIds = doctorTeams.map(t => t._id);
-
-        const patientCount = await parentsCollection.countDocuments({
-            hospitalId: hospitalId,
-            $or: [
-                { doctorId: doctor._id }, 
-                { teamId: { $in: teamIds } }
-            ]
-        });
-
-        return {
-            _id: doctor._id,
-            name: doctor.name,
-            specialty: doctor.specialty,
-            avatarUrl: doctor.avatarUrl,
-            patientCount,
-            // These are mocked for now
-            consultationsThisMonth: Math.floor(Math.random() * 50) + 10,
-            satisfaction: (4.5 + Math.random() * 0.5).toFixed(1),
-        };
-    }));
-
-
-    return {
-        metrics: {
-            doctors: doctorCount,
-            parents: parentCount,
-            activeSubscriptions: activeSubscriptions,
-            monthlyRevenue: monthlyRevenue,
-            churnRate: "2.1%", // Mock data
-        },
-        doctors: doctorsSnapshot,
-    };
+    return patients;
 };
+
 
 // Password Reset Services (omitted for brevity, no changes needed)
 export const setPasswordResetToken = async (userId: string, role: string, tokens: { passwordResetToken: string, passwordResetExpires: Date }) => { /* ... */ };
@@ -744,6 +708,64 @@ export const getSuperAdminAnalytics = async () => {
   };
 };
 
-    
+export const getAdminDashboardData = async (hospitalId: string) => {
+    if (!db) await init();
 
-```
+    const doctorCount = await doctorsCollection.countDocuments({ hospitalId });
+    const parentCount = await parentsCollection.countDocuments({ hospitalId });
+
+    // In a real app, you'd have a proper subscription and revenue tracking system.
+    // This is simplified for demonstration.
+    const activeSubscriptions = await subscriptionsCollection.countDocuments({ hospitalId, status: 'Active' });
+    
+    const subscriptions = await subscriptionsCollection.find({ hospitalId, status: 'Active' }).toArray();
+    const planIds = subscriptions.map(s => s.planId);
+    const plans = await plansCollection.find({ _id: { $in: planIds } }).toArray();
+    const planPriceMap = new Map(plans.map(p => [p._id, p.monthlyPrice]));
+    
+    const monthlyRevenue = subscriptions.reduce((total, sub) => {
+        return total + (planPriceMap.get(sub.planId) || 0);
+    }, 0);
+
+
+    const doctors = await doctorsCollection.find(
+        { hospitalId }, 
+        { projection: { name: 1, specialty: 1, avatarUrl: 1, _id: 1 } }
+    ).limit(3).toArray();
+    
+    const doctorsSnapshot = await Promise.all(doctors.map(async (doctor) => {
+        const doctorTeams = await teamsCollection.find({ hospitalId, "members.doctorId": doctor._id }).toArray();
+        const teamIds = doctorTeams.map(t => t._id);
+
+        const patientCount = await parentsCollection.countDocuments({
+            hospitalId: hospitalId,
+            $or: [
+                { doctorId: doctor._id }, 
+                { teamId: { $in: teamIds } }
+            ]
+        });
+
+        return {
+            _id: doctor._id,
+            name: doctor.name,
+            specialty: doctor.specialty,
+            avatarUrl: doctor.avatarUrl,
+            patientCount,
+            // These are mocked for now
+            consultationsThisMonth: Math.floor(Math.random() * 50) + 10,
+            satisfaction: (4.5 + Math.random() * 0.5).toFixed(1),
+        };
+    }));
+
+
+    return {
+        metrics: {
+            doctors: doctorCount,
+            parents: parentCount,
+            activeSubscriptions: activeSubscriptions,
+            monthlyRevenue: monthlyRevenue,
+            churnRate: "2.1%", // Mock data
+        },
+        doctors: doctorsSnapshot,
+    };
+};
