@@ -61,7 +61,7 @@ const featuresData: { [key: string]: Feature[] } = {
     },
      {
       icon: BookImage,
-      title: "AI Scrapbook",
+      title: "Scrapbook",
       description: "Capture and cherish every milestone with AI-generated heartfelt captions.",
       details: "Simply upload a photo, and our unique AI assistant helps you write the perfect, loving caption, creating a beautiful digital story of your baby's journey that's easy to share."
     },
