@@ -8,7 +8,7 @@ import { Footer } from '@/components/layout/Footer';
 import { MarketingHeader } from '@/components/layout/MarketingHeader';
 import { AnimatedContent } from '@/components/layout/AnimatedContent';
 import { ScrollAnimationWrapper } from '@/components/layout/ScrollAnimationWrapper';
-import { ShieldCheck, Video, FileText, BookImage, CheckCircle2, XCircle, Quote } from 'lucide-react';
+import { ShieldAlert, ShieldCheck, Video, FileText, BookImage, CheckCircle2, XCircle, Quote } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -147,9 +147,9 @@ export default function ParentsPage() {
                         description="All your child's reports, vaccination schedules, and growth charts, shared securely between you and your hospital."
                     />
                      <FeatureCard
-                        icon={<BookImage className="h-8 w-8 text-primary" />}
-                        title="AI-Powered Scrapbook"
-                        description="Capture every precious milestone. Our Gen-AI helps you write the perfect caption for your photos and videos."
+                        icon={<ShieldAlert className="h-8 w-8 text-primary" />}
+                        title="Emergency Support"
+                        description="Gain immediate access to emergency contacts and guidelines for critical situations."
                     />
                 </div>
             </div>
