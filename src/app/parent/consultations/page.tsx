@@ -7,9 +7,11 @@ import {
   CardTitle,
   CardHeader
 } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { parentData } from "@/lib/data";
 import { ConsultationCard } from "@/components/cards/ConsultationCard";
 import { CareTeamMemberCard } from "@/components/cards/CareTeamMemberCard";
+import { Calendar, Users } from "lucide-react";
 
 export default function ConsultationsPage() {
   const { upcomingConsultations } = parentData;
@@ -51,35 +53,44 @@ export default function ConsultationsPage() {
         </p>
       </div>
 
-      <section>
-        <h2 className="text-2xl font-semibold mb-4">Upcoming Consultations</h2>
-        {upcomingConsultations.length > 0 ? (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {upcomingConsultations.map((consultation) => (
-              <ConsultationCard
-                key={consultation.id}
-                consultation={consultation}
-              />
-            ))}
-          </div>
-        ) : (
-          <Card className="flex flex-col items-center justify-center p-12">
-            <CardTitle>No Upcoming Consultations</CardTitle>
-            <CardDescription className="mt-2">
-              You're all caught up!
-            </CardDescription>
-          </Card>
-        )}
-      </section>
-
-      <section>
-          <h2 className="text-2xl font-semibold mb-4">Your Care Team</h2>
-           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {careTeam.map(member => (
-                  <CareTeamMemberCard key={member.id} member={member} />
-              ))}
-          </div>
-      </section>
+       <Tabs defaultValue="upcoming" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="upcoming">
+                    <Calendar className="mr-2 h-4 w-4" />
+                    Upcoming Appointments
+                </TabsTrigger>
+                <TabsTrigger value="team">
+                    <Users className="mr-2 h-4 w-4" />
+                    Your Care Team
+                </TabsTrigger>
+            </TabsList>
+            <TabsContent value="upcoming" className="mt-6">
+                 {upcomingConsultations.length > 0 ? (
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        {upcomingConsultations.map((consultation) => (
+                        <ConsultationCard
+                            key={consultation.id}
+                            consultation={consultation}
+                        />
+                        ))}
+                    </div>
+                    ) : (
+                    <Card className="flex flex-col items-center justify-center p-12">
+                        <CardTitle>No Upcoming Consultations</CardTitle>
+                        <CardDescription className="mt-2">
+                        You're all caught up!
+                        </CardDescription>
+                    </Card>
+                )}
+            </TabsContent>
+            <TabsContent value="team" className="mt-6">
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {careTeam.map(member => (
+                        <CareTeamMemberCard key={member.id} member={member} />
+                    ))}
+                </div>
+            </TabsContent>
+        </Tabs>
     </div>
   );
 }
