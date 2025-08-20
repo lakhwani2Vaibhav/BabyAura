@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -28,9 +29,6 @@ export function MarketingHeader() {
                 </Link>
                 <Link href="/parents" className="text-sm font-medium hover:underline underline-offset-4">
                     Parents
-                </Link>
-                <Link href="/#testimonials" className="text-sm font-medium hover:underline underline-offset-4">
-                    Testimonials
                 </Link>
                 <Link href="/#pricing" className="text-sm font-medium hover:underline underline-offset-4">
                     Pricing
@@ -77,11 +75,6 @@ export function MarketingHeader() {
                             <SheetClose asChild>
                                 <Link href="/parents" className="text-muted-foreground hover:text-foreground">
                                     For Parents
-                                </Link>
-                            </SheetClose>
-                            <SheetClose asChild>
-                                <Link href="/#testimonials" className="text-muted-foreground hover:text-foreground">
-                                    Testimonials
                                 </Link>
                             </SheetClose>
                             <SheetClose asChild>
