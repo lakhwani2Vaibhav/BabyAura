@@ -390,20 +390,6 @@ export const updateLastLogin = async (userId: string, role: string) => {
 };
 
 
-// Superadmin services (omitted for brevity, no changes needed)
-export const getSuperAdminDashboardData = async () => { /* ... */ };
-export const getAllHospitals = async () => { /* ... */ };
-export const updateHospitalStatus = async (hospitalId: string, status: string) => { /* ... */ };
-export const getHospitalDetails = async (hospitalId: string) => { /* ... */ };
-export const getSuperAdminAnalytics = async () => { /* ... */ };
-
-// Doctor Services
-export const getPatientsByDoctorId = async (doctorId: string) => {
-    if (!db) await init();
-    return parentsCollection.find({ doctorId: doctorId }, { projection: { password: 0 }}).toArray();
-}
-
-
 export const getDoctorDashboardData = async (doctorId: string) => {
     if (!db) await init();
 
@@ -461,15 +447,26 @@ export const getAdminDashboardData = async (hospitalId: string) => {
 
     const doctors = await doctorsCollection.find(
         { hospitalId }, 
-        { projection: { name: 1, specialty: 1, avatarUrl: 1 } }
+        { projection: { name: 1, specialty: 1, avatarUrl: 1, _id: 1 } }
     ).limit(3).toArray();
     
     const doctorsSnapshot = await Promise.all(doctors.map(async (doctor) => {
+        const doctorTeams = await teamsCollection.find({ hospitalId, "members.doctorId": doctor._id }).toArray();
+        const teamIds = doctorTeams.map(t => t._id);
+
         const patientCount = await parentsCollection.countDocuments({
-            $or: [{ doctorId: doctor._id }, { teamId: { $in: (await teamsCollection.find({ hospitalId, "members.doctorId": doctor._id }).toArray()).map(t => t._id) } }]
+            hospitalId: hospitalId,
+            $or: [
+                { doctorId: doctor._id }, 
+                { teamId: { $in: teamIds } }
+            ]
         });
+
         return {
-            ...doctor,
+            _id: doctor._id,
+            name: doctor.name,
+            specialty: doctor.specialty,
+            avatarUrl: doctor.avatarUrl,
             patientCount,
             // These are mocked for now
             consultationsThisMonth: Math.floor(Math.random() * 50) + 10,
@@ -633,4 +630,120 @@ export const getAdminAnalytics = async (hospitalId: string) => {
     return { metrics, analytics };
 };
 
+export const getSuperAdminDashboardData = async () => {
+    if (!db) await init();
+
+    const activeHospitals = await hospitalsCollection.countDocuments({ status: 'verified' });
+    const parentCount = await parentsCollection.countDocuments();
+    const doctorCount = await doctorsCollection.countDocuments();
+    const totalUsers = parentCount + doctorCount;
+
+    const subscriptions = await subscriptionsCollection.find({ status: 'Active' }).toArray();
+    const planIds = subscriptions.map(s => s.planId);
+    const plans = await plansCollection.find({ _id: { $in: planIds } }).toArray();
+    const planPriceMap = new Map(plans.map(p => [p._id, p.monthlyPrice]));
+
+    const totalMRR = subscriptions.reduce((total, sub) => {
+        return total + (planPriceMap.get(sub.planId) || 0);
+    }, 0);
+
+    const onboardingRequests = await hospitalsCollection.find(
+        { status: 'pending_verification' },
+        { projection: { hospitalName: 1, createdAt: 1, _id: 1 } }
+    ).sort({ createdAt: -1 }).limit(5).toArray();
+
+    // Mock data for user activity and churn rate
+    const userActivity = await parentsCollection.countDocuments({ lastLogin: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } });
     
+    return {
+        metrics: {
+            activeHospitals,
+            totalUsers,
+            totalMRR,
+            churnRate: "1.2%", // Mock
+            userActivity
+        },
+        onboardingRequests
+    };
+};
+
+export const getAllHospitals = async () => {
+    if (!db) await init();
+    return hospitalsCollection.find({}, { projection: { password: 0 } }).toArray();
+};
+
+export const updateHospitalStatus = async (hospitalId: string, status: string) => {
+    if (!db) await init();
+    return hospitalsCollection.updateOne({ _id: hospitalId }, { $set: { status: status, updatedAt: new Date() } });
+};
+
+export const getHospitalDetails = async (hospitalId: string) => {
+    if (!db) await init();
+    const hospital = await hospitalsCollection.findOne({ _id: hospitalId }, { projection: { password: 0 } });
+    if (!hospital) return null;
+
+    const doctors = await doctorsCollection.find({ hospitalId: hospital._id }, { projection: { password: 0 } }).toArray();
+    const parents = await parentsCollection.find({ hospitalId: hospital._id }, { projection: { password: 0 } }).toArray();
+
+    const teams = await teamsCollection.find({ hospitalId: hospital._id }).toArray();
+    const teamMap = new Map(teams.map(team => [team._id, team.name]));
+    
+    const parentsWithDoctor = await Promise.all(parents.map(async (parent) => {
+        let assignedDoctor = "Unassigned";
+        if (parent.teamId) {
+            assignedDoctor = teamMap.get(parent.teamId) || "Unassigned Team";
+        } else if (parent.doctorId) {
+            const doctor = await doctorsCollection.findOne({ _id: parent.doctorId });
+            assignedDoctor = doctor?.name || "Unassigned";
+        }
+        return { ...parent, assignedDoctor };
+    }));
+    
+    const documents = await db.collection('documents').findOne({ hospitalId });
+
+    return { ...hospital, doctors, parents: parentsWithDoctor, documents: documents?.documents || [] };
+};
+
+export const getSuperAdminAnalytics = async () => {
+  if (!db) await init();
+  
+  const totalHospitals = await hospitalsCollection.countDocuments();
+  const totalParents = await parentsCollection.countDocuments();
+  const totalDoctors = await doctorsCollection.countDocuments();
+
+  const subscriptions = await subscriptionsCollection.find({ status: 'Active' }).toArray();
+  const planIds = subscriptions.map(s => s.planId);
+  const plans = await plansCollection.find({ _id: { $in: planIds } }).toArray();
+  const planPriceMap = new Map(plans.map(p => [p._id, p.monthlyPrice]));
+  const platformMRR = subscriptions.reduce((total, sub) => {
+      return total + (planPriceMap.get(sub.planId) || 0);
+  }, 0);
+
+
+  return {
+    totalHospitals,
+    totalUsers: totalParents + totalDoctors,
+    platformMRR,
+    growthRate: 12, // Mock
+    monthlyRevenue: [
+        { month: "Jan", revenue: 120000 },
+        { month: "Feb", revenue: 130000 },
+        { month: "Mar", revenue: 145000 },
+        { month: "Apr", revenue: 155000 },
+        { month: "May", revenue: 160000 },
+        { month: "Jun", revenue: 170000 },
+    ],
+    userGrowth: [
+        { month: "Jan", parents: 8000, doctors: 800 },
+        { month: "Feb", parents: 9000, doctors: 850 },
+        { month: "Mar", parents: 10500, doctors: 900 },
+        { month: "Apr", parents: 12000, doctors: 950 },
+        { month: "May", parents: 13000, doctors: 1000 },
+        { month: "Jun", parents: 14800, doctors: 1100 },
+    ]
+  };
+};
+
+    
+
+```
