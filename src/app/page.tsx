@@ -20,6 +20,7 @@ import {
   Building,
   GraduationCap,
   Sparkles,
+  HeartHandshake,
 } from 'lucide-react';
 import { Footer } from '@/components/layout/Footer';
 import { MarketingHeader } from '@/components/layout/MarketingHeader';
@@ -65,7 +66,7 @@ export default function Home() {
       { name: 'Dedicated Dietician Support', info: 'Get support from a dedicated dietician.' },
       { name: 'Automated Essentials Delivery', info: 'Automated delivery of baby essentials.' },
       { name: 'AI Assistance', info: 'Get AI-powered assistance for your queries.' },
-      { name: 'Early Access to Beta Updates', info: 'Get early access to our new features.' },
+      { name: 'Dedicated Nurse Conceirge', info: 'Your personal nurse for all non-emergency queries.' },
   ];
 
   const planFeatures = {
@@ -79,7 +80,7 @@ export default function Home() {
       'Dedicated Dietician Support': true,
       'Automated Essentials Delivery': false,
       'AI Assistance': true,
-      'Early Access to Beta Updates': false,
+      'Dedicated Nurse Conceirge': false,
     },
     premium: {
       'Dedicated Pediatrics Support': true,
@@ -91,7 +92,7 @@ export default function Home() {
       'Dedicated Dietician Support': true,
       'Automated Essentials Delivery': true,
       'AI Assistance': true,
-      'Early Access to Beta Updates': true,
+      'Dedicated Nurse Conceirge': false,
     }
   };
 
@@ -125,7 +126,7 @@ export default function Home() {
                     </ScrollAnimationWrapper>
                     <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-top-2 duration-1000 ease-out delay-200">
                       <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                        BabyAura helps hospitals seamlessly transition new parents into a year-long program of continuous care, offering everything from tele-consultations and 24/7 support to vaccination tracking and milestone monitoring.
+                        BabyAura helps hospitals seamlessly onboard new parents at discharge into a year-long care program—offering pediatric, nutrition, and psychology consultations, 24/7 specialist chat, nurse concierge for daily queries, vaccination tracking, and emergency support.
                       </p>
                     </ScrollAnimationWrapper>
                   </div>
