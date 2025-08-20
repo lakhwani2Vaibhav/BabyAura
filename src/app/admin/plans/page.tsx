@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -28,11 +28,23 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
-import { PlusCircle, Trash2, Loader2, FileHeart, CheckCircle2, XCircle } from "lucide-react";
+import { PlusCircle, Trash2, Loader2, CheckCircle2, Bot, HeartHandshake, ChevronDown, ChevronRight, Stethoscope, Utensils, Brain, Phone } from "lucide-react";
 import { CostBreakdown } from "@/components/hospitals/CostBreakdown";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
+import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
 
 const offerSchema = z.object({
   text: z.string().min(3, "Offer text is too short."),
+});
+
+const servicesSchema = z.object({
+    pediatrics: z.boolean().default(false),
+    nutrition: z.boolean().default(false),
+    therapy: z.boolean().default(false),
+    emergency: z.boolean().default(false),
+    chat: z.boolean().default(false),
+    nurse: z.boolean().default(false),
 });
 
 const planSchema = z.object({
@@ -40,31 +52,40 @@ const planSchema = z.object({
   monthlyPrice: z.coerce.number().min(0, "Price must be a positive number."),
   annualPrice: z.coerce.number().min(0, "Price must be a positive number."),
   description: z.string().min(10, "Description is required."),
-  features: z.array(offerSchema),
+  services: servicesSchema,
+  customFeatures: z.array(offerSchema),
   isMostPopular: z.boolean(),
   babyaura360Enabled: z.boolean(),
 });
 
 type PlanFormValues = z.infer<typeof planSchema>;
 
-const serviceFeatures = [
-    { name: 'Dedicated Pediatrics Support', info: '24/7 access to our pediatricians.' },
-    { name: '24/7 Call Assistance', info: 'Immediate help via call anytime.' },
-    { name: 'Growth Trackers & Milestones', info: 'Track your baby\'s growth and milestones.' },
-    { name: 'Immunization Alerts & Support', info: 'Get alerts for upcoming immunizations.' },
-    { name: 'Health Feedback & Prescription Reminders', info: 'Reminders for prescriptions and health feedback.' },
-    { name: 'Quick Chat/Call Support', info: 'Quick support via chat or call.' },
-    { name: 'Dedicated Dietician Support', info: 'Get support from a dedicated dietician.' },
-    { name: 'Automated Essentials Delivery', info: 'Automated delivery of baby essentials.' },
-    { name: 'AI Assistance', info: 'Get AI-powered assistance for your queries.' },
-    { name: 'Dedicated Nurse Concierge', info: 'Your personal nurse for all non-emergency queries.' },
+const platformFeatures = [
+    { name: 'Growth Trackers & Milestones', icon: CheckCircle2 },
+    { name: 'Immunization Alerts & Support', icon: CheckCircle2 },
+    { name: 'Health Feedback & Prescription Reminders', icon: CheckCircle2 },
+    { name: 'AI Assistance for queries', icon: Bot },
+    { name: 'Automated Essentials Delivery', icon: CheckCircle2 },
 ];
+
+const coreServices = [
+    { id: 'pediatrics', label: 'Dedicated Pediatrics Support', icon: Stethoscope },
+    { id: 'nutrition', label: 'Dedicated Dietician Support', icon: Utensils },
+    { id: 'therapy', label: 'Mind Therapist Sessions', icon: Brain },
+    { id: 'emergency', label: '24/7 Call Assistance', icon: Phone },
+    { id: 'chat', label: 'Quick Chat/Call Support', icon: HeartHandshake },
+    { id: 'nurse', label: 'Dedicated Nurse Concierge', icon: Stethoscope },
+] as const;
+
 
 export default function ManagePlansPage() {
   const { toast } = useToast();
   const { user } = useAuth();
   const [plans, setPlans] = useState<PlanFormValues[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isOpenPlatform, setIsOpenPlatform] = useState(true);
+  const [isOpenCore, setIsOpenCore] = useState(true);
+  const [isOpenCustom, setIsOpenCustom] = useState(false);
 
   const form = useForm<PlanFormValues>({
     resolver: zodResolver(planSchema),
@@ -73,7 +94,15 @@ export default function ManagePlansPage() {
       monthlyPrice: 0,
       annualPrice: 0,
       description: "",
-      features: [{ text: "" }],
+      services: {
+        pediatrics: true,
+        nutrition: true,
+        therapy: false,
+        emergency: true,
+        chat: true,
+        nurse: false,
+      },
+      customFeatures: [{ text: "" }],
       isMostPopular: false,
       babyaura360Enabled: false,
     },
@@ -81,7 +110,7 @@ export default function ManagePlansPage() {
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: "features",
+    name: "customFeatures",
   });
   
   useEffect(() => {
@@ -98,7 +127,7 @@ export default function ManagePlansPage() {
       title: "Plan Saved!",
       description: `The "${data.planName}" plan has been successfully saved.`,
     });
-    form.reset();
+    // form.reset(); // Commented out to allow previewing the saved plan
   };
 
   return (
@@ -176,57 +205,97 @@ export default function ManagePlansPage() {
                       </FormItem>
                     )}
                   />
-
-                  <div>
-                    <FormLabel>Features / Offerings</FormLabel>
-                    <div className="space-y-2 mt-2">
-                        {serviceFeatures.map(feature => (
-                             <div key={feature.name} className="flex items-center gap-2 p-2 rounded-md border bg-muted/50">
-                                <CheckCircle2 className="h-4 w-4 text-green-500" />
-                                <p className="text-sm font-medium flex-1">{feature.name}</p>
-                            </div>
-                        ))}
-                    </div>
-                  </div>
                   
-                  <div>
-                    <FormLabel>Custom Add-ons / Offers</FormLabel>
-                     <div className="space-y-2 mt-2">
-                        {fields.map((field, index) => (
-                          <div key={field.id} className="flex items-center gap-2">
-                            <FormField
-                              control={form.control}
-                              name={`features.${index}.text`}
-                              render={({ field }) => (
-                                <FormItem className="flex-1">
-                                  <FormControl>
-                                    <Input placeholder="e.g., 20% off at the clinic" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                             <Button
-                                type="button"
-                                variant="destructive"
-                                size="icon"
-                                onClick={() => remove(index)}
-                                disabled={fields.length <= 1}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                          </div>
-                        ))}
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => append({ text: "" })}
-                        >
-                          <PlusCircle className="mr-2 h-4 w-4" />
-                          Add Feature
-                        </Button>
-                      </div>
+                  {/* Features Section */}
+                  <div className="space-y-4 rounded-lg border p-4">
+                     <Collapsible open={isOpenPlatform} onOpenChange={setIsOpenPlatform}>
+                        <CollapsibleTrigger className="flex w-full items-center justify-between">
+                            <h4 className="text-md font-semibold">BabyAura Platform Features</h4>
+                            {isOpenPlatform ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="space-y-2 pt-2">
+                             {platformFeatures.map(feature => (
+                                 <div key={feature.name} className="flex items-center gap-2 p-2 rounded-md bg-muted/50 text-sm">
+                                    <feature.icon className="h-4 w-4 text-primary" />
+                                    <p className="font-medium flex-1 text-muted-foreground">{feature.name}</p>
+                                </div>
+                            ))}
+                        </CollapsibleContent>
+                     </Collapsible>
+                     <Collapsible open={isOpenCore} onOpenChange={setIsOpenCore}>
+                        <CollapsibleTrigger className="flex w-full items-center justify-between">
+                             <h4 className="text-md font-semibold">Core Medical Services</h4>
+                             {isOpenCore ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="space-y-3 pt-2">
+                           <FormDescription>Select the services to include in this plan.</FormDescription>
+                           {coreServices.map(service => (
+                               <FormField
+                                    key={service.id}
+                                    control={form.control}
+                                    name={`services.${service.id}`}
+                                    render={({ field }) => (
+                                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3">
+                                        <FormControl>
+                                            <Checkbox
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                            />
+                                        </FormControl>
+                                        <div className="space-y-1 leading-none">
+                                            <FormLabel className="flex items-center gap-2">
+                                                <service.icon className="h-4 w-4" /> {service.label}
+                                            </FormLabel>
+                                        </div>
+                                    </FormItem>
+                                    )}
+                                />
+                           ))}
+                        </CollapsibleContent>
+                     </Collapsible>
+
+                      <Collapsible open={isOpenCustom} onOpenChange={setIsOpenCustom}>
+                        <CollapsibleTrigger className="flex w-full items-center justify-between">
+                             <h4 className="text-md font-semibold">Custom Add-ons / Offers</h4>
+                             {isOpenCustom ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="space-y-3 pt-2">
+                            {fields.map((field, index) => (
+                              <div key={field.id} className="flex items-center gap-2">
+                                <FormField
+                                  control={form.control}
+                                  name={`customFeatures.${index}.text`}
+                                  render={({ field }) => (
+                                    <FormItem className="flex-1">
+                                      <FormControl>
+                                        <Input placeholder="e.g., 20% off at the clinic" {...field} />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="icon"
+                                    onClick={() => remove(index)}
+                                    disabled={fields.length <= 1}
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            ))}
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => append({ text: "" })}
+                            >
+                              <PlusCircle className="mr-2 h-4 w-4" />
+                              Add Custom Offer
+                            </Button>
+                        </CollapsibleContent>
+                     </Collapsible>
                   </div>
 
                   <FormField
@@ -288,7 +357,8 @@ export default function ManagePlansPage() {
             )}
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {plans.map((plan, index) => (
-                    <Card key={index} className="flex flex-col">
+                    <Card key={index} className={cn("flex flex-col", plan.isMostPopular && "border-2 border-primary")}>
+                        {plan.isMostPopular && <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">Most Popular</Badge>}
                         <CardHeader>
                             <CardTitle>{plan.planName}</CardTitle>
                             <CardDescription>{plan.description}</CardDescription>
@@ -296,7 +366,13 @@ export default function ManagePlansPage() {
                         </CardHeader>
                         <CardContent className="flex-1">
                              <ul className="space-y-2">
-                                {plan.features.map((feature, fIndex) => (
+                                {coreServices.filter(s => plan.services[s.id]).map(s => (
+                                    <li key={s.id} className="flex items-center gap-2 text-sm">
+                                        <CheckCircle2 className="h-4 w-4 text-green-500" />
+                                        <span>{s.label}</span>
+                                    </li>
+                                ))}
+                                {plan.customFeatures.map((feature, fIndex) => feature.text && (
                                     <li key={fIndex} className="flex items-center gap-2 text-sm">
                                         <CheckCircle2 className="h-4 w-4 text-green-500" />
                                         <span>{feature.text}</span>

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -18,10 +18,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, ArrowLeft, Hospital, Loader2, User } from "lucide-react";
+import { AlertCircle, ArrowLeft, Hospital, Loader2, User, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "../ui/textarea";
+import { cn } from "@/lib/utils";
 
 const hospitalCodeSchema = z.object({
   hospitalCode: z.string().min(1, { message: "Please enter a hospital code." }),
@@ -39,18 +40,26 @@ const parentSchema = z.object({
 
 type HospitalCodeValues = z.infer<typeof hospitalCodeSchema>;
 type ParentValues = z.infer<typeof parentSchema>;
+type Plan = {
+    _id: string;
+    planName: string;
+    monthlyPrice: number;
+    description: string;
+    services: any;
+    customFeatures: { text: string }[];
+    isMostPopular: boolean;
+};
 
 
-const validHospitalCode = "GAH789";
-
-
-type Step = 'initial' | 'enterCode' | 'confirmHospital' | 'affiliatedDetails' | 'independentDetails';
+type Step = 'initial' | 'enterCode' | 'confirmHospital' | 'selectPlan' | 'affiliatedDetails' | 'independentDetails';
 
 export function RegisterForm() {
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<Step>('initial');
   const [hospitalCode, setHospitalCode] = useState("");
   const [hospitalName, setHospitalName] = useState("");
+  const [hospitalPlans, setHospitalPlans] = useState<Plan[]>([]);
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const { toast } = useToast();
   const { login } = useAuth();
@@ -73,12 +82,18 @@ export function RegisterForm() {
             throw new Error(result.message);
         }
         setHospitalName(result.hospitalName);
+        setHospitalPlans(result.plans || []);
         setStep('confirmHospital');
     } catch (err: any) {
         setError(err.message || "An error occurred during verification.");
     } finally {
         setIsVerifying(false);
     }
+  };
+  
+   const handleSelectPlan = (planId: string) => {
+    setSelectedPlanId(planId);
+    setStep('affiliatedDetails');
   };
 
   const ParentDetailsForm = ({ isAffiliated }: { isAffiliated: boolean }) => {
@@ -99,6 +114,7 @@ export function RegisterForm() {
         };
         if (isAffiliated) {
             payload.hospitalCode = hospitalCode;
+            payload.planId = selectedPlanId;
         }
 
         const response = await fetch('/api/auth/register', {
@@ -239,7 +255,7 @@ export function RegisterForm() {
               <div className="p-4 bg-muted rounded-md">
                 <p className="font-bold text-lg">{hospitalName}</p>
               </div>
-              <Button onClick={() => setStep('affiliatedDetails')} className="w-full">
+              <Button onClick={() => setStep(hospitalPlans.length > 0 ? 'selectPlan' : 'affiliatedDetails')} className="w-full">
                 Yes, Continue Signup
               </Button>
               <Button variant="outline" onClick={() => { setStep('enterCode'); setError(null); }} className="w-full">
@@ -249,13 +265,42 @@ export function RegisterForm() {
           </>
         );
 
+      case 'selectPlan':
+        return (
+          <>
+             <CardHeader className="text-center">
+                <CardTitle className="text-2xl font-headline">Select a Care Plan</CardTitle>
+                <CardDescription>Choose a plan from {hospitalName} to continue.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                {hospitalPlans.map(plan => (
+                    <div 
+                        key={plan._id}
+                        onClick={() => handleSelectPlan(plan._id)}
+                        className={cn(
+                            "rounded-lg border p-4 cursor-pointer transition-all",
+                            selectedPlanId === plan._id ? "border-primary ring-2 ring-primary" : "hover:bg-muted/50"
+                        )}
+                    >
+                        <h4 className="font-bold">{plan.planName}</h4>
+                        <p className="text-sm text-muted-foreground">{plan.description}</p>
+                        <p className="font-bold mt-2">₹{plan.monthlyPrice}/month</p>
+                    </div>
+                ))}
+                {hospitalPlans.length === 0 && <p className="text-center text-muted-foreground">This hospital has not configured any plans yet.</p>}
+            </CardContent>
+          </>
+        );
+
+
       case 'affiliatedDetails':
       case 'independentDetails':
         const isAffiliated = step === 'affiliatedDetails';
+        const backStep = isAffiliated ? (hospitalPlans.length > 0 ? 'selectPlan' : 'confirmHospital') : 'initial';
         return (
           <>
             <CardHeader className="text-center relative">
-              <Button variant="ghost" size="sm" className="absolute left-4 top-4" onClick={() => setStep(isAffiliated ? 'confirmHospital' : 'initial')}>
+              <Button variant="ghost" size="sm" className="absolute left-4 top-4" onClick={() => setStep(backStep)}>
                 <ArrowLeft className="h-4 w-4 mr-1" /> Back
               </Button>
               <CardTitle className="text-2xl font-headline pt-8">Create Your Account</CardTitle>
