@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from "next/server";
-import { findHospitalByCode } from "@/services/user-service";
+import { findHospitalByCode, getPlansByHospital } from "@/services/user-service";
 
 export async function POST(req: NextRequest) {
   try {
@@ -22,7 +22,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    return NextResponse.json({ hospitalName: hospital.hospitalName }, { status: 200 });
+    const plans = await getPlansByHospital(hospital._id);
+
+    return NextResponse.json({ 
+        hospitalName: hospital.hospitalName,
+        plans: plans 
+    }, { status: 200 });
 
   } catch (error) {
     console.error("Hospital code verification error:", error);

@@ -28,12 +28,14 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
-import { PlusCircle, Trash2, Loader2, CheckCircle2, Bot, HeartHandshake, ChevronDown, ChevronRight, Stethoscope, Utensils, Brain, Phone } from "lucide-react";
+import { PlusCircle, Trash2, Loader2, CheckCircle2, Bot, HeartHandshake, ChevronDown, ChevronRight, Stethoscope, Utensils, Brain, Phone, Edit } from "lucide-react";
 import { CostBreakdown } from "@/components/hospitals/CostBreakdown";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
+
 
 const offerSchema = z.object({
   text: z.string().min(3, "Offer text is too short."),
@@ -49,6 +51,7 @@ const servicesSchema = z.object({
 });
 
 const planSchema = z.object({
+  _id: z.string().optional(),
   planName: z.string().min(3, "Plan name is required."),
   monthlyPrice: z.coerce.number().min(0, "Price must be a positive number."),
   annualPrice: z.coerce.number().min(0, "Price must be a positive number."),
@@ -87,6 +90,7 @@ export default function ManagePlansPage() {
   const [isOpenPlatform, setIsOpenPlatform] = useState(true);
   const [isOpenCore, setIsOpenCore] = useState(true);
   const [isOpenCustom, setIsOpenCustom] = useState(false);
+  const [editingPlan, setEditingPlan] = useState<PlanFormValues | null>(null);
 
   const form = useForm<PlanFormValues>({
     resolver: zodResolver(planSchema),
@@ -120,16 +124,44 @@ export default function ManagePlansPage() {
     setIsLoading(false);
   }, [user]);
 
-  const onSubmit = (data: PlanFormValues) => {
-    // In a real app, you'd send this to your API
-    console.log(data);
-    setPlans(prev => [...prev, data]);
-    toast({
-      title: "Plan Saved!",
-      description: `The "${data.planName}" plan has been successfully saved.`,
-    });
-    // form.reset(); // Commented out to allow previewing the saved plan
+  const onSubmit = async (data: PlanFormValues) => {
+    try {
+        const token = localStorage.getItem('babyaura_token');
+        const response = await fetch('/api/admin/plans', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to save plan');
+        }
+        
+        toast({
+            title: "Plan Saved!",
+            description: `The "${data.planName}" plan has been successfully saved.`,
+        });
+
+        // Refetch or update local state
+        const updatedPlansResponse = await fetch('/api/admin/plans', { headers: { 'Authorization': `Bearer ${token}` } });
+        setPlans(await updatedPlansResponse.json());
+        
+        form.reset();
+        setEditingPlan(null);
+
+    } catch (error) {
+        toast({
+            variant: "destructive",
+            title: "Error saving plan",
+            description: "Could not save the plan. Please try again.",
+        });
+    }
   };
+
+  const handleEditClick = (plan: PlanFormValues) => {
+      setEditingPlan(plan);
+      form.reset(plan);
+  }
 
   return (
     <div className="space-y-8">
@@ -141,215 +173,228 @@ export default function ManagePlansPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        <div className="lg:col-span-1">
-          <Card>
-            <CardHeader>
-              <CardTitle>Create New Plan</CardTitle>
-              <CardDescription>
-                Design a new subscription plan from scratch.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  <FormField
-                    control={form.control}
-                    name="planName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Plan Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="e.g., Basic Care" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <div className="grid grid-cols-2 gap-4">
+        <Dialog open={!!editingPlan} onOpenChange={(isOpen) => !isOpen && setEditingPlan(null)}>
+            <div className="lg:col-span-1">
+            <Card>
+                <CardHeader>
+                <CardTitle>Create New Plan</CardTitle>
+                <CardDescription>
+                    Design a new subscription plan from scratch.
+                </CardDescription>
+                </CardHeader>
+                <CardContent>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                     <FormField
-                      control={form.control}
-                      name="monthlyPrice"
-                      render={({ field }) => (
+                        control={form.control}
+                        name="planName"
+                        render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Monthly Price (₹)</FormLabel>
-                          <FormControl>
-                            <Input type="number" {...field} />
-                          </FormControl>
-                          <FormMessage />
+                            <FormLabel>Plan Name</FormLabel>
+                            <FormControl>
+                            <Input placeholder="e.g., Basic Care" {...field} />
+                            </FormControl>
+                            <FormMessage />
                         </FormItem>
-                      )}
+                        )}
                     />
+                    <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                        control={form.control}
+                        name="monthlyPrice"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Monthly Price (₹)</FormLabel>
+                            <FormControl>
+                                <Input type="number" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                        <FormField
+                        control={form.control}
+                        name="annualPrice"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Annual Price (₹)</FormLabel>
+                            <FormControl>
+                                <Input type="number" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                    </div>
                     <FormField
-                      control={form.control}
-                      name="annualPrice"
-                      render={({ field }) => (
+                        control={form.control}
+                        name="description"
+                        render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Annual Price (₹)</FormLabel>
-                          <FormControl>
-                            <Input type="number" {...field} />
-                          </FormControl>
-                          <FormMessage />
+                            <FormLabel>Short Description</FormLabel>
+                            <FormControl>
+                            <Textarea placeholder="A brief summary of the plan" {...field} />
+                            </FormControl>
+                            <FormMessage />
                         </FormItem>
-                      )}
+                        )}
                     />
-                  </div>
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Short Description</FormLabel>
-                        <FormControl>
-                          <Textarea placeholder="A brief summary of the plan" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  {/* Features Section */}
-                  <div className="space-y-4 rounded-lg border p-4">
-                     <Collapsible open={isOpenPlatform} onOpenChange={setIsOpenPlatform}>
-                        <CollapsibleTrigger className="flex w-full items-center justify-between">
-                            <h4 className="text-md font-semibold">BabyAura Platform Features</h4>
-                            {isOpenPlatform ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                        </CollapsibleTrigger>
-                        <CollapsibleContent className="space-y-2 pt-2">
-                             {platformFeatures.map(feature => (
-                                 <div key={feature.name} className="flex items-center gap-2 p-2 rounded-md bg-muted/50 text-sm">
-                                    <feature.icon className="h-4 w-4 text-primary" />
-                                    <p className="font-medium flex-1 text-muted-foreground">{feature.name}</p>
-                                </div>
-                            ))}
-                        </CollapsibleContent>
-                     </Collapsible>
-                     <Collapsible open={isOpenCore} onOpenChange={setIsOpenCore}>
-                        <CollapsibleTrigger className="flex w-full items-center justify-between">
-                             <h4 className="text-md font-semibold">Core Medical Services</h4>
-                             {isOpenCore ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                        </CollapsibleTrigger>
-                        <CollapsibleContent className="space-y-3 pt-2">
-                           <FormDescription>Select the services to include in this plan.</FormDescription>
-                           {coreServices.map(service => (
-                               <FormField
-                                    key={service.id}
-                                    control={form.control}
-                                    name={`services.${service.id}`}
-                                    render={({ field }) => (
-                                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3">
-                                        <FormControl>
-                                            <Checkbox
-                                                checked={field.value}
-                                                onCheckedChange={field.onChange}
-                                            />
-                                        </FormControl>
-                                        <div className="space-y-1 leading-none">
-                                            <FormLabel className="flex items-center gap-2">
-                                                <service.icon className="h-4 w-4" /> {service.label}
-                                            </FormLabel>
-                                        </div>
-                                    </FormItem>
-                                    )}
-                                />
-                           ))}
-                        </CollapsibleContent>
-                     </Collapsible>
-
-                      <Collapsible open={isOpenCustom} onOpenChange={setIsOpenCustom}>
-                        <CollapsibleTrigger className="flex w-full items-center justify-between">
-                             <h4 className="text-md font-semibold">Custom Add-ons / Offers</h4>
-                             {isOpenCustom ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                        </CollapsibleTrigger>
-                        <CollapsibleContent className="space-y-3 pt-2">
-                            {fields.map((field, index) => (
-                              <div key={field.id} className="flex items-center gap-2">
+                    
+                    {/* Features Section */}
+                    <div className="space-y-4 rounded-lg border p-4">
+                        <Collapsible open={isOpenPlatform} onOpenChange={setIsOpenPlatform}>
+                            <CollapsibleTrigger className="flex w-full items-center justify-between">
+                                <h4 className="text-md font-semibold">BabyAura Platform Features</h4>
+                                {isOpenPlatform ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                            </CollapsibleTrigger>
+                            <CollapsibleContent className="space-y-2 pt-2">
+                                {platformFeatures.map(feature => (
+                                    <div key={feature.name} className="flex items-center gap-2 p-2 rounded-md bg-muted/50 text-sm">
+                                        <feature.icon className="h-4 w-4 text-primary" />
+                                        <p className="font-medium flex-1 text-muted-foreground">{feature.name}</p>
+                                    </div>
+                                ))}
+                            </CollapsibleContent>
+                        </Collapsible>
+                        <Collapsible open={isOpenCore} onOpenChange={setIsOpenCore}>
+                            <CollapsibleTrigger className="flex w-full items-center justify-between">
+                                <h4 className="text-md font-semibold">Core Medical Services</h4>
+                                {isOpenCore ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                            </CollapsibleTrigger>
+                            <CollapsibleContent className="space-y-3 pt-2">
+                            <FormDescription>Select the services to include in this plan.</FormDescription>
+                            {coreServices.map(service => (
                                 <FormField
-                                  control={form.control}
-                                  name={`customFeatures.${index}.text`}
-                                  render={({ field }) => (
-                                    <FormItem className="flex-1">
-                                      <FormControl>
-                                        <Input placeholder="e.g., 20% off at the clinic" {...field} />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                                <Button
-                                    type="button"
-                                    variant="destructive"
-                                    size="icon"
-                                    onClick={() => remove(index)}
-                                    disabled={fields.length <= 1}
-                                >
-                                    <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
+                                        key={service.id}
+                                        control={form.control}
+                                        name={`services.${service.id}`}
+                                        render={({ field }) => (
+                                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3">
+                                            <FormControl>
+                                                <Checkbox
+                                                    checked={field.value}
+                                                    onCheckedChange={field.onChange}
+                                                />
+                                            </FormControl>
+                                            <div className="space-y-1 leading-none">
+                                                <FormLabel className="flex items-center gap-2">
+                                                    <service.icon className="h-4 w-4" /> {service.label}
+                                                </FormLabel>
+                                            </div>
+                                        </FormItem>
+                                        )}
+                                    />
                             ))}
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => append({ text: "" })}
-                            >
-                              <PlusCircle className="mr-2 h-4 w-4" />
-                              Add Custom Offer
-                            </Button>
-                        </CollapsibleContent>
-                     </Collapsible>
-                  </div>
+                            </CollapsibleContent>
+                        </Collapsible>
 
-                  <FormField
-                    control={form.control}
-                    name="isMostPopular"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                        <div className="space-y-0.5">
-                          <FormLabel>Mark as Most Popular</FormLabel>
-                          <FormDescription>
-                            This will highlight the plan for parents.
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
+                        <Collapsible open={isOpenCustom} onOpenChange={setIsOpenCustom}>
+                            <CollapsibleTrigger className="flex w-full items-center justify-between">
+                                <h4 className="text-md font-semibold">Custom Add-ons / Offers</h4>
+                                {isOpenCustom ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                            </CollapsibleTrigger>
+                            <CollapsibleContent className="space-y-3 pt-2">
+                                {fields.map((field, index) => (
+                                <div key={field.id} className="flex items-center gap-2">
+                                    <FormField
+                                    control={form.control}
+                                    name={`customFeatures.${index}.text`}
+                                    render={({ field }) => (
+                                        <FormItem className="flex-1">
+                                        <FormControl>
+                                            <Input placeholder="e.g., 20% off at the clinic" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                        </FormItem>
+                                    )}
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="icon"
+                                        onClick={() => remove(index)}
+                                        disabled={fields.length <= 1}
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                                ))}
+                                <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => append({ text: "" })}
+                                >
+                                <PlusCircle className="mr-2 h-4 w-4" />
+                                Add Custom Offer
+                                </Button>
+                            </CollapsibleContent>
+                        </Collapsible>
+                    </div>
 
-                   <FormField
-                    control={form.control}
-                    name="babyaura360Enabled"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-primary/5">
-                        <div className="space-y-0.5">
-                          <FormLabel>Enable BabyAura 360°</FormLabel>
-                          <FormDescription>
-                            Use our in-house specialists on a revenue-share model.
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-                     {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Save Plan
-                  </Button>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
-        </div>
+                    <FormField
+                        control={form.control}
+                        name="isMostPopular"
+                        render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                            <div className="space-y-0.5">
+                            <FormLabel>Mark as Most Popular</FormLabel>
+                            <FormDescription>
+                                This will highlight the plan for parents.
+                            </FormDescription>
+                            </div>
+                            <FormControl>
+                            <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                            />
+                            </FormControl>
+                        </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="babyaura360Enabled"
+                        render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-primary/5">
+                            <div className="space-y-0.5">
+                            <FormLabel>Enable BabyAura 360°</FormLabel>
+                            <FormDescription>
+                                Use our in-house specialists on a revenue-share model.
+                            </FormDescription>
+                            </div>
+                            <FormControl>
+                            <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                            />
+                            </FormControl>
+                        </FormItem>
+                        )}
+                    />
+                    
+                    <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+                        {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Save Plan
+                    </Button>
+                    </form>
+                </Form>
+                </CardContent>
+            </Card>
+            </div>
+             <DialogContent className="lg:max-w-2xl">
+                <DialogHeader>
+                    <DialogTitle>Edit Plan</DialogTitle>
+                    <DialogDescription>
+                        Make changes to the "{editingPlan?.planName}" plan and save.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="max-h-[70vh] overflow-y-auto -mx-6 px-6">
+                    {/* The form is outside but controlled by this dialog's state */}
+                </div>
+            </DialogContent>
+        </Dialog>
 
         <div className="lg:col-span-2 space-y-6">
             <h2 className="text-xl font-semibold">Plan Previews</h2>
@@ -382,7 +427,9 @@ export default function ManagePlansPage() {
                             </ul>
                         </CardContent>
                         <CardFooter>
-                            <Button className="w-full" variant="outline">Preview</Button>
+                            <Button className="w-full" variant="outline" onClick={() => handleEditClick(plan)}>
+                                <Edit className="mr-2 h-4 w-4" /> Edit Plan
+                            </Button>
                         </CardFooter>
                     </Card>
                 ))}

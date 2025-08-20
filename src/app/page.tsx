@@ -126,7 +126,7 @@ export default function Home() {
                     </ScrollAnimationWrapper>
                     <ScrollAnimationWrapper animationClasses="animate-in fade-in slide-in-from-top-2 duration-1000 ease-out delay-200">
                       <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                        BabyAura helps hospitals seamlessly onboard new parents at discharge into a year-long care program—offering pediatric, nutrition, and psychology consultations, 24/7 specialist chat, nurse concierge for daily queries, vaccination tracking, and emergency support.
+                         Helping hospitals deliver continuous newborn care and parental guidance digitally—through expert consultations, vaccination tracking, emergency support, and 24/7 assistance to ensure healthy growth and peace of mind for every family.
                       </p>
                     </ScrollAnimationWrapper>
                   </div>

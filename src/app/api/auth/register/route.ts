@@ -2,7 +2,7 @@
 'use server';
 
 import { NextRequest, NextResponse } from "next/server";
-import { findUserByEmail, createUser, getHospitalByDoctorId, findHospitalById, findHospitalByCode } from "@/services/user-service";
+import { findUserByEmail, createUser, getHospitalByDoctorId, findHospitalById, findHospitalByCode, createSubscription } from "@/services/user-service";
 import jwt from 'jsonwebtoken';
 import { jwtDecode } from "jwt-decode";
 import * as brevo from '@getbrevo/brevo';
@@ -56,7 +56,7 @@ const getAuthenticatedProfessional = async (req: NextRequest) => {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    let { name, email, password, role, registeredBy, hospitalCode, ...rest } = body;
+    let { name, email, password, role, registeredBy, hospitalCode, planId, ...rest } = body;
 
     if (!name || !email || !password || !role) {
       return NextResponse.json(
@@ -124,6 +124,15 @@ export async function POST(req: NextRequest) {
     }
 
     const newUser = await createUser({ name, email, password, role, hospitalId, doctorId, ...rest });
+
+    // If parent registers with a hospital plan, create subscription record
+    if (role === 'Parent' && hospitalId && planId) {
+        await createSubscription({
+            parentId: newUser._id,
+            hospitalId: hospitalId,
+            planId: planId,
+        });
+    }
 
     // Send Welcome / Onboarding Email
     if (apiInstance) {
