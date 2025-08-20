@@ -17,6 +17,7 @@ import {
   ListChecks,
   MessageSquare,
   Users2,
+  FileHeart,
 } from "lucide-react";
 
 export interface NavItem {
@@ -104,6 +105,11 @@ export const adminHeaderNav: NavItem[] = [
     href: "/admin/parents",
     label: "Parents",
     icon: Users,
+  },
+  {
+    href: "/admin/plans",
+    label: "Plans",
+    icon: FileHeart,
   },
   {
     href: "/admin/analytics",
