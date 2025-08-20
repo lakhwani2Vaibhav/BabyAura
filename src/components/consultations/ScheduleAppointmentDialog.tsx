@@ -25,7 +25,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Calendar } from "../ui/calendar";
 import { format } from "date-fns";
 import { ScrollArea } from "../ui/scroll-area";
-import { Separator } from "../ui/separator";
 
 type Doctor = (typeof adminData.doctors)[0];
 type Step = "select_doctor" | "select_time" | "confirm";
@@ -249,8 +248,7 @@ export function ScheduleAppointmentDialog({ triggerButton }: ScheduleAppointment
                                 <p className="text-sm text-muted-foreground">{selectedDoctor?.specialty}</p>
                             </div>
                         </div>
-                        <Separator />
-                        <div className="space-y-2">
+                        <div className="space-y-2 rounded-lg border p-4">
                             <div className="flex justify-between items-center">
                                 <span className="text-muted-foreground">Date:</span>
                                 <span className="font-semibold">{format(selectedDate!, "EEEE, MMMM d, yyyy")}</span>
