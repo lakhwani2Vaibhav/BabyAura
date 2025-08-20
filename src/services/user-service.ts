@@ -106,7 +106,7 @@ export const createUser = async (userData: any) => {
         customId = generateId('parent');
         userDocument.status = 'Active';
         if (hospitalId) userDocument.hospitalId = hospitalId;
-        if (planId) {
+        if (hospitalId && planId) {
             await createSubscription({ parentId: customId, hospitalId, planId });
         }
         if(hospitalId) {
@@ -418,6 +418,56 @@ export const getDoctorDashboardData = async (doctorId: string) => {
     };
 };
 
+export const getAdminDashboardData = async (hospitalId: string) => {
+    if (!db) await init();
+
+    const doctorCount = await doctorsCollection.countDocuments({ hospitalId });
+    const parentCount = await parentsCollection.countDocuments({ hospitalId });
+
+    // Mock data, as subscriptions and revenue are not fully implemented
+    const activeSubscriptions = await subscriptionsCollection.countDocuments({ hospitalId, status: 'Active' });
+    
+    const subscriptions = await subscriptionsCollection.find({ hospitalId, status: 'Active' }).toArray();
+    const planIds = subscriptions.map(s => s.planId);
+    const plans = await plansCollection.find({ _id: { $in: planIds } }).toArray();
+    const planPriceMap = new Map(plans.map(p => [p._id, p.monthlyPrice]));
+    
+    const monthlyRevenue = subscriptions.reduce((total, sub) => {
+        return total + (planPriceMap.get(sub.planId) || 0);
+    }, 0);
+
+
+    const doctors = await doctorsCollection.find(
+        { hospitalId }, 
+        { projection: { name: 1, specialty: 1, avatarUrl: 1 } }
+    ).limit(3).toArray();
+    
+    const doctorsSnapshot = await Promise.all(doctors.map(async (doctor) => {
+        const patientCount = await parentsCollection.countDocuments({
+            $or: [{ doctorId: doctor._id }, { teamId: { $in: (await teamsCollection.find({ hospitalId, "members.doctorId": doctor._id }).toArray()).map(t => t._id) } }]
+        });
+        return {
+            ...doctor,
+            patientCount,
+            // These are mocked for now
+            consultationsThisMonth: Math.floor(Math.random() * 50) + 10,
+            satisfaction: (4.5 + Math.random() * 0.5).toFixed(1),
+        };
+    }));
+
+
+    return {
+        metrics: {
+            doctors: doctorCount,
+            parents: parentCount,
+            activeSubscriptions: activeSubscriptions,
+            monthlyRevenue: monthlyRevenue,
+            churnRate: "2.1%", // Mock data
+        },
+        doctors: doctorsSnapshot,
+    };
+};
+
 // Password Reset Services (omitted for brevity, no changes needed)
 export const setPasswordResetToken = async (userId: string, role: string, tokens: { passwordResetToken: string, passwordResetExpires: Date }) => { /* ... */ };
 export const findUserByResetToken = async (token: string) => { /* ... */ };
@@ -526,54 +576,37 @@ export const createSubscription = async (subscriptionData: { parentId: string, h
 };
 
 
-export const getAdminDashboardData = async (hospitalId: string) => {
+export const getAdminAnalytics = async (hospitalId: string) => {
     if (!db) await init();
 
-    const doctorCount = await doctorsCollection.countDocuments({ hospitalId });
-    const parentCount = await parentsCollection.countDocuments({ hospitalId });
+    // In a real app, this would involve complex aggregation pipelines.
+    // For now, we'll use counts and mock some data.
 
-    // Mock data, as subscriptions and revenue are not fully implemented
-    const activeSubscriptions = await subscriptionsCollection.countDocuments({ hospitalId, status: 'Active' });
-    
-    const subscriptions = await subscriptionsCollection.find({ hospitalId, status: 'Active' }).toArray();
-    const planIds = subscriptions.map(s => s.planId);
-    const plans = await plansCollection.find({ _id: { $in: planIds } }).toArray();
-    const planPriceMap = new Map(plans.map(p => [p._id, p.monthlyPrice]));
-    
-    const monthlyRevenue = subscriptions.reduce((total, sub) => {
-        return total + (planPriceMap.get(sub.planId) || 0);
-    }, 0);
-
-
-    const doctors = await doctorsCollection.find(
-        { hospitalId }, 
-        { projection: { name: 1, specialty: 1, avatarUrl: 1 } }
-    ).limit(3).toArray();
-    
-    const doctorsSnapshot = await Promise.all(doctors.map(async (doctor) => {
-        const patientCount = await parentsCollection.countDocuments({
-            $or: [{ doctorId: doctor._id }, { teamId: { $in: (await teamsCollection.find({ hospitalId, "members.doctorId": doctor._id }).toArray()).map(t => t._id) } }]
-        });
-        return {
-            ...doctor,
-            patientCount,
-            // These are mocked for now
-            consultationsThisMonth: Math.floor(Math.random() * 50) + 10,
-            satisfaction: (4.5 + Math.random() * 0.5).toFixed(1),
-        };
-    }));
-
-
-    return {
-        metrics: {
-            doctors: doctorCount,
-            parents: parentCount,
-            activeSubscriptions: activeSubscriptions,
-            monthlyRevenue: monthlyRevenue,
-            churnRate: "2.1%", // Mock data
-        },
-        doctors: doctorsSnapshot,
+    const metrics = {
+        doctors: await doctorsCollection.countDocuments({ hospitalId }),
+        parents: await parentsCollection.countDocuments({ hospitalId }),
+        monthlyRevenue: 12500, // Mock data
     };
-};
 
-    
+    const analytics = {
+        parentGrowthRate: 8, // Mock data
+        monthlyRevenue: [
+            { month: "Jan", revenue: 8000 },
+            { month: "Feb", revenue: 9000 },
+            { month: "Mar", revenue: 10500 },
+            { month: "Apr", revenue: 10000 },
+            { month: "May", revenue: 11000 },
+            { month: "Jun", revenue: 12500 },
+        ],
+        userGrowth: [
+            { month: "Jan", parents: 180, doctors: 10 },
+            { month: "Feb", parents: 195, doctors: 10 },
+            { month: "Mar", parents: 210, doctors: 11 },
+            { month: "Apr", parents: 220, doctors: 12 },
+            { month: "May", parents: 240, doctors: 12 },
+            { month: "Jun", parents: 256, doctors: 12 },
+        ]
+    };
+
+    return { metrics, analytics };
+};
