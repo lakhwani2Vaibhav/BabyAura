@@ -98,6 +98,11 @@ export const adminHeaderNav: NavItem[] = [
     icon: LayoutDashboard,
   },
   {
+    href: "/admin/doctors",
+    label: "Doctors",
+    icon: Stethoscope,
+  },
+  {
     href: "/admin/team",
     label: "Manage Team",
     icon: Users2,
