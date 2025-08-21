@@ -41,6 +41,11 @@ export default function BlogManagementPage() {
 
   const form = useForm<BlogPostFormValues>({
     resolver: zodResolver(blogPostSchema),
+    defaultValues: {
+      title: "",
+      author: "",
+      content: "",
+    },
   });
 
   const onSubmit = async (data: BlogPostFormValues) => {
