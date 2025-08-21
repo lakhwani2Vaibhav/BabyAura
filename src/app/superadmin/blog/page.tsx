@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, BookText, ImageUp } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
+import Image from "next/image";
 
 const blogPostSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters."),
@@ -45,6 +46,7 @@ export default function BlogManagementPage() {
       title: "",
       author: "",
       content: "",
+      image: undefined,
     },
   });
 
@@ -71,7 +73,7 @@ export default function BlogManagementPage() {
         title: "Blog Post Published!",
         description: "The new post is now live.",
       });
-      form.reset({ title: "", author: "", content: "", image: undefined });
+      form.reset();
       setImagePreview(null);
     } catch (error) {
       toast({
@@ -157,7 +159,7 @@ export default function BlogManagementPage() {
                                 }}
                                 className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
                             />
-                            {imagePreview && <img src={imagePreview} alt="Preview" className="mt-4 max-h-48 rounded-md" />}
+                            {imagePreview && <Image src={imagePreview} alt="Preview" width={200} height={150} className="mt-4 max-h-48 w-auto rounded-md" />}
                         </div>
                     </FormControl>
                     <FormMessage />
