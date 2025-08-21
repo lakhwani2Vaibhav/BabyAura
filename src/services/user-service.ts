@@ -19,6 +19,7 @@ let timelinesCollection: Collection;
 let teamsCollection: Collection;
 let plansCollection: Collection;
 let subscriptionsCollection: Collection;
+let blogCollection: Collection;
 
 
 async function init() {
@@ -34,6 +35,7 @@ async function init() {
     teamsCollection = db.collection('teams');
     plansCollection = db.collection('plans');
     subscriptionsCollection = db.collection('subscriptions');
+    blogCollection = db.collection('blog_content');
 
   } catch (error) {
     throw new Error('Failed to connect to the database.');

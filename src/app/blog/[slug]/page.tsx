@@ -1,4 +1,5 @@
-import { blogPosts } from "@/lib/data";
+
+import { getBlogPostBySlug, getAllBlogPosts } from "@/services/blog-service";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -13,16 +14,15 @@ import { Footer } from "@/components/layout/Footer";
 import { notFound } from "next/navigation";
 import { format, parseISO } from "date-fns";
 
-export function generateStaticParams() {
-  return blogPosts.map((post) => ({
+export async function generateStaticParams() {
+  const posts = await getAllBlogPosts();
+  return posts.map((post) => ({
     slug: post.slug,
   }));
 }
 
-export default function BlogPostPage({ params }: { params: { slug: string } }) {
-  const post = blogPosts.find(
-    (p) => p.slug === params.slug
-  );
+export default async function BlogPostPage({ params }: { params: { slug: string } }) {
+  const post = await getBlogPostBySlug(params.slug);
 
   if (!post) {
     notFound();
@@ -59,7 +59,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
                     <div className="flex items-center gap-4 text-sm text-muted-foreground mb-6">
                         <span>By {post.author}</span>
                         <span>•</span>
-                        <span>{format(parseISO(post.date), "MMMM d, yyyy")}</span>
+                        <span>{format(new Date(post.createdAt), "MMMM d, yyyy")}</span>
                     </div>
                     <div className="prose prose-lg max-w-none dark:prose-invert text-foreground/90">
                         {post.content.split('\n\n').map((paragraph, index) => (

@@ -40,6 +40,7 @@
     "@react-email/render": "^0.0.17",
     "bcrypt": "^5.1.1",
     "class-variance-authority": "^0.7.1",
+    "cloudinary": "^2.4.0",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "embla-carousel-autoplay": "^8.6.0",

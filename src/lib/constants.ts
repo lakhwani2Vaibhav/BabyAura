@@ -18,6 +18,7 @@ import {
   MessageSquare,
   Users2,
   FileHeart,
+  BookText,
 } from "lucide-react";
 
 export interface NavItem {
@@ -143,6 +144,11 @@ export const superAdminHeaderNav: NavItem[] = [
     href: "/superadmin/analytics",
     label: "Analytics",
     icon: Activity,
+  },
+  {
+    href: "/superadmin/blog",
+    label: "Blog",
+    icon: BookText,
   },
   {
     href: "/superadmin/logs",

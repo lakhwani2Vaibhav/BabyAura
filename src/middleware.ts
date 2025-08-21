@@ -1,10 +1,11 @@
+
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
  
 export function middleware(request: NextRequest) {
   const token = request.headers.get('authorization')?.split(' ')[1];
  
-  if (!token) {
+  if (!token && request.method !== 'GET') {
     return NextResponse.json({ message: 'Authentication required' }, { status: 401 })
   }
  

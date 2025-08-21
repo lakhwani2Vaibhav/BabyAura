@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -10,16 +11,33 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { blogPosts as initialBlogPosts } from "@/lib/data";
 import { ArrowRight, Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { MarketingHeader } from "@/components/layout/MarketingHeader";
 import { Footer } from "@/components/layout/Footer";
 import { format, parseISO } from "date-fns";
+import { getAllBlogPosts, BlogPost } from "@/services/blog-service";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function BlogIndexPage() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [initialBlogPosts, setInitialBlogPosts] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+        try {
+            const posts = await getAllBlogPosts();
+            setInitialBlogPosts(posts);
+        } catch (error) {
+            console.error("Failed to fetch blog posts:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    fetchPosts();
+  }, []);
 
   const filteredPosts = useMemo(() => {
     return initialBlogPosts.filter(
@@ -28,7 +46,7 @@ export default function BlogIndexPage() {
         post.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
         post.author.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [searchTerm]);
+  }, [searchTerm, initialBlogPosts]);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -50,50 +68,58 @@ export default function BlogIndexPage() {
                     onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                 <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                    {filteredPosts.length > 0 ? (
-                    filteredPosts.map((post) => (
-                        <Card key={post.id} className="flex flex-col overflow-hidden group">
-                        <CardHeader className="p-0">
-                            <Link href={`/blog/${post.slug}`} className="block">
-                                <Image
-                                    src={post.imageUrl}
-                                    alt={post.title}
-                                    width={400}
-                                    height={225}
-                                    className="rounded-t-lg object-cover aspect-video transition-transform duration-300 group-hover:scale-105"
-                                    data-ai-hint="blog topic"
-                                />
-                            </Link>
-                        </CardHeader>
-                        <CardContent className="flex-1 pt-6">
-                            <CardTitle className="text-xl font-semibold leading-snug mt-1">
-                                <Link href={`/blog/${post.slug}`} className="hover:text-primary transition-colors">{post.title}</Link>
-                            </CardTitle>
-                            <CardDescription className="mt-2 line-clamp-3">
-                                {post.content.substring(0, 120)}...
-                            </CardDescription>
-                        </CardContent>
-                        <CardFooter className="flex justify-between items-center">
-                            <div className="text-xs text-muted-foreground">
-                                By {post.author} on {format(parseISO(post.date), "MMM d, yyyy")}
-                            </div>
-                            <Link
-                                href={`/blog/${post.slug}`}
-                                className="flex items-center text-sm font-medium text-primary hover:underline"
-                            >
-                                Read More <ArrowRight className="ml-1 h-4 w-4" />
-                            </Link>
-                        </CardFooter>
-                        </Card>
-                    ))
-                    ) : (
-                    <div className="col-span-full text-center text-muted-foreground py-16">
-                        <p className="text-lg">No posts found for "{searchTerm}"</p>
-                        <p>Try searching for something else.</p>
+                {loading ? (
+                    <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                        <Skeleton className="h-96" />
+                        <Skeleton className="h-96" />
+                        <Skeleton className="h-96" />
                     </div>
-                    )}
-                </div>
+                ) : (
+                    <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                        {filteredPosts.length > 0 ? (
+                        filteredPosts.map((post) => (
+                            <Card key={post._id} className="flex flex-col overflow-hidden group">
+                            <CardHeader className="p-0">
+                                <Link href={`/blog/${post.slug}`} className="block">
+                                    <Image
+                                        src={post.imageUrl}
+                                        alt={post.title}
+                                        width={400}
+                                        height={225}
+                                        className="rounded-t-lg object-cover aspect-video transition-transform duration-300 group-hover:scale-105"
+                                        data-ai-hint="blog topic"
+                                    />
+                                </Link>
+                            </CardHeader>
+                            <CardContent className="flex-1 pt-6">
+                                <CardTitle className="text-xl font-semibold leading-snug mt-1">
+                                    <Link href={`/blog/${post.slug}`} className="hover:text-primary transition-colors">{post.title}</Link>
+                                </CardTitle>
+                                <CardDescription className="mt-2 line-clamp-3">
+                                    {post.content.substring(0, 120)}...
+                                </CardDescription>
+                            </CardContent>
+                            <CardFooter className="flex justify-between items-center">
+                                <div className="text-xs text-muted-foreground">
+                                    By {post.author} on {format(new Date(post.createdAt), "MMM d, yyyy")}
+                                </div>
+                                <Link
+                                    href={`/blog/${post.slug}`}
+                                    className="flex items-center text-sm font-medium text-primary hover:underline"
+                                >
+                                    Read More <ArrowRight className="ml-1 h-4 w-4" />
+                                </Link>
+                            </CardFooter>
+                            </Card>
+                        ))
+                        ) : (
+                        <div className="col-span-full text-center text-muted-foreground py-16">
+                            <p className="text-lg">No posts found for "{searchTerm}"</p>
+                            <p>Try searching for something else.</p>
+                        </div>
+                        )}
+                    </div>
+                )}
             </div>
         </main>
         <Footer />
