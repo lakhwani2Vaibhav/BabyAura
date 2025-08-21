@@ -50,6 +50,8 @@ export default function BlogManagementPage() {
     },
   });
 
+  const fileRef = form.register("image");
+
   const onSubmit = async (data: BlogPostFormValues) => {
     const formData = new FormData();
     formData.append('title', data.title);
@@ -140,7 +142,7 @@ export default function BlogManagementPage() {
               <FormField
                 control={form.control}
                 name="image"
-                render={({ field: { onChange, ...fieldProps } }) => (
+                render={({ field }) => (
                   <FormItem>
                     <FormLabel>Featured Image</FormLabel>
                     <FormControl>
@@ -149,12 +151,14 @@ export default function BlogManagementPage() {
                             <Input 
                                 type="file" 
                                 accept="image/*"
-                                {...fieldProps}
+                                {...fileRef}
                                 onChange={(e) => {
+                                    field.onChange(e.target.files);
                                     const file = e.target.files?.[0];
                                     if(file) {
-                                        onChange(e.target.files);
                                         setImagePreview(URL.createObjectURL(file));
+                                    } else {
+                                        setImagePreview(null);
                                     }
                                 }}
                                 className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
