@@ -12,11 +12,23 @@ import {
 } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, AtSign, BadgeCheck, Stethoscope, Users, XCircle } from 'lucide-react';
+import { ArrowLeft, AtSign, BadgeCheck, Stethoscope, Users, XCircle, Briefcase, GraduationCap, ClipboardList } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+
+type EmploymentRecord = {
+    position: string;
+    hospital: string;
+    period: string;
+}
+
+type EducationRecord = {
+    degree: string;
+    institution: string;
+    year: string;
+}
 
 type Doctor = {
   _id: string;
@@ -26,6 +38,9 @@ type Doctor = {
   status: 'Active' | 'On Leave';
   avatarUrl?: string;
   patients: number;
+  employmentHistory: EmploymentRecord[];
+  education: EducationRecord[];
+  behavioralRecord: string[];
 };
 
 export default function AdminDoctorProfilePage() {
@@ -49,6 +64,22 @@ export default function AdminDoctorProfilePage() {
           throw new Error('Failed to fetch doctor details');
         }
         const data = await response.json();
+        
+        // Mock data for new sections
+        data.employmentHistory = [
+            { position: 'Senior Pediatrician', hospital: 'City General Hospital', period: '2018 - Present' },
+            { position: 'Resident Pediatrician', hospital: 'St. Jude\'s Children\'s Hospital', period: '2015 - 2018' },
+        ];
+        data.education = [
+            { degree: 'MD, Pediatrics', institution: 'State Medical University', year: '2015' },
+            { degree: 'MBBS', institution: 'State Medical College', year: '2012' },
+        ];
+        data.behavioralRecord = [
+            "Consistently high patient satisfaction scores (Avg. 4.9/5.0).",
+            "Completed advanced pediatric life support certification in 2023.",
+            "Commended for excellent communication with parents."
+        ];
+
         setDoctor(data);
       } catch (error) {
         toast({
@@ -65,6 +96,7 @@ export default function AdminDoctorProfilePage() {
   }, [doctorId, router, toast]);
 
   const getInitials = (name: string) => {
+    if (!name) return "";
     const parts = name.split(' ');
     return parts.length > 1
       ? `${parts[0][0]}${parts[parts.length - 1][0]}`
@@ -91,6 +123,8 @@ export default function AdminDoctorProfilePage() {
                 <Skeleton className="h-10 w-full" />
                 </CardContent>
             </Card>
+            <Card><CardContent className="p-6"><Skeleton className="h-32" /></CardContent></Card>
+            <Card><CardContent className="p-6"><Skeleton className="h-32" /></CardContent></Card>
         </div>
     );
   }
@@ -171,6 +205,56 @@ export default function AdminDoctorProfilePage() {
             </Card>
         </CardContent>
       </Card>
+
+      <Card>
+          <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Briefcase className="h-5 w-5" /> Employment History</CardTitle>
+          </CardHeader>
+          <CardContent>
+              <ul className="space-y-4">
+                  {doctor.employmentHistory.map((job, index) => (
+                      <li key={index} className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                          <div>
+                              <p className="font-semibold">{job.position}</p>
+                              <p className="text-sm text-muted-foreground">{job.hospital}</p>
+                          </div>
+                          <p className="text-sm text-muted-foreground sm:text-right">{job.period}</p>
+                      </li>
+                  ))}
+              </ul>
+          </CardContent>
+      </Card>
+      
+      <div className="grid md:grid-cols-2 gap-6">
+         <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2"><GraduationCap className="h-5 w-5" /> Education</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <ul className="space-y-4">
+                    {doctor.education.map((edu, index) => (
+                        <li key={index}>
+                            <p className="font-semibold">{edu.degree}</p>
+                            <p className="text-sm text-muted-foreground">{edu.institution} ({edu.year})</p>
+                        </li>
+                    ))}
+                </ul>
+            </CardContent>
+        </Card>
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2"><ClipboardList className="h-5 w-5" /> Behavioral Record</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <ul className="space-y-2 list-disc list-inside text-sm text-muted-foreground">
+                    {doctor.behavioralRecord.map((record, index) => (
+                        <li key={index}>{record}</li>
+                    ))}
+                </ul>
+            </CardContent>
+        </Card>
+      </div>
+
     </div>
   );
 }
