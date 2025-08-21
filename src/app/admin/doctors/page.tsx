@@ -30,7 +30,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Plus, UserPlus, CheckCircle, XCircle } from "lucide-react";
+import { MoreHorizontal, Plus, UserPlus, CheckCircle, XCircle, Trash2, Eye } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Dialog,
@@ -60,6 +60,7 @@ import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useRouter } from "next/navigation";
 
 
 type Doctor = {
@@ -86,10 +87,12 @@ export default function ManageDoctorsPage() {
   const [addDoctorOpen, setAddDoctorOpen] = useState(false);
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
   const [statusChangeAlertOpen, setStatusChangeAlertOpen] = useState(false);
+  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
   const [newStatus, setNewStatus] = useState<'Active' | 'On Leave'>('Active');
   
   const { toast } = useToast();
   const { user } = useAuth();
+  const router = useRouter();
   
   const form = useForm<AddDoctorFormValues>({
     resolver: zodResolver(addDoctorSchema),
@@ -126,7 +129,7 @@ export default function ManageDoctorsPage() {
     if (user) {
         fetchDoctors();
     }
-  }, [user, toast]);
+  }, [user]);
 
 
   const handleAddDoctorSubmit = async (values: AddDoctorFormValues) => {
@@ -186,6 +189,25 @@ export default function ManageDoctorsPage() {
         setStatusChangeAlertOpen(false);
         setSelectedDoctor(null);
     }
+  }
+
+  const handleDeleteConfirm = async () => {
+      if (!selectedDoctor) return;
+      try {
+          const token = localStorage.getItem('babyaura_token');
+          const response = await fetch(`/api/admin/doctors/${selectedDoctor._id}`, {
+              method: 'DELETE',
+              headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if(!response.ok) throw new Error("Failed to delete doctor.");
+          await fetchDoctors();
+          toast({ title: 'Doctor Removed', description: `${selectedDoctor.name} has been removed.` });
+      } catch (error) {
+          toast({ variant: 'destructive', title: 'Error', description: 'Could not remove the doctor.' });
+      } finally {
+          setDeleteAlertOpen(false);
+          setSelectedDoctor(null);
+      }
   }
   
   const getInitials = (name: string) => {
@@ -312,6 +334,9 @@ export default function ManageDoctorsPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                         <DropdownMenuItem onSelect={() => router.push(`/superadmin/doctors/${doctor._id}`)}>
+                            <Eye className="mr-2 h-4 w-4" /> View Profile
+                        </DropdownMenuItem>
                         <DropdownMenuItem onSelect={() => toast({title: "Coming Soon!", description: "Doctor profile editing will be available soon."})}>
                           Edit Profile
                         </DropdownMenuItem>
@@ -324,6 +349,10 @@ export default function ManageDoctorsPage() {
                               Mark as Active
                             </DropdownMenuItem>
                          )}
+                         <DropdownMenuSeparator />
+                         <DropdownMenuItem className="text-destructive" onSelect={() => {setSelectedDoctor(doctor); setDeleteAlertOpen(true); }}>
+                            <Trash2 className="mr-2 h-4 w-4" /> Delete Profile
+                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -350,6 +379,21 @@ export default function ManageDoctorsPage() {
             <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction onClick={handleStatusChangeConfirm}>Confirm</AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={deleteAlertOpen} onOpenChange={setDeleteAlertOpen}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>Delete {selectedDoctor?.name}?</AlertDialogTitle>
+                <AlertDialogDescription>
+                    This action cannot be undone. This will permanently remove the doctor from your hospital and unassign them from any patients.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDeleteConfirm} className="bg-destructive hover:bg-destructive/90">Yes, Delete</AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
