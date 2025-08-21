@@ -334,7 +334,7 @@ export default function ManageDoctorsPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                         <DropdownMenuItem onSelect={() => router.push(`/superadmin/doctors/${doctor._id}`)}>
+                         <DropdownMenuItem onSelect={() => router.push(`/admin/doctors/${doctor._id}`)}>
                             <Eye className="mr-2 h-4 w-4" /> View Profile
                         </DropdownMenuItem>
                         <DropdownMenuItem onSelect={() => toast({title: "Coming Soon!", description: "Doctor profile editing will be available soon."})}>
