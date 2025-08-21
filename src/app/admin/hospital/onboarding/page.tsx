@@ -315,7 +315,7 @@ export default function HospitalOnboardingPage() {
                                 </div>
                             ))}
                         </CardContent>
-                        <CardContent><Button type="button" variant="outline" asChild className="w-full"><Link href="/admin/doctors">Manage Team <ArrowRight className="h-4 w-4 ml-2" /></Link></Button></CardContent>
+                        <CardContent><Button type="button" variant="outline" asChild className="w-full"><Link href="/admin/team">Manage Team <ArrowRight className="h-4 w-4 ml-2" /></Link></Button></CardContent>
                     </Card>
                 </div>
           </div>
