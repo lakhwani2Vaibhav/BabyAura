@@ -13,6 +13,22 @@ import { MarketingHeader } from "@/components/layout/MarketingHeader";
 import { Footer } from "@/components/layout/Footer";
 import { notFound } from "next/navigation";
 import { format, parseISO } from "date-fns";
+import { Suspense } from "react";
+import { Marked } from "marked";
+import { mangle } from "marked-mangle";
+import { gfmHeadingId } from "marked-gfm-heading-id";
+
+const marked = new Marked(gfmHeadingId(), mangle());
+
+async function BlogPostContent({ content }: { content: string }) {
+    const htmlContent = await marked.parse(content);
+    return (
+        <div 
+            className="prose prose-lg max-w-none dark:prose-invert text-foreground/90"
+            dangerouslySetInnerHTML={{ __html: htmlContent }}
+        />
+    );
+}
 
 export async function generateStaticParams() {
   const posts = await getAllBlogPosts();
@@ -61,11 +77,9 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
                         <span>•</span>
                         <span>{format(new Date(post.createdAt), "MMMM d, yyyy")}</span>
                     </div>
-                    <div className="prose prose-lg max-w-none dark:prose-invert text-foreground/90">
-                        {post.content.split('\n\n').map((paragraph, index) => (
-                            <p key={index}>{paragraph}</p>
-                        ))}
-                    </div>
+                    <Suspense fallback={<div>Loading content...</div>}>
+                        <BlogPostContent content={post.content} />
+                    </Suspense>
                     </CardContent>
                 </Card>
             </div>

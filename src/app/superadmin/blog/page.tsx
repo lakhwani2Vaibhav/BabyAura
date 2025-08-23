@@ -15,6 +15,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -135,6 +136,9 @@ export default function BlogManagementPage() {
                     <FormControl>
                       <Textarea placeholder="Write your blog post content here..." {...field} rows={10} />
                     </FormControl>
+                    <FormDescription>
+                      This field supports Markdown for formatting (e.g., `# Heading`, `**bold**`, `* list item`).
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -142,7 +146,7 @@ export default function BlogManagementPage() {
               <FormField
                 control={form.control}
                 name="image"
-                render={({ field }) => (
+                render={() => (
                   <FormItem>
                     <FormLabel>Featured Image</FormLabel>
                     <FormControl>
@@ -153,7 +157,7 @@ export default function BlogManagementPage() {
                                 accept="image/*"
                                 {...fileRef}
                                 onChange={(e) => {
-                                    field.onChange(e.target.files);
+                                    form.setValue("image", e.target.files);
                                     const file = e.target.files?.[0];
                                     if(file) {
                                         setImagePreview(URL.createObjectURL(file));
