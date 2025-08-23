@@ -111,7 +111,7 @@ export default function PatientChatPage() {
 
   if (isLoading) {
        return (
-         <Card className="flex flex-col h-full">
+         <Card className="flex flex-col h-[calc(100vh-10rem)]">
             <CardHeader className="flex flex-row items-center gap-4 p-4 border-b">
                 <Skeleton className="h-10 w-10 rounded-full" />
                 <div className="space-y-2">
@@ -166,6 +166,7 @@ export default function PatientChatPage() {
   };
 
   return (
+    <div className="h-[calc(100vh-10rem)]">
     <Card className="flex flex-col h-full">
         <CardHeader className="flex flex-row items-center gap-4 p-4 border-b">
           <Button asChild variant="ghost" size="icon">
@@ -241,5 +242,6 @@ export default function PatientChatPage() {
           </form>
         </CardFooter>
     </Card>
+    </div>
   );
 }

@@ -85,8 +85,8 @@ export default function ContactPage() {
   };
 
   return (
-      <div className="relative h-[calc(100vh-8rem)]">
-        <Card>
+      <div className="relative h-[calc(100vh-10rem)]">
+        <Card className="flex flex-col h-full">
             <CardHeader>
                 <div className="flex items-center justify-between">
                     <div>
@@ -116,7 +116,7 @@ export default function ContactPage() {
                     </AlertDialog>
                 </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1 overflow-y-auto">
                 <div className="space-y-4">
                     {loading ? (
                        Array.from({length: 2}).map((_, i) => (
