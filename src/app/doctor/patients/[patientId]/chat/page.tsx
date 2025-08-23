@@ -165,7 +165,7 @@ export default function PatientChatPage() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-10rem)]">
+    <div className="flex flex-col h-[calc(100vh-12rem)]">
       <Card className="flex flex-col flex-1">
         <CardHeader className="flex flex-row items-center gap-4 p-4 border-b">
           <Button asChild variant="ghost" size="icon">
