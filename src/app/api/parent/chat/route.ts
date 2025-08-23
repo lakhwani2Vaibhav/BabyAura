@@ -9,7 +9,7 @@ interface DecodedToken {
   role: string;
 }
 
-const getAuthenticatedParentId = async (req: NextRequest): Promise<string | null> => {
+const getAuthenticatedUser = async (req: NextRequest): Promise<{ userId: string, role: string } | null> => {
     const authHeader = req.headers.get('authorization');
     if (!authHeader) return null;
     
@@ -18,8 +18,8 @@ const getAuthenticatedParentId = async (req: NextRequest): Promise<string | null
 
     try {
         const decoded = jwtDecode<DecodedToken>(token);
-        if (decoded.role !== 'Parent') return null;
-        return decoded.userId;
+        if (!decoded.userId || !decoded.role) return null;
+        return { userId: decoded.userId, role: decoded.role };
     } catch (e) {
         return null;
     }
@@ -28,18 +28,19 @@ const getAuthenticatedParentId = async (req: NextRequest): Promise<string | null
 // Get messages for a conversation
 export async function GET(req: NextRequest) {
     try {
-        const parentId = await getAuthenticatedParentId(req);
-        if (!parentId) {
+        const user = await getAuthenticatedUser(req);
+        if (!user) {
             return NextResponse.json({ message: "Authentication required." }, { status: 401 });
         }
         
         const { searchParams } = new URL(req.url);
-        const specialistId = searchParams.get('specialistId');
-        if (!specialistId) {
-            return NextResponse.json({ message: "Specialist ID is required." }, { status: 400 });
+        const otherUserId = searchParams.get('specialistId') || searchParams.get('patientId');
+        
+        if (!otherUserId) {
+            return NextResponse.json({ message: "The other chat participant's ID is required." }, { status: 400 });
         }
 
-        const messages = await getMessagesForConversation(parentId, specialistId);
+        const messages = await getMessagesForConversation(user.userId, otherUserId);
         
         return NextResponse.json(messages);
 
@@ -52,8 +53,8 @@ export async function GET(req: NextRequest) {
 // Send a new message
 export async function POST(req: NextRequest) {
     try {
-        const parentId = await getAuthenticatedParentId(req);
-        if (!parentId) {
+        const user = await getAuthenticatedUser(req);
+        if (!user) {
             return NextResponse.json({ message: "Authentication required." }, { status: 401 });
         }
 
@@ -65,9 +66,9 @@ export async function POST(req: NextRequest) {
         }
 
         const newMessage = await createMessage({
-            senderId: parentId,
+            senderId: user.userId,
             receiverId: receiverId,
-            senderRole: 'Parent',
+            senderRole: user.role as 'Parent' | 'Doctor', // Assuming only these roles can send messages via this endpoint
             content,
         });
         

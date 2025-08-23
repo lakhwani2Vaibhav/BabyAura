@@ -59,7 +59,7 @@ export default function PatientChatPage() {
         
         const [patientRes, messagesRes] = await Promise.all([
             fetch(`/api/doctor/patients/${patientId}/details`, { headers: { 'Authorization': `Bearer ${token}` } }),
-            fetch(`/api/parent/chat?specialistId=${user.userId}`, { headers: { 'Authorization': `Bearer ${token}` } })
+            fetch(`/api/parent/chat?patientId=${patientId}`, { headers: { 'Authorization': `Bearer ${token}` } })
         ]);
         
         if (!patientRes.ok) throw new Error('Failed to fetch patient details');
