@@ -48,19 +48,31 @@ export default function SpecialistChatPage() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
 
-  const fetchMessages = useCallback(async () => {
+  const fetchMessages = useCallback(async (isInitialLoad = false) => {
     if (!user || !specialistId) return;
     try {
         const token = localStorage.getItem('babyaura_token');
-        const messagesRes = await fetch(`/api/parent/chat?specialistId=${specialistId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        let url = `/api/parent/chat?specialistId=${specialistId}`;
+        if (!isInitialLoad && messages.length > 0) {
+            const lastMessageTimestamp = messages[messages.length - 1].createdAt;
+            url += `&since=${lastMessageTimestamp}`;
+        }
+        
+        const messagesRes = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
         if (!messagesRes.ok) throw new Error('Failed to fetch messages');
-        const messagesData = await messagesRes.json();
-        setMessages(messagesData);
+        const newMessages = await messagesRes.json();
+        
+        if (isInitialLoad) {
+            setMessages(newMessages);
+        } else if (newMessages.length > 0) {
+            setMessages(prev => [...prev, ...newMessages]);
+        }
+
     } catch(error) {
         toast({ variant: 'destructive', title: 'Error', description: 'Could not update messages.' });
     }
 
-  }, [user, specialistId, toast]);
+  }, [user, specialistId, toast, messages]);
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -74,7 +86,7 @@ export default function SpecialistChatPage() {
         const specialistData = await specialistRes.json();
         setSpecialist(specialistData);
 
-        await fetchMessages();
+        await fetchMessages(true);
 
       } catch (error) {
         toast({ variant: 'destructive', title: 'Error', description: 'Could not load chat history.' });
@@ -86,10 +98,10 @@ export default function SpecialistChatPage() {
       }
     };
     fetchInitialData();
-  }, [user, specialistId, toast, fetchMessages]);
+  }, [user, specialistId, toast]);
 
    useEffect(() => {
-    const interval = setInterval(fetchMessages, 5000); // Poll every 5 seconds
+    const interval = setInterval(() => fetchMessages(false), 5000); // Poll every 5 seconds
     return () => clearInterval(interval);
   }, [fetchMessages]);
 
@@ -105,23 +117,25 @@ export default function SpecialistChatPage() {
 
   if (isLoading) {
        return (
-         <Card className="flex flex-col h-[calc(100vh-10rem)] md:h-[calc(100vh-12rem)]">
-            <CardHeader className="flex flex-row items-center gap-4 p-4 border-b">
-                <Skeleton className="h-10 w-10 rounded-full" />
-                <div className="space-y-2">
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-3 w-16" />
-                </div>
-            </CardHeader>
-            <CardContent className="flex-1 p-4 space-y-4">
-                <Skeleton className="h-16 w-3/4" />
-                <Skeleton className="h-16 w-3/4 ml-auto" />
-                <Skeleton className="h-12 w-1/2" />
-            </CardContent>
-             <CardFooter className="p-4 border-t">
-                 <Skeleton className="h-10 w-full" />
-             </CardFooter>
-        </Card>
+         <div className="h-[calc(100vh-10rem)] md:h-[calc(100vh-12rem)]">
+            <Card className="flex flex-col h-full">
+                <CardHeader className="flex flex-row items-center gap-4 p-4 border-b">
+                    <Skeleton className="h-10 w-10 rounded-full" />
+                    <div className="space-y-2">
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-3 w-16" />
+                    </div>
+                </CardHeader>
+                <CardContent className="flex-1 p-4 space-y-4">
+                    <Skeleton className="h-16 w-3/4" />
+                    <Skeleton className="h-16 w-3/4 ml-auto" />
+                    <Skeleton className="h-12 w-1/2" />
+                </CardContent>
+                <CardFooter className="p-4 border-t">
+                    <Skeleton className="h-10 w-full" />
+                </CardFooter>
+            </Card>
+        </div>
        )
   }
 

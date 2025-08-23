@@ -35,9 +35,10 @@ export async function GET(req: NextRequest) {
         
         const { searchParams } = new URL(req.url);
         const otherUserId = searchParams.get('specialistId');
+        const since = searchParams.get('since');
         
         if (otherUserId) {
-            const messages = await getMessagesForConversation(user.userId, otherUserId);
+            const messages = await getMessagesForConversation(user.userId, otherUserId, since || undefined);
             return NextResponse.json(messages);
         }
 

@@ -66,15 +66,24 @@ export const createMessage = async (message: Omit<Message, 'read' | 'createdAt' 
     return { ...newMessage, _id: result.insertedId };
 }
 
-export const getMessagesForConversation = async (userId1: string, userId2: string) => {
+export const getMessagesForConversation = async (userId1: string, userId2: string, since?: string) => {
     if (!db) await init();
     const conversationId = generateConversationId(userId1, userId2);
-    // Mark messages as read for the person fetching them
-    await messagesCollection.updateMany(
-        { conversationId, receiverId: userId1, read: false },
-        { $set: { read: true } }
-    );
-    return await messagesCollection.find({ conversationId }).sort({ createdAt: 1 }).toArray();
+    
+    // Mark messages as read for the person fetching them, but only on initial load
+    if (!since) {
+        await messagesCollection.updateMany(
+            { conversationId, receiverId: userId1, read: false },
+            { $set: { read: true } }
+        );
+    }
+    
+    const query: any = { conversationId };
+    if (since) {
+        query.createdAt = { $gt: new Date(since) };
+    }
+
+    return await messagesCollection.find(query).sort({ createdAt: 1 }).toArray();
 }
 
 

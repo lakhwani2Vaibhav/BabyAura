@@ -50,19 +50,30 @@ export default function PatientChatPage() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
 
-  const fetchMessages = useCallback(async () => {
+  const fetchMessages = useCallback(async (isInitialLoad = false) => {
     if (!user || !patientId) return;
     try {
       const token = localStorage.getItem('babyaura_token');
-      // Using the parent's chat API route but specifying the other user (patientId)
-      const messagesRes = await fetch(`/api/parent/chat?specialistId=${patientId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+      let url = `/api/parent/chat?specialistId=${patientId}`;
+      if (!isInitialLoad && messages.length > 0) {
+        const lastMessageTimestamp = messages[messages.length - 1].createdAt;
+        url += `&since=${lastMessageTimestamp}`;
+      }
+
+      const messagesRes = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
       if (!messagesRes.ok) throw new Error('Failed to fetch messages');
-      const messagesData = await messagesRes.json();
-      setMessages(messagesData);
+      const newMessages = await messagesRes.json();
+      
+      if (isInitialLoad) {
+        setMessages(newMessages);
+      } else if (newMessages.length > 0) {
+        setMessages(prev => [...prev, ...newMessages]);
+      }
+
     } catch (error) {
        toast({ variant: 'destructive', title: 'Error', description: 'Could not update messages.' });
     }
-  }, [user, patientId, toast]);
+  }, [user, patientId, toast, messages]);
 
 
   useEffect(() => {
@@ -77,7 +88,7 @@ export default function PatientChatPage() {
         const patientData = await patientRes.json();
         setPatient(patientData);
 
-        await fetchMessages();
+        await fetchMessages(true);
 
       } catch (error) {
         toast({ variant: 'destructive', title: 'Error', description: 'Could not load chat history.' });
@@ -92,10 +103,10 @@ export default function PatientChatPage() {
     if(user?.role === 'Doctor') {
         fetchInitialData();
     }
-  }, [user, patientId, toast, fetchMessages]);
+  }, [user, patientId, toast]);
 
   useEffect(() => {
-    const interval = setInterval(fetchMessages, 5000); // Poll every 5 seconds
+    const interval = setInterval(() => fetchMessages(false), 5000); // Poll every 5 seconds
     return () => clearInterval(interval);
   }, [fetchMessages]);
 
@@ -111,7 +122,8 @@ export default function PatientChatPage() {
 
   if (isLoading) {
        return (
-         <Card className="flex flex-col h-[calc(100vh-10rem)] md:h-[calc(100vh-12rem)]">
+         <div className="h-[calc(100vh-10rem)] md:h-[calc(100vh-12rem)]">
+         <Card className="flex flex-col h-full">
             <CardHeader className="flex flex-row items-center gap-4 p-4 border-b">
                 <Skeleton className="h-10 w-10 rounded-full" />
                 <div className="space-y-2">
@@ -128,6 +140,7 @@ export default function PatientChatPage() {
                  <Skeleton className="h-10 w-full" />
              </CardFooter>
         </Card>
+        </div>
        )
   }
 
