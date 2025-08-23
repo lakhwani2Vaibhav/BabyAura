@@ -14,24 +14,30 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MetricCard } from "@/components/cards/MetricCard";
 import { Users, Video, MessageSquare } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-import { doctorData } from "@/lib/data";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import Link from 'next/link';
+import { formatDistanceToNow } from 'date-fns';
 
-const recentChats = [
-  { id: 'chat1', patientName: 'Baby Williams', lastMessage: 'The rash seems to be getting a bit better, but still red.', time: '5m ago' },
-  { id: 'chat2', patientName: 'Baby Smith', lastMessage: 'Just confirming our appointment for tomorrow.', time: '1h ago' },
-];
 
 type DashboardData = {
   activePatients: number;
-  todaysConsultations: typeof doctorData.todaysConsultations;
+  todaysConsultations: { id: number; patientName: string; time: string; reason: string; }[];
 };
+
+type RecentChat = {
+    id: string;
+    patientName: string;
+    lastMessage: string;
+    time: string;
+    avatarUrl?: string;
+}
 
 export default function DoctorDashboardPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [data, setData] = useState<DashboardData | null>(null);
+  const [recentChats, setRecentChats] = useState<RecentChat[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -39,14 +45,20 @@ export default function DoctorDashboardPage() {
       if (!user) return;
       try {
         const token = localStorage.getItem('babyaura_token');
-        const response = await fetch('/api/doctor/dashboard', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch dashboard data.");
-        }
-        const dashboardData = await response.json();
+        const [dashboardRes, chatRes] = await Promise.all([
+          fetch('/api/doctor/dashboard', { headers: { 'Authorization': `Bearer ${token}` } }),
+          fetch('/api/doctor/chats', { headers: { 'Authorization': `Bearer ${token}` } })
+        ]);
+
+        if (!dashboardRes.ok) throw new Error("Failed to fetch dashboard data.");
+        if (!chatRes.ok) throw new Error("Failed to fetch recent chats.");
+
+        const dashboardData = await dashboardRes.json();
+        const chatData = await chatRes.json();
+
         setData(dashboardData);
+        setRecentChats(chatData);
+
       } catch (error) {
         toast({
           variant: "destructive",
@@ -135,28 +147,32 @@ export default function DoctorDashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-             {data?.todaysConsultations.map((consultation) => (
-                <Card key={consultation.id} className="p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                  <div className="flex items-center gap-4 w-full sm:w-auto">
-                    <div className="flex flex-col items-center justify-center p-2 bg-muted rounded-md w-16 text-center">
-                       <p className="text-lg sm:text-xl font-bold">{consultation.time.split(' ')[0]}</p>
-                       <p className="text-xs text-muted-foreground">{consultation.time.split(' ')[1]}</p>
+             {data?.todaysConsultations && data.todaysConsultations.length > 0 ? (
+                data.todaysConsultations.map((consultation) => (
+                    <Card key={consultation.id} className="p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    <div className="flex items-center gap-4 w-full sm:w-auto">
+                        <div className="flex flex-col items-center justify-center p-2 bg-muted rounded-md w-16 text-center">
+                        <p className="text-lg sm:text-xl font-bold">{consultation.time.split(' ')[0]}</p>
+                        <p className="text-xs text-muted-foreground">{consultation.time.split(' ')[1]}</p>
+                        </div>
+                        <div className="flex-grow sm:hidden">
+                            <p className="font-bold">{consultation.patientName}</p>
+                            <p className="text-sm text-muted-foreground">{consultation.reason}</p>
+                        </div>
                     </div>
-                    <div className="flex-grow sm:hidden">
+                    <div className="hidden sm:block flex-grow">
                         <p className="font-bold">{consultation.patientName}</p>
                         <p className="text-sm text-muted-foreground">{consultation.reason}</p>
                     </div>
-                  </div>
-                  <div className="hidden sm:block flex-grow">
-                    <p className="font-bold">{consultation.patientName}</p>
-                    <p className="text-sm text-muted-foreground">{consultation.reason}</p>
-                  </div>
-                  <Button className="w-full sm:w-auto mt-2 sm:mt-0">
-                    <Video className="mr-2 h-4 w-4" />
-                    Join Call
-                  </Button>
-                </Card>
-              ))}
+                    <Button className="w-full sm:w-auto mt-2 sm:mt-0">
+                        <Video className="mr-2 h-4 w-4" />
+                        Join Call
+                    </Button>
+                    </Card>
+                ))
+             ) : (
+                <div className="text-center text-muted-foreground py-10">No upcoming consultations today.</div>
+             )}
           </CardContent>
         </Card>
         
@@ -167,25 +183,26 @@ export default function DoctorDashboardPage() {
               Messages from your patients.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {recentChats.map((chat) => (
-                 <div key={chat.id} className="flex items-start gap-3">
-                    <Avatar className="h-10 w-10 border flex-shrink-0">
-                        <AvatarImage src={`https://placehold.co/40x40.png`} data-ai-hint="baby photo" />
-                        <AvatarFallback>{getInitials(chat.patientName)}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-center">
-                            <p className="text-sm font-semibold truncate">{chat.patientName}</p>
-                            <p className="text-xs text-muted-foreground flex-shrink-0 ml-2">{chat.time}</p>
+          <CardContent className="space-y-1">
+            {recentChats.length > 0 ? recentChats.map((chat) => (
+                <Link key={chat.id} href={`/doctor/patients/${chat.id}/chat`} className="block rounded-lg p-3 hover:bg-muted">
+                    <div className="flex items-start gap-3">
+                        <Avatar className="h-10 w-10 border flex-shrink-0">
+                            <AvatarImage src={chat.avatarUrl || `https://placehold.co/40x40.png`} data-ai-hint="baby photo" />
+                            <AvatarFallback>{getInitials(chat.patientName)}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                            <div className="flex justify-between items-center">
+                                <p className="text-sm font-semibold truncate">{chat.patientName}</p>
+                                <p className="text-xs text-muted-foreground flex-shrink-0 ml-2">{formatDistanceToNow(new Date(chat.time), { addSuffix: true })}</p>
+                            </div>
+                            <p className="text-sm text-muted-foreground truncate">{chat.lastMessage}</p>
                         </div>
-                        <p className="text-sm text-muted-foreground truncate">{chat.lastMessage}</p>
                     </div>
-                     <Button variant="ghost" size="icon" className="flex-shrink-0">
-                        <MessageSquare className="h-5 w-5" />
-                    </Button>
-                 </div>
-            ))}
+                </Link>
+            )) : (
+                <div className="text-center text-muted-foreground py-10">No recent chats.</div>
+            )}
           </CardContent>
         </Card>
       </div>
