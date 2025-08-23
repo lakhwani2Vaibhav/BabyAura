@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { adminData } from "@/lib/data";
@@ -25,22 +26,56 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { doctorData } from "@/lib/data";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { formatDistanceToNow } from 'date-fns';
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const recentChats = [
-    { id: 'chat1', specialistName: 'Nurse Concierge', lastMessage: "You're welcome! Let me know if you need anything else.", time: '5m ago', specialistId: 'nurse-concierge', avatarUrl: 'https://placehold.co/100x100.png', dataAiHint: 'nurse portrait' },
-    { id: 'chat2', specialistName: 'Dr. Emily Carter', lastMessage: "Thanks for the photo. It looks like a mild irritation...", time: '2h ago', specialistId: 'd1', avatarUrl: 'https://placehold.co/100x100.png', dataAiHint: 'doctor portrait' },
-];
+
+type RecentChat = {
+    id: string;
+    specialistName: string;
+    specialistId: string;
+    lastMessage: string;
+    time: string;
+    avatarUrl?: string;
+    dataAiHint: string;
+}
 
 export default function ContactPage() {
     const [showInfo, setShowInfo] = useState(false);
+    const [recentChats, setRecentChats] = useState<RecentChat[]>([]);
+    const [loading, setLoading] = useState(true);
+    const { user } = useAuth();
+    const { toast } = useToast();
 
     useEffect(() => {
+        const fetchChats = async () => {
+            if (!user) return;
+            setLoading(true);
+            try {
+                const token = localStorage.getItem('babyaura_token');
+                const response = await fetch('/api/parent/chats', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!response.ok) throw new Error("Failed to fetch chats");
+                const data = await response.json();
+                setRecentChats(data);
+            } catch (error) {
+                toast({ variant: 'destructive', title: 'Error', description: 'Could not load your recent chats.' });
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchChats();
+
         // Show the info dialog only once per session
         if (!sessionStorage.getItem('contactInfoShown')) {
             setShowInfo(true);
             sessionStorage.setItem('contactInfoShown', 'true');
         }
-    }, []);
+    }, [user, toast]);
 
   const getInitials = (name: string) => {
     const parts = name.split(" ");
@@ -83,23 +118,37 @@ export default function ContactPage() {
             </CardHeader>
             <CardContent>
                 <div className="space-y-4">
-                    {recentChats.map(chat => (
-                         <Link key={chat.id} href={`/parent/${chat.specialistId}/chat`} className="block p-4 rounded-lg hover:bg-muted transition-colors">
-                            <div className="flex items-start gap-4">
-                                <Avatar className="h-12 w-12 border">
-                                    <AvatarImage src={chat.avatarUrl} data-ai-hint={chat.dataAiHint} />
-                                    <AvatarFallback>{getInitials(chat.specialistName)}</AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex justify-between items-center">
-                                        <p className="font-semibold truncate">{chat.specialistName}</p>
-                                        <p className="text-xs text-muted-foreground flex-shrink-0 ml-2">{chat.time}</p>
+                    {loading ? (
+                       Array.from({length: 2}).map((_, i) => (
+                           <div key={i} className="flex items-center gap-4 p-4">
+                               <Skeleton className="h-12 w-12 rounded-full" />
+                               <div className="space-y-2 flex-1">
+                                   <Skeleton className="h-4 w-1/3" />
+                                   <Skeleton className="h-4 w-2/3" />
+                               </div>
+                           </div>
+                       ))
+                    ) : recentChats.length > 0 ? (
+                        recentChats.map(chat => (
+                             <Link key={chat.id} href={`/parent/${chat.specialistId}/chat`} className="block p-4 rounded-lg hover:bg-muted transition-colors">
+                                <div className="flex items-start gap-4">
+                                    <Avatar className="h-12 w-12 border">
+                                        <AvatarImage src={chat.avatarUrl} data-ai-hint={chat.dataAiHint} />
+                                        <AvatarFallback>{getInitials(chat.specialistName)}</AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex justify-between items-center">
+                                            <p className="font-semibold truncate">{chat.specialistName}</p>
+                                            <p className="text-xs text-muted-foreground flex-shrink-0 ml-2">{formatDistanceToNow(new Date(chat.time), { addSuffix: true })}</p>
+                                        </div>
+                                        <p className="text-sm text-muted-foreground truncate">{chat.lastMessage}</p>
                                     </div>
-                                    <p className="text-sm text-muted-foreground truncate">{chat.lastMessage}</p>
                                 </div>
-                            </div>
-                        </Link>
-                    ))}
+                            </Link>
+                        ))
+                    ) : (
+                        <div className="text-center text-muted-foreground p-8">No recent conversations. Start one by clicking the button below.</div>
+                    )}
                 </div>
             </CardContent>
         </Card>

@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from "next/server";
-import { createMessage, getMessagesForConversation } from "@/services/chat-service";
+import { createMessage, getMessagesForConversation, getParentRecentChats } from "@/services/chat-service";
 import { jwtDecode } from "jwt-decode";
 import { findParentById, findDoctorById } from "@/services/user-service";
 
@@ -34,15 +34,20 @@ export async function GET(req: NextRequest) {
         }
         
         const { searchParams } = new URL(req.url);
-        const otherUserId = searchParams.get('specialistId') || searchParams.get('patientId');
+        const otherUserId = searchParams.get('specialistId');
         
-        if (!otherUserId) {
-            return NextResponse.json({ message: "The other chat participant's ID is required." }, { status: 400 });
+        if (otherUserId) {
+            const messages = await getMessagesForConversation(user.userId, otherUserId);
+            return NextResponse.json(messages);
         }
 
-        const messages = await getMessagesForConversation(user.userId, otherUserId);
-        
-        return NextResponse.json(messages);
+        // If no specialistId, assume we're fetching the recent chats list for the parent
+        if (user.role === 'Parent') {
+            const recentChats = await getParentRecentChats(user.userId);
+            return NextResponse.json(recentChats);
+        }
+
+        return NextResponse.json({ message: "Invalid request." }, { status: 400 });
 
     } catch (error) {
         console.error("Failed to fetch messages:", error);

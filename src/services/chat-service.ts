@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import clientPromise from "@/lib/mongodb";
@@ -113,6 +114,50 @@ export const getDoctorRecentChats = async (doctorId: string) => {
             lastMessage: conv.lastMessage.content,
             time: conv.lastMessage.createdAt,
             avatarUrl: parent.avatarUrl,
+        };
+    }));
+
+    return enrichedConversations.filter(Boolean);
+};
+
+export const getParentRecentChats = async (parentId: string) => {
+    if (!db) await init();
+
+    const conversations = await messagesCollection.aggregate([
+        { $match: { $or: [{ senderId: parentId }, { receiverId: parentId }] } },
+        { $sort: { createdAt: -1 } },
+        { 
+            $group: {
+                _id: "$conversationId",
+                lastMessage: { $first: "$$ROOT" }
+            }
+        },
+        { $sort: { "lastMessage.createdAt": -1 } },
+        { $limit: 10 }
+    ]).toArray();
+
+    const enrichedConversations = await Promise.all(conversations.map(async (conv) => {
+        const specialistId = conv.lastMessage.senderId === parentId 
+            ? conv.lastMessage.receiverId 
+            : conv.lastMessage.senderId;
+        
+        let specialist;
+        if (specialistId === 'nurse-concierge') {
+            specialist = { _id: 'nurse-concierge', name: 'Nurse Concierge', avatarUrl: 'https://placehold.co/100x100.png' };
+        } else {
+            specialist = await findDoctorById(specialistId);
+        }
+        
+        if (!specialist) return null;
+
+        return {
+            id: conv._id,
+            specialistId: specialist._id,
+            specialistName: specialist.name,
+            lastMessage: conv.lastMessage.content,
+            time: conv.lastMessage.createdAt,
+            avatarUrl: specialist.avatarUrl || 'https://placehold.co/100x100.png',
+            dataAiHint: specialist.name === 'Nurse Concierge' ? 'nurse portrait' : 'doctor portrait',
         };
     }));
 
