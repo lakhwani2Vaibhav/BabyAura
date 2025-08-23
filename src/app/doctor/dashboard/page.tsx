@@ -73,6 +73,7 @@ export default function DoctorDashboardPage() {
   }, [user, toast]);
 
   const getInitials = (name: string) => {
+    if(!name) return '';
     const parts = name.split(" ");
     return parts.length > 1
       ? `${parts[0][0]}${parts[parts.length - 1][0]}`

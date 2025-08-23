@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { notFound, useParams } from 'next/navigation';
 import { ArrowLeft, Send, Paperclip, Loader2 } from 'lucide-react';
@@ -50,26 +50,33 @@ export default function PatientChatPage() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
 
+  const fetchMessages = useCallback(async () => {
+    if (!user || !patientId) return;
+    try {
+      const token = localStorage.getItem('babyaura_token');
+      const messagesRes = await fetch(`/api/parent/chat?patientId=${patientId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+      if (!messagesRes.ok) throw new Error('Failed to fetch messages');
+      const messagesData = await messagesRes.json();
+      setMessages(messagesData);
+    } catch (error) {
+       toast({ variant: 'destructive', title: 'Error', description: 'Could not update messages.' });
+    }
+  }, [user, patientId, toast]);
+
+
   useEffect(() => {
-    const fetchChatData = async () => {
+    const fetchInitialData = async () => {
       if (!user || !patientId) return;
       setIsLoading(true);
       try {
         const token = localStorage.getItem('babyaura_token');
         
-        const [patientRes, messagesRes] = await Promise.all([
-            fetch(`/api/doctor/patients/${patientId}/details`, { headers: { 'Authorization': `Bearer ${token}` } }),
-            fetch(`/api/parent/chat?patientId=${patientId}`, { headers: { 'Authorization': `Bearer ${token}` } })
-        ]);
-        
+        const patientRes = await fetch(`/api/doctor/patients/${patientId}/details`, { headers: { 'Authorization': `Bearer ${token}` } });
         if (!patientRes.ok) throw new Error('Failed to fetch patient details');
-        if (!messagesRes.ok) throw new Error('Failed to fetch messages');
-
         const patientData = await patientRes.json();
-        const messagesData = await messagesRes.json();
-
         setPatient(patientData);
-        setMessages(messagesData);
+
+        await fetchMessages();
 
       } catch (error) {
         toast({ variant: 'destructive', title: 'Error', description: 'Could not load chat history.' });
@@ -82,9 +89,14 @@ export default function PatientChatPage() {
     };
 
     if(user?.role === 'Doctor') {
-        fetchChatData();
+        fetchInitialData();
     }
-  }, [user, patientId, toast]);
+  }, [user, patientId, toast, fetchMessages]);
+
+  useEffect(() => {
+    const interval = setInterval(fetchMessages, 5000); // Poll every 5 seconds
+    return () => clearInterval(interval);
+  }, [fetchMessages]);
 
    useEffect(() => {
     if (scrollAreaRef.current) {

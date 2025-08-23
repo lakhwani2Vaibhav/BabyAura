@@ -4,6 +4,7 @@
 import clientPromise from "@/lib/mongodb";
 import { Db, Collection, ObjectId } from "mongodb";
 import { findDoctorById, findParentById } from "./user-service";
+import { createNotification } from "./notification-service";
 
 let client;
 let db: Db;
@@ -52,6 +53,14 @@ export const createMessage = async (message: Omit<Message, 'read' | 'createdAt' 
     };
     
     const result = await messagesCollection.insertOne(newMessage);
+    
+    // Send a notification to the receiver
+    await createNotification({
+        userId: message.receiverId,
+        title: `New message from ${message.senderRole}`,
+        description: `You have a new message.`,
+        href: message.senderRole === 'Parent' ? `/doctor/patients/${message.senderId}/chat` : `/parent/${message.senderId}/chat`
+    });
     
     return { ...newMessage, _id: result.insertedId };
 }

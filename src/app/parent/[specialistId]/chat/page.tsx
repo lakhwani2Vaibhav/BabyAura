@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { notFound, useParams } from 'next/navigation';
 import { ArrowLeft, Send, Paperclip, Loader2 } from 'lucide-react';
@@ -48,31 +48,36 @@ export default function SpecialistChatPage() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
 
+  const fetchMessages = useCallback(async () => {
+    if (!user || !specialistId) return;
+    try {
+        const token = localStorage.getItem('babyaura_token');
+        const messagesRes = await fetch(`/api/parent/chat?specialistId=${specialistId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (!messagesRes.ok) throw new Error('Failed to fetch messages');
+        const messagesData = await messagesRes.json();
+        setMessages(messagesData);
+    } catch(error) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Could not update messages.' });
+    }
+
+  }, [user, specialistId, toast]);
+
   useEffect(() => {
-    const fetchChatData = async () => {
+    const fetchInitialData = async () => {
       if (!user || !specialistId) return;
       setIsLoading(true);
       try {
         const token = localStorage.getItem('babyaura_token');
         
-        // Fetch specialist details and messages concurrently
-        const [specialistRes, messagesRes] = await Promise.all([
-            fetch(`/api/specialists/${specialistId}`, { headers: { 'Authorization': `Bearer ${token}` } }),
-            fetch(`/api/parent/chat?specialistId=${specialistId}`, { headers: { 'Authorization': `Bearer ${token}` } })
-        ]);
-
+        const specialistRes = await fetch(`/api/specialists/${specialistId}`, { headers: { 'Authorization': `Bearer ${token}` } });
         if (!specialistRes.ok) throw new Error('Failed to fetch specialist details');
-        if (!messagesRes.ok) throw new Error('Failed to fetch messages');
-
         const specialistData = await specialistRes.json();
-        const messagesData = await messagesRes.json();
-
         setSpecialist(specialistData);
-        setMessages(messagesData);
+
+        await fetchMessages();
 
       } catch (error) {
         toast({ variant: 'destructive', title: 'Error', description: 'Could not load chat history.' });
-        // Redirect or show an error state if specialist not found
         if ((error as Error).message.includes('specialist')) {
             notFound();
         }
@@ -80,8 +85,13 @@ export default function SpecialistChatPage() {
         setIsLoading(false);
       }
     };
-    fetchChatData();
-  }, [user, specialistId, toast]);
+    fetchInitialData();
+  }, [user, specialistId, toast, fetchMessages]);
+
+   useEffect(() => {
+    const interval = setInterval(fetchMessages, 5000); // Poll every 5 seconds
+    return () => clearInterval(interval);
+  }, [fetchMessages]);
 
   useEffect(() => {
     if (scrollAreaRef.current) {

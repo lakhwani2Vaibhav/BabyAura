@@ -33,11 +33,11 @@ export type Notification = {
     createdAt: Date;
 }
 
-export const createNotification = async (notification: Omit<Notification, 'read' | 'createdAt'>): Promise<Notification> => {
+export const createNotification = async (notificationData: Omit<Notification, 'read' | 'createdAt' | '_id'>): Promise<Notification> => {
     if (!db) await init();
     
     const newNotification: Notification = {
-        ...notification,
+        ...notificationData,
         read: false,
         createdAt: new Date(),
     };
@@ -49,7 +49,8 @@ export const createNotification = async (notification: Omit<Notification, 'read'
 
 export const getNotificationsForUser = async (userId: string) => {
     if (!db) await init();
-    return await notificationsCollection.find({ userId }).sort({ createdAt: -1 }).limit(20).toArray();
+    const notifications = await notificationsCollection.find({ userId }).sort({ createdAt: -1 }).limit(20).toArray();
+    return notifications.map(n => ({...n, _id: n._id.toString()}));
 }
 
 export const markNotificationsAsRead = async (userId: string) => {
