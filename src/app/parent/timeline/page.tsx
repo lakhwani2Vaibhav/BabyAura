@@ -26,6 +26,7 @@ import { useToast } from "@/hooks/use-toast";
 import { updateParentTimeline } from "@/ai/flows/update-parent-timeline";
 import { ScrollAnimationWrapper } from "@/components/layout/ScrollAnimationWrapper";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/hooks/use-auth";
 
 
 const initialDailyTasks = [
@@ -62,6 +63,7 @@ export default function TimelinePage() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -168,7 +170,7 @@ export default function TimelinePage() {
   return (
     <div className="space-y-6">
        <div className="text-center">
-            <h1 className="text-3xl font-bold font-headline tracking-tight">Your Daily Command Center, Mrs. CRO!</h1>
+            <h1 className="text-3xl font-bold font-headline tracking-tight">Your Daily Command Center, {user?.name}!</h1>
             <p className="text-muted-foreground mt-2">Here’s a look at your day. You’re doing great!</p>
         </div>
 
