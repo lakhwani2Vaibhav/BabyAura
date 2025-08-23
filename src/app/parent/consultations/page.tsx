@@ -6,7 +6,7 @@ import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ConsultationCard } from "@/components/cards/ConsultationCard";
 import { CareTeamMemberCard } from "@/components/cards/CareTeamMemberCard";
-import { Calendar, Users } from "lucide-react";
+import { Calendar, Users, HeartHandshake } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -69,6 +69,33 @@ export default function ConsultationsPage() {
     fetchConsultations();
   }, [user, toast]);
 
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-10 w-1/3" />
+        <Skeleton className="h-10 w-full" />
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <Skeleton className="h-48" />
+          <Skeleton className="h-48" />
+          <Skeleton className="h-48" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!data || data.careTeam.length === 0) {
+    return (
+        <Card className="flex flex-col items-center justify-center p-12 text-center">
+            <div className="p-4 bg-primary/10 rounded-full mb-4">
+                <HeartHandshake className="h-12 w-12 text-primary" />
+            </div>
+            <CardTitle className="text-2xl font-headline">Welcome to BabyAura!</CardTitle>
+            <CardDescription className="mt-2 max-w-md text-base">
+                Your dedicated care team is being assembled and will be assigned to you shortly. You'll receive a notification as soon as they are ready.
+            </CardDescription>
+        </Card>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -79,24 +106,19 @@ export default function ConsultationsPage() {
         </p>
       </div>
 
-       <Tabs defaultValue="upcoming" className="w-full">
+       <Tabs defaultValue="team" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="upcoming">
-                    <Calendar className="mr-2 h-4 w-4" />
-                    Upcoming
-                </TabsTrigger>
                 <TabsTrigger value="team">
                     <Users className="mr-2 h-4 w-4" />
                     Your Care Team
                 </TabsTrigger>
+                <TabsTrigger value="upcoming">
+                    <Calendar className="mr-2 h-4 w-4" />
+                    Upcoming
+                </TabsTrigger>
             </TabsList>
             <TabsContent value="upcoming" className="mt-6">
-                {loading ? (
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                        <Skeleton className="h-48" />
-                        <Skeleton className="h-48" />
-                    </div>
-                ) : data && data.upcomingConsultations.length > 0 ? (
+                {data && data.upcomingConsultations.length > 0 ? (
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {data.upcomingConsultations.map((consultation) => (
                             <ConsultationCard
@@ -109,19 +131,13 @@ export default function ConsultationsPage() {
                     <Card className="flex flex-col items-center justify-center p-12">
                         <CardTitle>No Upcoming Consultations</CardTitle>
                         <CardDescription className="mt-2">
-                        You're all caught up!
+                        You're all caught up! Book a new one with your care team.
                         </CardDescription>
                     </Card>
                 )}
             </TabsContent>
             <TabsContent value="team" className="mt-6">
-                 {loading ? (
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                        <Skeleton className="h-48" />
-                        <Skeleton className="h-48" />
-                        <Skeleton className="h-48" />
-                    </div>
-                 ) : data && data.careTeam.length > 0 ? (
+                 {data && data.careTeam.length > 0 ? (
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {data?.careTeam.map(member => (
                             <CareTeamMemberCard key={member.id} member={member} />

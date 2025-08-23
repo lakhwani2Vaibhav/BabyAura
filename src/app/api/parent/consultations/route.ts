@@ -1,7 +1,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { addDays } from "date-fns";
-import { findParentById, findTeamById } from "@/services/user-service";
+import { findParentById, findTeamById, findDoctorById } from "@/services/user-service";
 import { jwtDecode } from 'jwt-decode';
 
 interface DecodedToken {
@@ -30,23 +30,25 @@ const getAuthenticatedParent = async (req: NextRequest) => {
 // based on the authenticated parent's ID.
 
 const mockData = {
+  // We will return empty upcoming consultations for now
+  // as this feature is not fully implemented.
   upcomingConsultations: [
-    {
-      id: 1,
-      doctor: "Dr. Emily Carter",
-      specialty: "Pediatrician",
-      date: addDays(new Date(), 3).toISOString(),
-      time: "10:00 AM",
-      status: "Upcoming" as const,
-    },
-    {
-      id: 2,
-      doctor: "Dr. Ben Adams",
-      specialty: "Nutritionist",
-      date: addDays(new Date(), 10).toISOString(),
-      time: "02:30 PM",
-      status: "Upcoming" as const,
-    },
+    // {
+    //   id: 1,
+    //   doctor: "Dr. Emily Carter",
+    //   specialty: "Pediatrician",
+    //   date: addDays(new Date(), 3).toISOString(),
+    //   time: "10:00 AM",
+    //   status: "Upcoming" as const,
+    // },
+    // {
+    //   id: 2,
+    //   doctor: "Dr. Ben Adams",
+    //   specialty: "Nutritionist",
+    //   date: addDays(new Date(), 10).toISOString(),
+    //   time: "02:30 PM",
+    //   status: "Upcoming" as const,
+    // },
   ],
 };
 
