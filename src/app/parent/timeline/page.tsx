@@ -67,7 +67,10 @@ export default function TimelinePage() {
     const fetchTasks = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch('/api/parent/timeline');
+        const token = localStorage.getItem('babyaura_token');
+        const response = await fetch('/api/parent/timeline', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
         if (!response.ok) {
           // If no tasks are found, use initial tasks. This is for first-time users.
           if (response.status === 404) {
@@ -91,9 +94,10 @@ export default function TimelinePage() {
 
   const saveTasks = async (newTasks: Task[]) => {
       try {
+          const token = localStorage.getItem('babyaura_token');
           const response = await fetch('/api/parent/timeline', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
               body: JSON.stringify({ tasks: newTasks })
           });
           if (!response.ok) throw new Error("Failed to save timeline");
