@@ -54,7 +54,8 @@ export default function PatientChatPage() {
     if (!user || !patientId) return;
     try {
       const token = localStorage.getItem('babyaura_token');
-      const messagesRes = await fetch(`/api/parent/chat?patientId=${patientId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+      // Using the parent's chat API route but specifying the other user (patientId)
+      const messagesRes = await fetch(`/api/parent/chat?specialistId=${patientId}`, { headers: { 'Authorization': `Bearer ${token}` } });
       if (!messagesRes.ok) throw new Error('Failed to fetch messages');
       const messagesData = await messagesRes.json();
       setMessages(messagesData);
@@ -110,7 +111,7 @@ export default function PatientChatPage() {
 
   if (isLoading) {
        return (
-         <Card className="flex flex-col flex-1 h-[calc(100vh-10rem)]">
+         <Card className="flex flex-col h-full">
             <CardHeader className="flex flex-row items-center gap-4 p-4 border-b">
                 <Skeleton className="h-10 w-10 rounded-full" />
                 <div className="space-y-2">
@@ -165,8 +166,7 @@ export default function PatientChatPage() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-12rem)]">
-      <Card className="flex flex-col flex-1">
+    <Card className="flex flex-col h-full">
         <CardHeader className="flex flex-row items-center gap-4 p-4 border-b">
           <Button asChild variant="ghost" size="icon">
             <Link href={`/doctor/patients/${patientId}`}>
@@ -240,7 +240,6 @@ export default function PatientChatPage() {
             </Button>
           </form>
         </CardFooter>
-      </Card>
-    </div>
+    </Card>
   );
 }

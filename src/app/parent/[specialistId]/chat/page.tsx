@@ -105,7 +105,7 @@ export default function SpecialistChatPage() {
 
   if (isLoading) {
        return (
-         <Card className="flex flex-col flex-1 h-[calc(100vh-10rem)]">
+         <Card className="flex flex-col h-full">
             <CardHeader className="flex flex-row items-center gap-4 p-4 border-b">
                 <Skeleton className="h-10 w-10 rounded-full" />
                 <div className="space-y-2">
@@ -160,8 +160,7 @@ export default function SpecialistChatPage() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-10rem)]">
-      <Card className="flex flex-col flex-1">
+    <Card className="flex flex-col h-full">
         <CardHeader className="flex flex-row items-center gap-4 p-4 border-b">
           <Button asChild variant="ghost" size="icon">
             <Link href={`/parent/contact`}>
@@ -235,7 +234,6 @@ export default function SpecialistChatPage() {
             </Button>
           </form>
         </CardFooter>
-      </Card>
-    </div>
+    </Card>
   );
 }
