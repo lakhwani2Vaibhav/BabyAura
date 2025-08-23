@@ -18,7 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Shield, Stethoscope } from "lucide-react";
+import { Loader2, Shield, Stethoscope, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
@@ -45,6 +45,7 @@ export function UnifiedAdminLoginForm() {
   const [selectedRole, setSelectedRole] =
     useState<ProfessionalRole>("Admin");
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
 
   const {
@@ -149,7 +150,12 @@ export function UnifiedAdminLoginForm() {
                     Forgot password?
                 </Link>
              </div>
-            <Input id="password" type="password" {...register("password")} defaultValue="password" />
+             <div className="relative">
+                <Input id="password" type={showPassword ? "text" : "password"} {...register("password")} defaultValue="password" />
+                <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7" onClick={() => setShowPassword(!showPassword)}>
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+            </div>
             {errors.password && (
               <p className="text-sm text-destructive">
                 {errors.password.message}

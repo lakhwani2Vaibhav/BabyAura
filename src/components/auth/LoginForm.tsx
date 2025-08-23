@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, Loader2, Eye, EyeOff } from "lucide-react";
 import Link from 'next/link';
 import { Separator } from "../ui/separator";
 
@@ -33,6 +33,7 @@ type LoginValues = z.infer<typeof loginSchema>;
 export function LoginForm() {
   const { login } = useAuth();
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
 
   const {
@@ -107,7 +108,12 @@ export function LoginForm() {
                     Forgot password?
                 </Link>
              </div>
-            <Input id="password" type="password" {...register("password")} defaultValue="password" />
+            <div className="relative">
+                <Input id="password" type={showPassword ? "text" : "password"} {...register("password")} defaultValue="password" />
+                <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7" onClick={() => setShowPassword(!showPassword)}>
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+            </div>
             {errors.password && (
               <p className="text-sm text-destructive">
                 {errors.password.message}
