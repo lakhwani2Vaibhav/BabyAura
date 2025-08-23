@@ -18,11 +18,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, ArrowLeft, Hospital, Loader2, User, CheckCircle2 } from "lucide-react";
+import { AlertCircle, ArrowLeft, Hospital, Loader2, User, CheckCircle2, Stethoscope, Utensils, Brain, Phone, HeartHandshake } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "../ui/textarea";
 import { cn } from "@/lib/utils";
+import { Badge } from "../ui/badge";
 
 const hospitalCodeSchema = z.object({
   hospitalCode: z.string().min(1, { message: "Please enter a hospital code." }),
@@ -49,6 +50,15 @@ type Plan = {
     customFeatures: { text: string }[];
     isMostPopular: boolean;
 };
+
+const coreServices = [
+    { id: 'pediatrics', label: 'Dedicated Pediatrics Support', icon: Stethoscope },
+    { id: 'nutrition', label: 'Dedicated Dietician Support', icon: Utensils },
+    { id: 'therapy', label: 'Mind Therapist Sessions', icon: Brain },
+    { id: 'emergency', label: '24/7 Call Assistance', icon: Phone },
+    { id: 'chat', label: 'Quick Chat/Call Support', icon: HeartHandshake },
+    { id: 'nurse', label: 'Dedicated Nurse Concierge', icon: Stethoscope },
+] as const;
 
 
 type Step = 'initial' | 'enterCode' | 'confirmHospital' | 'selectPlan' | 'affiliatedDetails' | 'independentDetails';
@@ -273,21 +283,56 @@ export function RegisterForm() {
                 <CardDescription>Choose a plan from {hospitalName} to continue.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-                {hospitalPlans.map(plan => (
-                    <div 
+                {hospitalPlans.length > 0 ? hospitalPlans.map(plan => (
+                    <Card 
                         key={plan._id}
-                        onClick={() => handleSelectPlan(plan._id)}
+                        onClick={() => setSelectedPlanId(plan._id)}
                         className={cn(
-                            "rounded-lg border p-4 cursor-pointer transition-all",
-                            selectedPlanId === plan._id ? "border-primary ring-2 ring-primary" : "hover:bg-muted/50"
+                            "cursor-pointer transition-all flex flex-col",
+                            selectedPlanId === plan._id && "border-primary ring-2 ring-primary"
                         )}
                     >
-                        <h4 className="font-bold">{plan.planName}</h4>
-                        <p className="text-sm text-muted-foreground">{plan.description}</p>
-                        <p className="font-bold mt-2">₹{plan.monthlyPrice}/month</p>
+                        {plan.isMostPopular && (
+                            <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">MOST POPULAR</Badge>
+                        )}
+                        <CardHeader>
+                            <CardTitle>{plan.planName}</CardTitle>
+                            <CardDescription>{plan.description}</CardDescription>
+                            <p className="text-3xl font-bold pt-2">₹{plan.monthlyPrice}<span className="text-sm font-normal text-muted-foreground">/month</span></p>
+                        </CardHeader>
+                        <CardContent className="flex-1">
+                            <ul className="space-y-2">
+                                {coreServices.filter(s => plan.services[s.id]).map(s => (
+                                    <li key={s.id} className="flex items-center gap-2 text-sm">
+                                        <CheckCircle2 className="h-4 w-4 text-green-500" />
+                                        <span>{s.label}</span>
+                                    </li>
+                                ))}
+                                {plan.customFeatures.map((feature, fIndex) => feature.text && (
+                                    <li key={fIndex} className="flex items-center gap-2 text-sm">
+                                        <CheckCircle2 className="h-4 w-4 text-green-500" />
+                                        <span>{feature.text}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </CardContent>
+                        <CardFooter>
+                            <Button 
+                                className="w-full"
+                                variant={selectedPlanId === plan._id ? "default" : "outline"}
+                                onClick={() => handleSelectPlan(plan._id)}
+                            >
+                                {selectedPlanId === plan._id ? "Plan Selected" : "Choose Plan"}
+                            </Button>
+                        </CardFooter>
+                    </Card>
+                )) : (
+                    <div className="text-center text-muted-foreground p-8">
+                        <p>This hospital has not configured any subscription plans yet.</p>
+                        <p className="text-sm">Please contact the hospital administrator.</p>
+                         <Button onClick={() => setStep('enterCode')} variant="outline" className="mt-4">Go Back</Button>
                     </div>
-                ))}
-                {hospitalPlans.length === 0 && <p className="text-center text-muted-foreground">This hospital has not configured any plans yet.</p>}
+                )}
             </CardContent>
           </>
         );
