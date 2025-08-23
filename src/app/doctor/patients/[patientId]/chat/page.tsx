@@ -111,7 +111,7 @@ export default function PatientChatPage() {
 
   if (isLoading) {
        return (
-         <Card className="flex flex-col h-[calc(100vh-10rem)]">
+         <Card className="flex flex-col h-[calc(100vh-10rem)] md:h-[calc(100vh-12rem)]">
             <CardHeader className="flex flex-row items-center gap-4 p-4 border-b">
                 <Skeleton className="h-10 w-10 rounded-full" />
                 <div className="space-y-2">
@@ -166,11 +166,11 @@ export default function PatientChatPage() {
   };
 
   return (
-    <div className="h-[calc(100vh-10rem)]">
+    <div className="h-[calc(100vh-10rem)] md:h-[calc(100vh-12rem)]">
     <Card className="flex flex-col h-full">
         <CardHeader className="flex flex-row items-center gap-4 p-4 border-b">
-          <Button asChild variant="ghost" size="icon">
-            <Link href={`/doctor/patients/${patientId}`}>
+          <Button asChild variant="ghost" size="icon" className="md:hidden">
+            <Link href={`/doctor/patients`}>
               <ArrowLeft className="h-5 w-5" />
             </Link>
           </Button>
@@ -188,43 +188,52 @@ export default function PatientChatPage() {
         </CardHeader>
         <CardContent className="flex-1 p-0 overflow-hidden">
             <ScrollArea className="h-full p-4" ref={scrollAreaRef}>
-            <div className="space-y-4">
-                {messages.map((message) => (
-                <div
-                    key={message._id}
-                    className={cn(
-                    'flex items-end gap-2',
-                    message.senderId === user?.userId ? 'justify-end' : 'justify-start'
-                    )}
-                >
-                    {message.senderId !== user?.userId && (
-                        <Avatar className="h-8 w-8">
-                            <AvatarImage src={patient.avatarUrl} data-ai-hint="parent portrait" />
-                            <AvatarFallback>{getInitials(patient.name)}</AvatarFallback>
-                        </Avatar>
-                    )}
+            <div className="space-y-1">
+                {messages.map((message, index) => {
+                  const showAvatar = index === 0 || messages[index - 1].senderId !== message.senderId;
+                  return (
                     <div
-                    className={cn(
-                        'max-w-xs md:max-w-md lg:max-w-lg rounded-lg p-3 text-sm',
-                        message.senderId === user?.userId
-                        ? 'bg-primary text-primary-foreground rounded-br-none'
-                        : 'bg-muted rounded-bl-none'
-                    )}
+                        key={message._id}
+                        className={cn(
+                        'flex items-end gap-2 py-2',
+                        message.senderId === user?.userId ? 'justify-end' : 'justify-start'
+                        )}
                     >
-                        <p>{message.content}</p>
-                         <p className={cn(
-                             "text-xs mt-1 text-right",
-                             message.senderId === user?.userId ? 'text-primary-foreground/70' : 'text-muted-foreground'
-                         )}>
-                            {formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })}
-                        </p>
+                        {message.senderId !== user?.userId && (
+                             <div className="w-8 flex-shrink-0">
+                                {showAvatar && (
+                                    <Avatar className="h-8 w-8">
+                                        <AvatarImage src={patient.avatarUrl} data-ai-hint="parent portrait" />
+                                        <AvatarFallback>{getInitials(patient.name)}</AvatarFallback>
+                                    </Avatar>
+                                )}
+                            </div>
+                        )}
+                        <div className="flex flex-col gap-1 max-w-[80%]">
+                            <div
+                                className={cn(
+                                'rounded-lg p-3 text-sm shadow-sm',
+                                message.senderId === user?.userId
+                                ? 'bg-primary text-primary-foreground rounded-br-none'
+                                : 'bg-muted rounded-bl-none'
+                                )}
+                            >
+                                <p>{message.content}</p>
+                            </div>
+                             <p className={cn(
+                                "text-xs text-muted-foreground px-1",
+                                message.senderId === user?.userId ? 'text-right' : 'text-left'
+                            )}>
+                                {formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })}
+                            </p>
+                        </div>
                     </div>
-                </div>
-                ))}
+                  );
+                })}
             </div>
             </ScrollArea>
         </CardContent>
-        <CardFooter className="p-4 border-t">
+        <CardFooter className="p-4 border-t bg-background">
           <form onSubmit={handleSendMessage} className="flex items-center gap-2 w-full">
             <Button variant="ghost" size="icon" type="button">
                 <Paperclip className="h-5 w-5" />
