@@ -58,7 +58,7 @@ export default function PatientChatPage() {
         const token = localStorage.getItem('babyaura_token');
         
         const [patientRes, messagesRes] = await Promise.all([
-            fetch(`/api/superadmin/parents/${patientId}`, { headers: { 'Authorization': `Bearer ${token}` } }), // Use an existing API that can fetch parent details
+            fetch(`/api/doctor/patients/${patientId}/details`, { headers: { 'Authorization': `Bearer ${token}` } }),
             fetch(`/api/parent/chat?specialistId=${user.userId}`, { headers: { 'Authorization': `Bearer ${token}` } })
         ]);
         
