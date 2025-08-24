@@ -51,7 +51,7 @@ export async function PUT(req: NextRequest) {
 
         const body = await req.json();
         
-        const allowedUpdates = ['name', 'specialty', 'calendlyLink'];
+        const allowedUpdates = ['name', 'specialty'];
         const updates: { [key: string]: any } = {};
 
         for (const key of allowedUpdates) {

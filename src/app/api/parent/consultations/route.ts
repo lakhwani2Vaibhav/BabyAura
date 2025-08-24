@@ -69,7 +69,6 @@ export async function GET(req: NextRequest) {
                     id: member.doctorId,
                     name: member.name,
                     type: member.role,
-                    calendlyLink: doctor?.calendlyLink,
                     // These are mock details, in a real app you'd fetch them
                     avatarUrl: 'https://placehold.co/100x100.png',
                     languages: ['English', 'Hindi'],
@@ -89,7 +88,6 @@ export async function GET(req: NextRequest) {
                 id: doctor._id,
                 name: doctor.name,
                 type: doctor.specialty,
-                calendlyLink: doctor.calendlyLink,
                 avatarUrl: 'https://placehold.co/100x100.png',
                 languages: ['English', 'Hindi'],
                 experience: '12 years',

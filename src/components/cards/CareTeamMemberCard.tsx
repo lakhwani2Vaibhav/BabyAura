@@ -26,6 +26,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "../ui/scroll-area";
 import Link from "next/link";
+import { ScheduleAppointmentDialog } from "../consultations/ScheduleAppointmentDialog";
 
 type PastAppointment = {
     date: string;
@@ -38,7 +39,6 @@ interface Member {
     name: string;
     type: string;
     avatarUrl: string;
-    calendlyLink?: string;
     languages: string[];
     experience: string;
     notes: string;
@@ -60,18 +60,6 @@ export function CareTeamMemberCard({ member }: CareTeamMemberCardProps) {
       : name.substring(0, 2);
   };
 
-  const handleBookAppointment = () => {
-    if (member.calendlyLink) {
-        window.open(member.calendlyLink, '_blank', 'noopener,noreferrer');
-    } else {
-        toast({
-            variant: "destructive",
-            title: "Scheduling Unavailable",
-            description: `${member.name} has not set up their booking link yet.`
-        })
-    }
-  }
-
   return (
       <Card className="flex flex-col">
         <CardHeader>
@@ -87,9 +75,11 @@ export function CareTeamMemberCard({ member }: CareTeamMemberCardProps) {
           </div>
         </CardHeader>
         <CardContent className="flex-grow">
-           <Button onClick={handleBookAppointment} className="w-full">
-                <CalendarPlus className="mr-2 h-4 w-4" /> Book Appointment
-            </Button>
+            <ScheduleAppointmentDialog triggerButton={
+                <Button className="w-full">
+                    <CalendarPlus className="mr-2 h-4 w-4" /> Book Appointment
+                </Button>
+            }/>
         </CardContent>
         <CardFooter className="flex flex-col sm:flex-row gap-2">
              <Button variant="outline" className="w-full" asChild>

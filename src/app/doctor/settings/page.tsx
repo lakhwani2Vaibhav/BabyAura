@@ -17,7 +17,6 @@ import { Separator } from "@/components/ui/separator";
 const profileSchema = z.object({
   name: z.string().min(1, "Name is required"),
   specialty: z.string().min(1, "Specialty is required"),
-  calendlyLink: z.string().url("Please enter a valid Calendly URL").optional().or(z.literal("")),
 });
 
 const passwordSchema = z.object({
@@ -38,7 +37,6 @@ type UserProfile = {
   specialty: string;
   hospitalName?: string;
   avatarUrl?: string;
-  calendlyLink?: string;
 }
 
 export default function DoctorSettingsPage() {
@@ -49,7 +47,7 @@ export default function DoctorSettingsPage() {
 
   const profileForm = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
-    defaultValues: { name: "", specialty: "", calendlyLink: "" },
+    defaultValues: { name: "", specialty: "" },
   });
 
   const passwordForm = useForm<PasswordFormValues>({
@@ -73,7 +71,6 @@ export default function DoctorSettingsPage() {
             profileForm.reset({
                 name: profileData.name,
                 specialty: profileData.specialty,
-                calendlyLink: profileData.calendlyLink || "",
             });
         } catch (error) {
              toast({
@@ -162,9 +159,6 @@ export default function DoctorSettingsPage() {
                             )}/>
                             <FormField control={profileForm.control} name="specialty" render={({ field }) => (
                                 <FormItem><FormLabel>Specialty</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                            )}/>
-                            <FormField control={profileForm.control} name="calendlyLink" render={({ field }) => (
-                                <FormItem><FormLabel>Calendly Link</FormLabel><FormControl><Input placeholder="https://calendly.com/your-name" {...field} /></FormControl><FormMessage /></FormItem>
                             )}/>
                              <FormItem>
                                 <FormLabel>Hospital</FormLabel>

@@ -6,10 +6,12 @@ import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ConsultationCard } from "@/components/cards/ConsultationCard";
 import { CareTeamMemberCard } from "@/components/cards/CareTeamMemberCard";
-import { Calendar, Users, HeartHandshake } from "lucide-react";
+import { Calendar, Users, HeartHandshake, Plus } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ScheduleAppointmentDialog } from "@/components/consultations/ScheduleAppointmentDialog";
+import { Button } from "@/components/ui/button";
 
 type Consultation = {
   id: number;
@@ -99,11 +101,18 @@ export default function ConsultationsPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold font-headline">Consultations & Care Team</h1>
-        <p className="text-muted-foreground">
-          Manage appointments and connect with your dedicated specialists.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 className="text-3xl font-bold font-headline">Consultations & Care Team</h1>
+            <p className="text-muted-foreground">
+            Manage appointments and connect with your dedicated specialists.
+            </p>
+        </div>
+        <ScheduleAppointmentDialog triggerButton={
+            <Button>
+                <Plus className="mr-2 h-4 w-4" /> New Appointment
+            </Button>
+        } />
       </div>
 
        <Tabs defaultValue="team" className="w-full">
