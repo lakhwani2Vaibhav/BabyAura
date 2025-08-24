@@ -27,6 +27,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "../ui/scroll-area";
 import Link from "next/link";
 import { ScheduleAppointmentDialog } from "../consultations/ScheduleAppointmentDialog";
+import { adminData } from "@/lib/data";
 
 type PastAppointment = {
     date: string;
@@ -75,10 +76,12 @@ export function CareTeamMemberCard({ member }: CareTeamMemberCardProps) {
           </div>
         </CardHeader>
         <CardContent className="flex-grow">
-            <ScheduleAppointmentDialog triggerButton={
-                <Button className="w-full">
-                    <CalendarPlus className="mr-2 h-4 w-4" /> Book Appointment
-                </Button>
+            <ScheduleAppointmentDialog 
+                initialDoctor={member as unknown as (typeof adminData.doctors)[0]}
+                triggerButton={
+                    <Button className="w-full">
+                        <CalendarPlus className="mr-2 h-4 w-4" /> Book Appointment
+                    </Button>
             }/>
         </CardContent>
         <CardFooter className="flex flex-col sm:flex-row gap-2">

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, cloneElement, ReactElement } from "react";
+import { useState, cloneElement, ReactElement, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -43,12 +43,13 @@ const availableTimeSlots = [
 
 interface ScheduleAppointmentDialogProps {
   triggerButton?: ReactElement;
+  initialDoctor?: Doctor;
 }
 
-export function ScheduleAppointmentDialog({ triggerButton }: ScheduleAppointmentDialogProps) {
+export function ScheduleAppointmentDialog({ triggerButton, initialDoctor }: ScheduleAppointmentDialogProps) {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>("select_doctor");
-  const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
+  const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(initialDoctor || null);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     new Date()
   );
@@ -56,6 +57,22 @@ export function ScheduleAppointmentDialog({ triggerButton }: ScheduleAppointment
 
   const { toast } = useToast();
   const { user } = useAuth();
+  
+  useEffect(() => {
+    if (initialDoctor && open) {
+        setSelectedDoctor(initialDoctor);
+        setStep("select_time");
+    } else if (!open) {
+        // Reset state when dialog is closed
+        setTimeout(() => {
+            setStep("select_doctor");
+            setSelectedDoctor(null);
+            setSelectedDate(new Date());
+            setSelectedTime(null);
+        }, 300);
+    }
+  }, [initialDoctor, open]);
+
 
   const getInitials = (name: string) => {
     const parts = name.split(" ");
@@ -75,7 +92,6 @@ export function ScheduleAppointmentDialog({ triggerButton }: ScheduleAppointment
         return;
     }
     
-    // In a real app, this would be an API call
     try {
         const token = localStorage.getItem('babyaura_token');
         const response = await fetch('/api/parent/consultations', {
@@ -105,17 +121,16 @@ export function ScheduleAppointmentDialog({ triggerButton }: ScheduleAppointment
 
   const resetState = () => {
     setOpen(false);
-    setTimeout(() => {
-        setStep("select_doctor");
-        setSelectedDoctor(null);
-        setSelectedDate(new Date());
-        setSelectedTime(null);
-    }, 300);
   };
 
   const handleBack = () => {
     if (step === "select_time") {
-      setStep("select_doctor");
+      // If there was an initial doctor, closing the dialog is more intuitive than going back
+      if(initialDoctor) {
+        setOpen(false);
+      } else {
+        setStep("select_doctor");
+      }
     } else if (step === "confirm") {
       setStep("select_time");
     }
