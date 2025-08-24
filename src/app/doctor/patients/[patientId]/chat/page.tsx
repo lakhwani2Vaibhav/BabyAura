@@ -62,12 +62,16 @@ export default function PatientChatPage() {
 
       const messagesRes = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
       if (!messagesRes.ok) throw new Error('Failed to fetch messages');
-      const newMessages = await messagesRes.json();
+      const newMessages: Message[] = await messagesRes.json();
       
       if (isInitialLoad) {
         setMessages(newMessages);
       } else if (newMessages.length > 0) {
-        setMessages(prev => [...prev, ...newMessages]);
+        setMessages(prev => {
+            const existingIds = new Set(prev.map(m => m._id));
+            const uniqueNewMessages = newMessages.filter(m => !existingIds.has(m._id));
+            return [...prev, ...uniqueNewMessages];
+        });
       }
 
     } catch (error) {
@@ -122,7 +126,7 @@ export default function PatientChatPage() {
 
   if (isLoading) {
        return (
-         <div className="h-[calc(100vh-10rem)] md:h-[calc(100vh-12rem)]">
+         <div className="h-[calc(100vh-10rem)] md:h-full">
          <Card className="flex flex-col h-full">
             <CardHeader className="flex flex-row items-center gap-4 p-4 border-b">
                 <Skeleton className="h-10 w-10 rounded-full" />
@@ -179,7 +183,7 @@ export default function PatientChatPage() {
   };
 
   return (
-    <div className="h-[calc(100vh-10rem)] md:h-[calc(100vh-12rem)]">
+    <div className="h-[calc(100vh-10rem)] md:h-full">
     <Card className="flex flex-col h-full">
         <CardHeader className="flex flex-row items-center gap-4 p-4 border-b">
           <Button asChild variant="ghost" size="icon" className="md:hidden">
