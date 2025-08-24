@@ -1,6 +1,7 @@
+
 import { NextRequest, NextResponse } from "next/server";
 import { addDays } from "date-fns";
-import { findParentById, findTeamById, findDoctorById } from "@/services/user-service";
+import { findParentById, findTeamById, findDoctorById, createAppointment, getUpcomingAppointments } from "@/services/user-service";
 import { jwtDecode } from 'jwt-decode';
 
 interface DecodedToken {
@@ -24,33 +25,6 @@ const getAuthenticatedParent = async (req: NextRequest) => {
     }
 };
 
-
-// This is a mock API endpoint. In a real application, you would fetch this data from your database
-// based on the authenticated parent's ID.
-
-const mockData = {
-  // We will return empty upcoming consultations for now
-  // as this feature is not fully implemented.
-  upcomingConsultations: [
-    // {
-    //   id: 1,
-    //   doctor: "Dr. Emily Carter",
-    //   specialty: "Pediatrician",
-    //   date: addDays(new Date(), 3).toISOString(),
-    //   time: "10:00 AM",
-    //   status: "Upcoming" as const,
-    // },
-    // {
-    //   id: 2,
-    //   doctor: "Dr. Ben Adams",
-    //   specialty: "Nutritionist",
-    //   date: addDays(new Date(), 10).toISOString(),
-    //   time: "02:30 PM",
-    //   status: "Upcoming" as const,
-    // },
-  ],
-};
-
 export async function GET(req: NextRequest) {
     const parent = await getAuthenticatedParent(req);
     if (!parent) {
@@ -69,7 +43,6 @@ export async function GET(req: NextRequest) {
                     id: member.doctorId,
                     name: member.name,
                     type: member.role,
-                    // These are mock details, in a real app you'd fetch them
                     avatarUrl: 'https://placehold.co/100x100.png',
                     languages: ['English', 'Hindi'],
                     experience: '10+ years',
@@ -81,7 +54,6 @@ export async function GET(req: NextRequest) {
             careTeam = memberDetails;
         }
     } else if (parent.doctorId) {
-        // Fallback for single doctor assignment if teams are not used
         const doctor = await findDoctorById(parent.doctorId);
         if (doctor) {
              careTeam.push({
@@ -97,12 +69,41 @@ export async function GET(req: NextRequest) {
         }
     }
 
+    const upcomingConsultations = await getUpcomingAppointments(parent._id, 'Parent');
 
     const responseData = {
-        ...mockData,
+        upcomingConsultations,
         careTeam: careTeam,
     }
 
-
     return NextResponse.json(responseData);
+}
+
+export async function POST(req: NextRequest) {
+    const parent = await getAuthenticatedParent(req);
+    if (!parent) {
+        return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
+    }
+
+    try {
+        const body = await req.json();
+        const { doctorId, date, time } = body;
+
+        if (!doctorId || !date || !time) {
+            return NextResponse.json({ message: "Missing required appointment details." }, { status: 400 });
+        }
+
+        const appointment = await createAppointment({
+            parentId: parent._id,
+            doctorId,
+            appointmentDate: new Date(`${date}T${time}`),
+            date,
+            time,
+        });
+
+        return NextResponse.json(appointment, { status: 201 });
+    } catch (error) {
+        console.error("Failed to create appointment:", error);
+        return NextResponse.json({ message: "An unexpected error occurred." }, { status: 500 });
+    }
 }

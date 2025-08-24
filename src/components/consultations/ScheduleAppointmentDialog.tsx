@@ -25,6 +25,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Calendar } from "../ui/calendar";
 import { format } from "date-fns";
 import { ScrollArea } from "../ui/scroll-area";
+import { useAuth } from "@/hooks/use-auth";
 
 type Doctor = (typeof adminData.doctors)[0];
 type Step = "select_doctor" | "select_time" | "confirm";
@@ -54,6 +55,7 @@ export function ScheduleAppointmentDialog({ triggerButton }: ScheduleAppointment
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const getInitials = (name: string) => {
     const parts = name.split(" ");
@@ -67,14 +69,38 @@ export function ScheduleAppointmentDialog({ triggerButton }: ScheduleAppointment
     setStep("select_time");
   };
 
-  const handleConfirmSchedule = () => {
-    toast({
-      title: "Appointment Scheduled!",
-      description: `Your appointment with ${
-        selectedDoctor?.name
-      } on ${format(selectedDate!, "MMMM d, yyyy")} at ${selectedTime} is confirmed.`,
-    });
-    resetState();
+  const handleConfirmSchedule = async () => {
+    if (!selectedDoctor || !selectedDate || !selectedTime || !user) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Missing appointment details.' });
+        return;
+    }
+    
+    // In a real app, this would be an API call
+    try {
+        const token = localStorage.getItem('babyaura_token');
+        const response = await fetch('/api/parent/consultations', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({
+                parentId: user.userId,
+                doctorId: selectedDoctor.id,
+                date: format(selectedDate, 'yyyy-MM-dd'),
+                time: selectedTime,
+            })
+        });
+        if(!response.ok) throw new Error("Failed to book appointment.");
+
+         toast({
+          title: "Appointment Scheduled!",
+          description: `Your appointment with ${
+            selectedDoctor?.name
+          } on ${format(selectedDate!, "MMMM d, yyyy")} at ${selectedTime} is confirmed.`,
+        });
+        resetState();
+    } catch(err) {
+        toast({ variant: 'destructive', title: 'Booking Failed', description: 'Could not schedule your appointment. Please try again.' });
+    }
+
   };
 
   const resetState = () => {
@@ -190,7 +216,7 @@ export function ScheduleAppointmentDialog({ triggerButton }: ScheduleAppointment
                     />
                 </div>
                 <div>
-                    <p className="text-sm font-medium mb-2">Available Slots for {format(selectedDate!, "MMMM d")}</p>
+                    <p className="text-sm font-medium mb-2">Available Slots for {selectedDate ? format(selectedDate, "MMMM d") : '...'} </p>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         {availableTimeSlots.map((time) => (
                             <Button

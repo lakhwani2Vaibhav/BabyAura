@@ -1,3 +1,4 @@
+
 'use server';
 
 import clientPromise from "@/lib/mongodb";
@@ -18,6 +19,7 @@ let teamsCollection: Collection;
 let plansCollection: Collection;
 let subscriptionsCollection: Collection;
 let blogCollection: Collection;
+let appointmentsCollection: Collection;
 
 
 async function init() {
@@ -34,6 +36,7 @@ async function init() {
     plansCollection = db.collection('plans');
     subscriptionsCollection = db.collection('subscriptions');
     blogCollection = db.collection('blog_content');
+    appointmentsCollection = db.collection('appointments');
 
   } catch (error) {
     throw new Error('Failed to connect to the database.');
@@ -769,3 +772,53 @@ export const getAdminDashboardData = async (hospitalId: string) => {
         doctors: doctorsSnapshot,
     };
 };
+
+// Appointment Service
+export const createAppointment = async (appointmentData: any) => {
+    if (!db) await init();
+    const newAppointment = {
+        ...appointmentData,
+        _id: generateId('appt'),
+        status: 'Confirmed',
+        createdAt: new Date(),
+    };
+    
+    const result = await appointmentsCollection.insertOne(newAppointment);
+
+    const parent = await findParentById(appointmentData.parentId);
+    
+    // Notify the doctor
+    await createNotification({
+        userId: appointmentData.doctorId,
+        title: "New Appointment Booked",
+        description: `You have a new consultation with ${parent.name} on ${appointmentData.date} at ${appointmentData.time}.`,
+        href: "/doctor/dashboard"
+    });
+
+    return { ...newAppointment, _id: result.insertedId };
+};
+
+export const getUpcomingAppointments = async (userId: string, role: 'Parent' | 'Doctor') => {
+    if (!db) await init();
+    const query = {
+        appointmentDate: { $gte: new Date() }
+    };
+    if (role === 'Parent') {
+        query.parentId = userId;
+    } else {
+        query.doctorId = userId;
+    }
+    const appointments = await appointmentsCollection.find(query).sort({ appointmentDate: 1 }).toArray();
+
+    // Enrich with doctor/parent details
+    const enriched = Promise.all(appointments.map(async (appt) => {
+        if (role === 'Parent') {
+            const doctor = await findDoctorById(appt.doctorId);
+            return {...appt, doctorName: doctor?.name, doctorSpecialty: doctor?.specialty };
+        } else {
+            const parent = await findParentById(appt.parentId);
+            return {...appt, parentName: parent?.name, babyName: parent?.babyName };
+        }
+    }));
+    return enriched;
+}
