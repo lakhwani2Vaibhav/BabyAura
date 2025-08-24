@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -61,7 +62,7 @@ export function CareTeamMemberCard({ member }: CareTeamMemberCardProps) {
 
   const handleBookAppointment = () => {
     if (member.calendlyLink) {
-        window.open(member.calendlyLink, '_blank');
+        window.open(member.calendlyLink, '_blank', 'noopener,noreferrer');
     } else {
         toast({
             variant: "destructive",
