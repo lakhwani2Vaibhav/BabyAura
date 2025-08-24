@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -13,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Languages, Briefcase, FileText, CalendarPlus, History, MessageSquare, View } from "lucide-react";
+import { Languages, Briefcase, FileText, CalendarPlus, History, MessageSquare, View, ExternalLink } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -38,6 +37,7 @@ interface Member {
     name: string;
     type: string;
     avatarUrl: string;
+    calendlyLink?: string;
     languages: string[];
     experience: string;
     notes: string;
@@ -60,14 +60,19 @@ export function CareTeamMemberCard({ member }: CareTeamMemberCardProps) {
   };
 
   const handleBookAppointment = () => {
-    toast({
-        title: "Functionality Coming Soon",
-        description: "Booking new appointments directly from here will be enabled shortly."
-    })
+    if (member.calendlyLink) {
+        window.open(member.calendlyLink, '_blank');
+    } else {
+        toast({
+            variant: "destructive",
+            title: "Scheduling Unavailable",
+            description: `${member.name} has not set up their booking link yet.`
+        })
+    }
   }
 
   return (
-      <Card>
+      <Card className="flex flex-col">
         <CardHeader>
           <div className="flex items-center gap-4">
             <Avatar className="h-12 w-12">
@@ -80,7 +85,12 @@ export function CareTeamMemberCard({ member }: CareTeamMemberCardProps) {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="flex flex-col sm:flex-row gap-2">
+        <CardContent className="flex-grow">
+           <Button onClick={handleBookAppointment} className="w-full">
+                <CalendarPlus className="mr-2 h-4 w-4" /> Book Appointment
+            </Button>
+        </CardContent>
+        <CardFooter className="flex flex-col sm:flex-row gap-2">
              <Button variant="outline" className="w-full" asChild>
                 <Link href={`/parent/${member.id}/chat`}>
                     <MessageSquare className="mr-2 h-4 w-4" /> Start Chat
@@ -116,25 +126,20 @@ export function CareTeamMemberCard({ member }: CareTeamMemberCardProps) {
                             <div>
                                 <h4 className="font-semibold mb-2 flex items-center gap-2"><History className="h-4 w-4" /> Past Appointments</h4>
                                 <div className="space-y-2">
-                                    {member.pastAppointments.map(appt => (
+                                    {member.pastAppointments.length > 0 ? member.pastAppointments.map(appt => (
                                         <div key={appt.date} className="p-3 border rounded-md">
                                             <p className="font-semibold text-sm">{appt.date}</p>
                                             <p className="text-xs text-muted-foreground">{appt.notes}</p>
                                             {appt.prescription && <Badge className="mt-1" variant="secondary">{appt.prescription}</Badge>}
                                         </div>
-                                    ))}
+                                    )) : <p className="text-xs text-muted-foreground">No past appointments with this specialist.</p>}
                                 </div>
                             </div>
                         </div>
                     </ScrollArea>
-                    <DialogFooter className="pt-4">
-                        <Button onClick={handleBookAppointment} className="w-full">
-                            <CalendarPlus className="mr-2 h-4 w-4" /> Book New Appointment
-                        </Button>
-                    </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </CardContent>
+        </CardFooter>
       </Card>
   );
 }

@@ -1,4 +1,3 @@
-
 'use server';
 
 import { NextRequest, NextResponse } from "next/server";
@@ -51,12 +50,22 @@ export async function PUT(req: NextRequest) {
         }
 
         const body = await req.json();
-        const { name, specialty } = body;
-        if (!name || !specialty) {
-            return NextResponse.json({ message: "Name and specialty are required." }, { status: 400 });
+        
+        const allowedUpdates = ['name', 'specialty', 'calendlyLink'];
+        const updates: { [key: string]: any } = {};
+
+        for (const key of allowedUpdates) {
+            if (body[key] !== undefined) {
+                updates[key] = body[key];
+            }
+        }
+        
+        if (Object.keys(updates).length === 0) {
+            return NextResponse.json({ message: "No valid fields to update." }, { status: 400 });
         }
 
-        await updateDoctorProfile(doctor._id, { name, specialty });
+
+        await updateDoctorProfile(doctor._id, updates);
         
         const updatedDoctor = await findDoctorById(doctor._id);
         if (!updatedDoctor) throw new Error("Could not find updated doctor.");

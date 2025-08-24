@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from "next/server";
 import { addDays } from "date-fns";
 import { findParentById, findTeamById, findDoctorById } from "@/services/user-service";
@@ -63,17 +62,24 @@ export async function GET(req: NextRequest) {
     if (parent.teamId) {
         const team = await findTeamById(parent.teamId);
         if (team) {
-            careTeam = team.members.map((member: any) => ({
-                id: member.doctorId,
-                name: member.name,
-                type: member.role,
-                // These are mock details, in a real app you'd fetch them
-                avatarUrl: 'https://placehold.co/100x100.png',
-                languages: ['English', 'Hindi'],
-                experience: '10+ years',
-                notes: `Specializes in ${member.role}.`,
-                pastAppointments: []
-            }));
+            const memberDetails = await Promise.all(
+              team.members.map(async (member: any) => {
+                const doctor = await findDoctorById(member.doctorId);
+                return {
+                    id: member.doctorId,
+                    name: member.name,
+                    type: member.role,
+                    calendlyLink: doctor?.calendlyLink,
+                    // These are mock details, in a real app you'd fetch them
+                    avatarUrl: 'https://placehold.co/100x100.png',
+                    languages: ['English', 'Hindi'],
+                    experience: '10+ years',
+                    notes: `Specializes in ${member.role}.`,
+                    pastAppointments: []
+                };
+              })
+            );
+            careTeam = memberDetails;
         }
     } else if (parent.doctorId) {
         // Fallback for single doctor assignment if teams are not used
@@ -83,6 +89,7 @@ export async function GET(req: NextRequest) {
                 id: doctor._id,
                 name: doctor.name,
                 type: doctor.specialty,
+                calendlyLink: doctor.calendlyLink,
                 avatarUrl: 'https://placehold.co/100x100.png',
                 languages: ['English', 'Hindi'],
                 experience: '12 years',
