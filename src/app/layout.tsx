@@ -4,9 +4,22 @@ import { Toaster } from '@/components/ui/toaster';
 import { Providers } from '@/components/providers';
 
 export const metadata: Metadata = {
-  title: 'BabyAura',
+  title: 'BabyAura: Digital Postnatal & Baby Care Platform | India',
   description:
-    'A plug-and-play subscription-based infant e-care system used by hospitals to provide postnatal and early childhood digital care to parents.',
+    'BabyAura is a leading digital care ecosystem in India, connecting hospitals and parents for seamless postnatal and baby care. Get expert consultations, vaccination tracking, and 24/7 support with Aura Baby.',
+  keywords: [
+      'babyaura',
+      'baby aura',
+      'aura baby',
+      'postnatal care',
+      'infant care',
+      'digital health',
+      'pediatrician online',
+      'childcare platform',
+      'hospital e-care',
+      'newborn care India',
+      'telemedicine India'
+  ],
 };
 
 export default function RootLayout({
